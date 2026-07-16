@@ -36,7 +36,7 @@ export function GlobalSearch() {
         supabase.from("contacts").select("id,full_name,job_title,email").or(`full_name.ilike.${term},email.ilike.${term}`).limit(5),
         supabase.from("leads").select("id,company_name,contact_name,product_requested").or(`company_name.ilike.${term},contact_name.ilike.${term},product_requested.ilike.${term}`).limit(5),
         supabase.from("opportunities").select("id,name,stage").ilike("name", term).limit(5),
-        supabase.from("quotations").select("id,quotation_number,status").ilike("quotation_number", term).limit(5),
+        supabase.from("quotations").select("id,quote_number,status").ilike("quote_number", term).limit(5),
         supabase.from("orders").select("id,order_number,status").ilike("order_number", term).limit(5),
       ]);
       if (cancel) return;
@@ -45,8 +45,8 @@ export function GlobalSearch() {
       (contacts.data ?? []).forEach((c: any) => r.push({ id: c.id, title: c.full_name, subtitle: c.job_title || c.email || undefined, kind: "جهات الاتصال", path: `/contacts/${c.id}` }));
       (leads.data ?? []).forEach((l: any) => r.push({ id: l.id, title: l.company_name || l.contact_name || "ليد", subtitle: l.product_requested ?? undefined, kind: "العملاء المحتملون", path: "/leads" }));
       (opps.data ?? []).forEach((o: any) => r.push({ id: o.id, title: o.name, subtitle: o.stage, kind: "الفرص", path: "/opportunities" }));
-      (quotes.data ?? []).forEach((q2: any) => r.push({ id: q2.id, title: q2.quotation_number, subtitle: q2.status, kind: "عروض الأسعار", path: "/quotations" }));
-      (orders.data ?? []).forEach((o: any) => r.push({ id: o.id, title: o.order_number, subtitle: o.status, kind: "الطلبيات", path: "/orders" }));
+      (quotes.data ?? []).forEach((q2: any) => r.push({ id: q2.id, title: q2.quote_number, subtitle: q2.status, kind: "عروض الأسعار", path: "/quotations" }));
+      (orders.data ?? []).forEach((o: any) => r.push({ id: o.id, title: o.order_number, subtitle: o.status, kind: "الطلبيات", path: `/orders/${o.id}` }));
       setResults(r);
     }, 250);
     return () => { cancel = true; clearTimeout(t); };
