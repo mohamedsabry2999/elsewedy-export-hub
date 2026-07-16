@@ -564,6 +564,45 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          is_read: boolean
+          link: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          is_read?: boolean
+          link?: string | null
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          is_read?: boolean
+          link?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       opportunities: {
         Row: {
           amount: number | null
@@ -642,6 +681,44 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunity_stage_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          from_stage: Database["public"]["Enums"]["opportunity_stage"] | null
+          id: string
+          notes: string | null
+          opportunity_id: string
+          to_stage: Database["public"]["Enums"]["opportunity_stage"]
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          from_stage?: Database["public"]["Enums"]["opportunity_stage"] | null
+          id?: string
+          notes?: string | null
+          opportunity_id: string
+          to_stage: Database["public"]["Enums"]["opportunity_stage"]
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          from_stage?: Database["public"]["Enums"]["opportunity_stage"] | null
+          id?: string
+          notes?: string | null
+          opportunity_id?: string
+          to_stage?: Database["public"]["Enums"]["opportunity_stage"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_stage_history_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
             referencedColumns: ["id"]
           },
         ]
@@ -1464,6 +1541,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      compute_lead_score: {
+        Args: { _lead: Database["public"]["Tables"]["leads"]["Row"] }
+        Returns: number
+      }
       has_permission: {
         Args: { _code: string; _user_id: string }
         Returns: boolean
@@ -1476,6 +1557,18 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      notify_user: {
+        Args: {
+          _body?: string
+          _entity_id?: string
+          _entity_type?: string
+          _link?: string
+          _title: string
+          _type?: string
+          _user_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       activity_type:

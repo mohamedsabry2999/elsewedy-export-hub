@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -170,7 +170,7 @@ function Companies() {
                 {filtered.map((c) => (
                   <TableRow key={c.id}>
                     <TableCell>
-                      <div className="font-medium">{c.name_en}</div>
+                      <Link to="/companies/$id" params={{ id: c.id }} className="font-medium hover:underline">{c.name_en}</Link>
                       {c.name_ar && <div className="text-xs text-muted-foreground">{c.name_ar}</div>}
                     </TableCell>
                     <TableCell>{c.country || "—"}{c.city && <span className="text-muted-foreground text-xs"> · {c.city}</span>}</TableCell>

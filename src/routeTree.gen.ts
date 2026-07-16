@@ -34,6 +34,8 @@ import { Route as AuthenticatedCompaniesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
 import { Route as AuthenticatedAuditLogRouteImport } from './routes/_authenticated/audit-log'
 import { Route as AuthenticatedActivitiesRouteImport } from './routes/_authenticated/activities'
+import { Route as AuthenticatedContactsIdRouteImport } from './routes/_authenticated/contacts.$id'
+import { Route as AuthenticatedCompaniesIdRouteImport } from './routes/_authenticated/companies.$id'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -162,6 +164,17 @@ const AuthenticatedActivitiesRoute = AuthenticatedActivitiesRouteImport.update({
   path: '/activities',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedContactsIdRoute = AuthenticatedContactsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedContactsRoute,
+} as any)
+const AuthenticatedCompaniesIdRoute =
+  AuthenticatedCompaniesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedCompaniesRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -170,8 +183,8 @@ export interface FileRoutesByFullPath {
   '/activities': typeof AuthenticatedActivitiesRoute
   '/audit-log': typeof AuthenticatedAuditLogRoute
   '/calendar': typeof AuthenticatedCalendarRoute
-  '/companies': typeof AuthenticatedCompaniesRoute
-  '/contacts': typeof AuthenticatedContactsRoute
+  '/companies': typeof AuthenticatedCompaniesRouteWithChildren
+  '/contacts': typeof AuthenticatedContactsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exhibitions': typeof AuthenticatedExhibitionsRoute
   '/export-documents': typeof AuthenticatedExportDocumentsRoute
@@ -188,6 +201,8 @@ export interface FileRoutesByFullPath {
   '/shipments': typeof AuthenticatedShipmentsRoute
   '/tasks': typeof AuthenticatedTasksRoute
   '/users': typeof AuthenticatedUsersRoute
+  '/companies/$id': typeof AuthenticatedCompaniesIdRoute
+  '/contacts/$id': typeof AuthenticatedContactsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -196,8 +211,8 @@ export interface FileRoutesByTo {
   '/activities': typeof AuthenticatedActivitiesRoute
   '/audit-log': typeof AuthenticatedAuditLogRoute
   '/calendar': typeof AuthenticatedCalendarRoute
-  '/companies': typeof AuthenticatedCompaniesRoute
-  '/contacts': typeof AuthenticatedContactsRoute
+  '/companies': typeof AuthenticatedCompaniesRouteWithChildren
+  '/contacts': typeof AuthenticatedContactsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exhibitions': typeof AuthenticatedExhibitionsRoute
   '/export-documents': typeof AuthenticatedExportDocumentsRoute
@@ -214,6 +229,8 @@ export interface FileRoutesByTo {
   '/shipments': typeof AuthenticatedShipmentsRoute
   '/tasks': typeof AuthenticatedTasksRoute
   '/users': typeof AuthenticatedUsersRoute
+  '/companies/$id': typeof AuthenticatedCompaniesIdRoute
+  '/contacts/$id': typeof AuthenticatedContactsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -224,8 +241,8 @@ export interface FileRoutesById {
   '/_authenticated/activities': typeof AuthenticatedActivitiesRoute
   '/_authenticated/audit-log': typeof AuthenticatedAuditLogRoute
   '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
-  '/_authenticated/companies': typeof AuthenticatedCompaniesRoute
-  '/_authenticated/contacts': typeof AuthenticatedContactsRoute
+  '/_authenticated/companies': typeof AuthenticatedCompaniesRouteWithChildren
+  '/_authenticated/contacts': typeof AuthenticatedContactsRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/exhibitions': typeof AuthenticatedExhibitionsRoute
   '/_authenticated/export-documents': typeof AuthenticatedExportDocumentsRoute
@@ -242,6 +259,8 @@ export interface FileRoutesById {
   '/_authenticated/shipments': typeof AuthenticatedShipmentsRoute
   '/_authenticated/tasks': typeof AuthenticatedTasksRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
+  '/_authenticated/companies/$id': typeof AuthenticatedCompaniesIdRoute
+  '/_authenticated/contacts/$id': typeof AuthenticatedContactsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -270,6 +289,8 @@ export interface FileRouteTypes {
     | '/shipments'
     | '/tasks'
     | '/users'
+    | '/companies/$id'
+    | '/contacts/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -296,6 +317,8 @@ export interface FileRouteTypes {
     | '/shipments'
     | '/tasks'
     | '/users'
+    | '/companies/$id'
+    | '/contacts/$id'
   id:
     | '__root__'
     | '/'
@@ -323,6 +346,8 @@ export interface FileRouteTypes {
     | '/_authenticated/shipments'
     | '/_authenticated/tasks'
     | '/_authenticated/users'
+    | '/_authenticated/companies/$id'
+    | '/_authenticated/contacts/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -509,15 +534,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedActivitiesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/contacts/$id': {
+      id: '/_authenticated/contacts/$id'
+      path: '/$id'
+      fullPath: '/contacts/$id'
+      preLoaderRoute: typeof AuthenticatedContactsIdRouteImport
+      parentRoute: typeof AuthenticatedContactsRoute
+    }
+    '/_authenticated/companies/$id': {
+      id: '/_authenticated/companies/$id'
+      path: '/$id'
+      fullPath: '/companies/$id'
+      preLoaderRoute: typeof AuthenticatedCompaniesIdRouteImport
+      parentRoute: typeof AuthenticatedCompaniesRoute
+    }
   }
 }
+
+interface AuthenticatedCompaniesRouteChildren {
+  AuthenticatedCompaniesIdRoute: typeof AuthenticatedCompaniesIdRoute
+}
+
+const AuthenticatedCompaniesRouteChildren: AuthenticatedCompaniesRouteChildren =
+  {
+    AuthenticatedCompaniesIdRoute: AuthenticatedCompaniesIdRoute,
+  }
+
+const AuthenticatedCompaniesRouteWithChildren =
+  AuthenticatedCompaniesRoute._addFileChildren(
+    AuthenticatedCompaniesRouteChildren,
+  )
+
+interface AuthenticatedContactsRouteChildren {
+  AuthenticatedContactsIdRoute: typeof AuthenticatedContactsIdRoute
+}
+
+const AuthenticatedContactsRouteChildren: AuthenticatedContactsRouteChildren = {
+  AuthenticatedContactsIdRoute: AuthenticatedContactsIdRoute,
+}
+
+const AuthenticatedContactsRouteWithChildren =
+  AuthenticatedContactsRoute._addFileChildren(
+    AuthenticatedContactsRouteChildren,
+  )
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedActivitiesRoute: typeof AuthenticatedActivitiesRoute
   AuthenticatedAuditLogRoute: typeof AuthenticatedAuditLogRoute
   AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
-  AuthenticatedCompaniesRoute: typeof AuthenticatedCompaniesRoute
-  AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
+  AuthenticatedCompaniesRoute: typeof AuthenticatedCompaniesRouteWithChildren
+  AuthenticatedContactsRoute: typeof AuthenticatedContactsRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedExhibitionsRoute: typeof AuthenticatedExhibitionsRoute
   AuthenticatedExportDocumentsRoute: typeof AuthenticatedExportDocumentsRoute
@@ -540,8 +606,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedActivitiesRoute: AuthenticatedActivitiesRoute,
   AuthenticatedAuditLogRoute: AuthenticatedAuditLogRoute,
   AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
-  AuthenticatedCompaniesRoute: AuthenticatedCompaniesRoute,
-  AuthenticatedContactsRoute: AuthenticatedContactsRoute,
+  AuthenticatedCompaniesRoute: AuthenticatedCompaniesRouteWithChildren,
+  AuthenticatedContactsRoute: AuthenticatedContactsRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedExhibitionsRoute: AuthenticatedExhibitionsRoute,
   AuthenticatedExportDocumentsRoute: AuthenticatedExportDocumentsRoute,

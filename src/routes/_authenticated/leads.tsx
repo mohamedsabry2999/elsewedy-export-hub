@@ -13,7 +13,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Search, Sparkles, Trash2, Edit, Flame } from "lucide-react";
+import { Plus, Search, Sparkles, Trash2, Edit, Flame, Zap } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -50,6 +51,7 @@ const STATUSES = [
 function Leads() {
   const qc = useQueryClient();
   const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [tempFilter, setTempFilter] = useState("all");
@@ -122,6 +124,26 @@ function Leads() {
     qc.invalidateQueries({ queryKey: ["leads"] });
     qc.invalidateQueries({ queryKey: ["dashboard-stats"] });
   };
+  const convert = async (l: Lead) => {
+    if (!user) return;
+    const name = `${l.company_name ?? l.contact_name ?? "فرصة"} - ${l.product_requested ?? ""}`.trim();
+    const { data: opp, error } = await supabase.from("opportunities").insert({
+      name, stage: "qualified",
+      amount: l.expected_value ?? 0,
+      currency: l.currency ?? "USD",
+      probability: l.probability ?? 30,
+      company_id: l.company_id,
+      lead_id: l.id,
+      owner_id: l.owner_id ?? user.id,
+      created_by: user.id,
+    }).select("id").single();
+    if (error) { toast.error(error.message); return; }
+    await supabase.from("leads").update({ status: "qualified" }).eq("id", l.id);
+    toast.success("تم تحويل الليد إلى فرصة");
+    qc.invalidateQueries({ queryKey: ["leads"] });
+    qc.invalidateQueries({ queryKey: ["opportunities"] });
+    if (opp) navigate({ to: "/opportunities" });
+  };
 
   return (
     <div>
@@ -190,7 +212,10 @@ function Leads() {
                     <TableCell><StatusBadge s={l.status} /></TableCell>
                     <TableCell className="text-left">
                       <div className="flex gap-1">
-                        <Button size="icon" variant="ghost" onClick={()=>openEdit(l)}><Edit className="w-4 h-4" /></Button>
+                        <Button size="icon" variant="ghost" onClick={()=>openEdit(l)} title="تعديل"><Edit className="w-4 h-4" /></Button>
+                        {l.status !== "won" && l.status !== "lost" && (
+                          <Button size="icon" variant="ghost" onClick={()=>convert(l)} title="تحويل إلى فرصة" className="text-primary"><Zap className="w-4 h-4" /></Button>
+                        )}
                         {isAdmin && (
                           <AlertDialog>
                             <AlertDialogTrigger asChild><Button size="icon" variant="ghost" className="text-destructive"><Trash2 className="w-4 h-4" /></Button></AlertDialogTrigger>
