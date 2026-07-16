@@ -248,7 +248,7 @@ export function CrudPage<T extends { id: string }>({
             <EmptyState
               title={q ? "لا توجد نتائج" : `لا توجد بيانات بعد`}
               description={q ? "جرّب تعديل مصطلح البحث." : "ابدأ بإضافة أول عنصر لهذه القائمة."}
-              action={q ? undefined : { label: addLabel, onClick: openNew, icon: Plus }}
+              action={q || !canCreate ? undefined : { label: addLabel, onClick: openNew, icon: Plus }}
             />
           ) : (
             <div className="overflow-x-auto">
@@ -273,8 +273,10 @@ export function CrudPage<T extends { id: string }>({
                       ))}
                       <TableCell className="text-left">
                         <div className="flex gap-1">
-                          <Button size="icon" variant="ghost" onClick={() => openEdit(r)}><Edit className="w-4 h-4" /></Button>
-                          {isAdmin && (
+                          {canEdit && (
+                            <Button size="icon" variant="ghost" onClick={() => openEdit(r)}><Edit className="w-4 h-4" /></Button>
+                          )}
+                          {canDelete && (
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button size="icon" variant="ghost" className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
