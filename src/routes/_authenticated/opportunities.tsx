@@ -125,7 +125,7 @@ function Opportunities() {
     qc.invalidateQueries({ queryKey: ["opportunities"] });
   };
   const moveTo = async (id: string, stage: string) => {
-    const { error } = await supabase.from("opportunities").update({ stage }).eq("id", id);
+    const { error } = await supabase.from("opportunities").update({ stage: stage as any }).eq("id", id);
     if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["opportunities"] });
   };
