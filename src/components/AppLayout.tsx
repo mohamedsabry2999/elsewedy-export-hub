@@ -42,8 +42,12 @@ export function AppLayout({ children }: { children: ReactNode }) {
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-14 border-b bg-card flex items-center gap-2 px-3 md:px-4 sticky top-0 z-10">
+          <header className="h-14 border-b bg-card flex items-center gap-2 px-3 md:px-4 sticky top-0 z-10 backdrop-blur">
             <SidebarTrigger />
+            <Link to="/dashboard" className="hidden md:flex items-center gap-2 shrink-0" aria-label="الصفحة الرئيسية">
+              <Logo variant="full" className="h-7" />
+            </Link>
+            <div className="w-px h-6 bg-border hidden md:block" />
             <div className="flex-1 min-w-0 max-w-md">
               <GlobalSearch />
             </div>
