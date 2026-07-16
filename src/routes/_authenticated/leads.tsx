@@ -124,6 +124,26 @@ function Leads() {
     qc.invalidateQueries({ queryKey: ["leads"] });
     qc.invalidateQueries({ queryKey: ["dashboard-stats"] });
   };
+  const convert = async (l: Lead) => {
+    if (!user) return;
+    const name = `${l.company_name ?? l.contact_name ?? "فرصة"} - ${l.product_requested ?? ""}`.trim();
+    const { data: opp, error } = await supabase.from("opportunities").insert({
+      name, stage: "qualified",
+      amount: l.expected_value ?? 0,
+      currency: l.currency ?? "USD",
+      probability: l.probability ?? 30,
+      company_id: l.company_id,
+      lead_id: l.id,
+      owner_id: l.owner_id ?? user.id,
+      created_by: user.id,
+    }).select("id").single();
+    if (error) { toast.error(error.message); return; }
+    await supabase.from("leads").update({ status: "qualified" }).eq("id", l.id);
+    toast.success("تم تحويل الليد إلى فرصة");
+    qc.invalidateQueries({ queryKey: ["leads"] });
+    qc.invalidateQueries({ queryKey: ["opportunities"] });
+    if (opp) navigate({ to: "/opportunities" });
+  };
 
   return (
     <div>
