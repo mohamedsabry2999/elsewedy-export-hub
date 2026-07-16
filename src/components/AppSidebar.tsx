@@ -1,9 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Building2, Users, Contact2, Sparkles, Settings2, Package,
+  LayoutDashboard, Building2, Users, Contact2, Sparkles, Settings2,
   Target, CheckSquare, FileText, Activity, ShieldCheck, Beaker, ShoppingCart,
   Ship, Wallet, FileCheck2, CalendarDays, BarChart3, Store, UserCircle, KeyRound, Boxes,
-
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -11,6 +10,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { Logo } from "./Logo";
 
 const salesNav = [
   { title: "لوحة التحكم", url: "/dashboard", icon: LayoutDashboard },
