@@ -6,31 +6,38 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, DollarSign, Target, Ship, Wallet, Users, Award, AlertTriangle } from "lucide-react";
+import {
+  ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
+  BarChart, Bar, PieChart, Pie, Cell, Legend,
+} from "recharts";
 
 export const Route = createFileRoute("/_authenticated/reports")({ ssr: false, component: Reports });
+
+const COLORS = ["#b48d42", "#3b82f6", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#ec4899"];
 
 function Reports() {
   const { data, isLoading } = useQuery({
     queryKey: ["reports-all"],
     queryFn: async () => {
-      const [opps, orders, payments, shipments, leads, samples] = await Promise.all([
+      const [opps, orders, payments, shipments, leads, samples, companies] = await Promise.all([
         supabase.from("opportunities").select("stage,amount,currency,expected_close_date,created_at"),
-        supabase.from("orders").select("status,total,paid_amount,currency,order_date"),
-        supabase.from("payments").select("status,amount,currency,due_date,paid_at"),
-        supabase.from("shipments").select("status,destination_country,freight_cost"),
+        supabase.from("orders").select("id,order_number,company_id,status,total,paid_amount,currency,order_date"),
+        supabase.from("payments").select("status,amount,currency,due_date,paid_at,order_id"),
+        supabase.from("shipments").select("status,destination_country,freight_cost,shipped_at"),
         supabase.from("leads").select("source,status,country,temperature,expected_value"),
         supabase.from("samples").select("status"),
+        supabase.from("companies").select("id,name_en,country"),
       ]);
       return {
         opps: opps.data ?? [], orders: orders.data ?? [], payments: payments.data ?? [],
         shipments: shipments.data ?? [], leads: leads.data ?? [], samples: samples.data ?? [],
+        companies: companies.data ?? [],
       };
     },
   });
 
   if (isLoading || !data) return <div><PageHeader title="التقارير" /><Skeleton className="h-96 w-full" /></div>;
 
-  const pipelineByStage = groupSum(data.opps, "stage", "amount");
   const wonAmount = (data.opps as any[]).filter(o => o.stage === "won").reduce((a, o) => a + Number(o.amount || 0), 0);
   const lostAmount = (data.opps as any[]).filter(o => o.stage === "lost").reduce((a, o) => a + Number(o.amount || 0), 0);
   const winRate = (wonAmount + lostAmount) > 0 ? (wonAmount / (wonAmount + lostAmount)) * 100 : 0;
@@ -39,20 +46,50 @@ function Reports() {
   const totalPaid = (data.orders as any[]).reduce((a, o) => a + Number(o.paid_amount || 0), 0);
   const outstanding = totalRevenue - totalPaid;
 
-  const overduePayments = (data.payments as any[]).filter(p => {
-    return p.status !== "paid" && p.due_date && new Date(p.due_date) < new Date();
-  });
+  const overduePayments = (data.payments as any[]).filter(p => p.status !== "paid" && p.due_date && new Date(p.due_date) < new Date());
   const overdueAmount = overduePayments.reduce((a, p) => a + Number(p.amount || 0), 0);
 
-  const leadsBySource = groupCount(data.leads, "source");
-  const leadsByCountry = groupCount(data.leads, "country");
-  const shipmentsByCountry = groupCount(data.shipments, "destination_country");
-  const ordersByStatus = groupCount(data.orders, "status");
-  const samplesByStatus = groupCount(data.samples, "status");
+  // Monthly revenue trend (last 12 months)
+  const monthly = new Map<string, { month: string; revenue: number; paid: number }>();
+  const now = new Date();
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    monthly.set(key, { month: key, revenue: 0, paid: 0 });
+  }
+  for (const o of data.orders as any[]) {
+    if (!o.order_date) continue;
+    const d = new Date(o.order_date);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const m = monthly.get(key);
+    if (m) { m.revenue += Number(o.total || 0); m.paid += Number(o.paid_amount || 0); }
+  }
+  const trendData = [...monthly.values()];
+
+  // Top companies by revenue
+  const compMap = new Map((data.companies as any[]).map(c => [c.id, c]));
+  const byCompany = new Map<string, number>();
+  for (const o of data.orders as any[]) {
+    if (!o.company_id) continue;
+    byCompany.set(o.company_id, (byCompany.get(o.company_id) ?? 0) + Number(o.total || 0));
+  }
+  const topCompanies = [...byCompany.entries()]
+    .map(([id, v]) => ({ name: (compMap.get(id) as any)?.name_en ?? "—", value: v }))
+    .sort((a, b) => b.value - a.value).slice(0, 8);
+
+  // Pipeline by stage
+  const stageAgg = new Map<string, number>();
+  for (const o of data.opps as any[]) stageAgg.set(o.stage ?? "—", (stageAgg.get(o.stage ?? "—") ?? 0) + Number(o.amount || 0));
+  const pipelineData = [...stageAgg.entries()].map(([name, value]) => ({ name, value }));
+
+  // Shipments by destination
+  const destAgg = new Map<string, number>();
+  for (const s of data.shipments as any[]) destAgg.set(s.destination_country ?? "—", (destAgg.get(s.destination_country ?? "—") ?? 0) + 1);
+  const destData = [...destAgg.entries()].map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 8);
 
   return (
     <div>
-      <PageHeader title="التقارير والتحليلات" subtitle="ملخص أداء التصدير" />
+      <PageHeader title="التقارير التنفيذية" subtitle="ملخص أداء التصدير" />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <Kpi icon={Target} label="حجم الـ Pipeline" value={sum(data.opps, "amount").toLocaleString()} color="text-blue-500" />
@@ -65,17 +102,97 @@ function Reports() {
         <Kpi icon={Users} label="عدد الليدز" value={data.leads.length.toString()} color="text-amber-500" />
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4 mb-4">
-        <Section title="Pipeline حسب المرحلة" items={pipelineByStage} format={(v) => v.toLocaleString()} />
-        <Section title="الطلبيات حسب الحالة" items={ordersByStatus} />
-        <Section title="الليدز حسب المصدر" items={leadsBySource} />
-        <Section title="الليدز حسب الدولة" items={leadsByCountry} />
-        <Section title="الشحنات حسب الوجهة" items={shipmentsByCountry} />
-        <Section title="العينات حسب الحالة" items={samplesByStatus} />
+      <div className="grid lg:grid-cols-2 gap-4 mb-4">
+        <Card><CardHeader><CardTitle className="text-sm">اتجاه الإيرادات (آخر 12 شهر)</CardTitle></CardHeader>
+          <CardContent className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={trendData}>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                <XAxis dataKey="month" style={{ fontSize: 10 }} />
+                <YAxis style={{ fontSize: 10 }} />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="revenue" name="الطلبيات" stroke="#b48d42" strokeWidth={2} />
+                <Line type="monotone" dataKey="paid" name="المحصّل" stroke="#22c55e" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card><CardHeader><CardTitle className="text-sm">أفضل العملاء</CardTitle></CardHeader>
+          <CardContent className="h-72">
+            {topCompanies.length === 0 ? <Empty /> : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={topCompanies} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                  <XAxis type="number" style={{ fontSize: 10 }} />
+                  <YAxis type="category" dataKey="name" width={120} style={{ fontSize: 10 }} />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#b48d42" />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card><CardHeader><CardTitle className="text-sm">Pipeline حسب المرحلة</CardTitle></CardHeader>
+          <CardContent className="h-72">
+            {pipelineData.length === 0 ? <Empty /> : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={pipelineData} dataKey="value" nameKey="name" outerRadius={90} label>
+                    {pipelineData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card><CardHeader><CardTitle className="text-sm">الشحنات حسب الوجهة</CardTitle></CardHeader>
+          <CardContent className="h-72">
+            {destData.length === 0 ? <Empty /> : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={destData}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                  <XAxis dataKey="name" style={{ fontSize: 10 }} />
+                  <YAxis style={{ fontSize: 10 }} allowDecimals={false} />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#3b82f6" />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
       </div>
+
+      <Card>
+        <CardHeader><CardTitle className="text-sm">المدفوعات المتأخرة</CardTitle></CardHeader>
+        <CardContent>
+          {overduePayments.length === 0 ? (
+            <div className="text-sm text-muted-foreground text-center py-4">لا توجد دفعات متأخرة 🎉</div>
+          ) : (
+            <div className="space-y-2">
+              {overduePayments.slice(0, 10).map((p: any, i: number) => (
+                <div key={i} className="flex items-center justify-between p-2 rounded border border-destructive/20 bg-destructive/5">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-destructive" />
+                    <span className="text-sm">استحقاق: {p.due_date}</span>
+                  </div>
+                  <Badge variant="outline" className="font-mono text-destructive">{Number(p.amount).toLocaleString()} {p.currency}</Badge>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
+
+function Empty() { return <div className="h-full flex items-center justify-center text-xs text-muted-foreground">لا توجد بيانات كافية</div>; }
 
 function Kpi({ icon: Icon, label, value, color, sub }: any) {
   return (
@@ -89,42 +206,6 @@ function Kpi({ icon: Icon, label, value, color, sub }: any) {
   );
 }
 
-function Section({ title, items, format }: { title: string; items: [string, number][]; format?: (v: number) => string }) {
-  const max = Math.max(1, ...items.map(([, v]) => v));
-  return (
-    <Card>
-      <CardHeader className="pb-2"><CardTitle className="text-sm">{title}</CardTitle></CardHeader>
-      <CardContent>
-        {items.length === 0 ? <div className="text-xs text-muted-foreground">لا توجد بيانات</div> : (
-          <div className="space-y-2">
-            {items.map(([k, v]) => (
-              <div key={k}>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="truncate">{k || "—"}</span>
-                  <Badge variant="outline" className="font-mono text-[10px]">{format ? format(v) : v}</Badge>
-                </div>
-                <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                  <div className="h-full bg-primary" style={{ width: `${(v / max) * 100}%` }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
 function sum(arr: any[], field: string) {
   return arr.reduce((a, r) => a + Number(r[field] || 0), 0);
-}
-function groupSum(arr: any[], key: string, valueField: string): [string, number][] {
-  const m = new Map<string, number>();
-  for (const r of arr) m.set(r[key] ?? "—", (m.get(r[key] ?? "—") ?? 0) + Number(r[valueField] || 0));
-  return [...m.entries()].sort((a, b) => b[1] - a[1]);
-}
-function groupCount(arr: any[], key: string): [string, number][] {
-  const m = new Map<string, number>();
-  for (const r of arr) m.set(r[key] ?? "—", (m.get(r[key] ?? "—") ?? 0) + 1);
-  return [...m.entries()].sort((a, b) => b[1] - a[1]);
 }
