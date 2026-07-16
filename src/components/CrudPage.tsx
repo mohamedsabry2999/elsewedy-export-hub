@@ -133,10 +133,94 @@ export function CrudPage<T extends { id: string }>({
     qc.invalidateQueries({ queryKey: [table] });
   };
 
+  const bulkDelete = async () => {
+    const ids = Array.from(selected);
+    if (!ids.length) return;
+    const { error } = await (supabase as any).from(table).delete().in("id", ids);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`تم حذف ${ids.length} عنصر`);
+    setSelected(new Set());
+    qc.invalidateQueries({ queryKey: [table] });
+  };
+
+  const exportCSV = () => {
+    const src = selected.size > 0 ? filtered.filter((r: any) => selected.has(r.id)) : filtered;
+    if (!src.length) { toast.error("لا توجد بيانات للتصدير"); return; }
+    const cols = Array.from(new Set(src.flatMap((r: any) => Object.keys(r))));
+    downloadCSV(`${table}-${new Date().toISOString().slice(0,10)}.csv`, toCSV(src as any, cols));
+    toast.success(`تم تصدير ${src.length} صف`);
+  };
+
+  const importCSV = async (file: File) => {
+    setImporting(true);
+    try {
+      const text = await file.text();
+      const rows = parseCSV(text);
+      if (!rows.length) { toast.error("الملف فارغ"); return; }
+      const fieldNames = new Set(fields.map(f => f.name));
+      const payload = rows.map(r => {
+        const o: any = { created_by: user?.id };
+        if (ownedFields) o.owner_id = user?.id;
+        for (const [k, v] of Object.entries(r)) {
+          if (!fieldNames.has(k)) continue;
+          if (v === "" || v == null) continue;
+          const fd = fields.find(f => f.name === k);
+          o[k] = fd?.type === "number" ? Number(v) : v;
+        }
+        return o;
+      });
+      const { error } = await (supabase as any).from(table).insert(payload);
+      if (error) { toast.error(error.message); return; }
+      toast.success(`تم استيراد ${payload.length} صف`);
+      qc.invalidateQueries({ queryKey: [table] });
+    } catch (e: any) {
+      toast.error(e.message || "فشل الاستيراد");
+    } finally {
+      setImporting(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  const allSelected = filtered.length > 0 && filtered.every((r: any) => selected.has(r.id));
+  const toggleAll = () => {
+    if (allSelected) setSelected(new Set());
+    else setSelected(new Set(filtered.map((r: any) => r.id)));
+  };
+  const toggleRow = (id: string) => {
+    const n = new Set(selected);
+    n.has(id) ? n.delete(id) : n.add(id);
+    setSelected(n);
+  };
+
   return (
     <div>
-      <PageHeader title={title} subtitle={`${filtered.length}`}
-        actions={<Button onClick={openNew}><Plus className="w-4 h-4" /> {addLabel}</Button>} />
+      <PageHeader title={title} subtitle={`${filtered.length}${selected.size ? ` — محدد: ${selected.size}` : ""}`}
+        actions={
+          <div className="flex gap-2 flex-wrap">
+            <input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden"
+              onChange={e => e.target.files?.[0] && importCSV(e.target.files[0])} />
+            <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={importing}>
+              <Upload className="w-4 h-4" /> {importing ? "جارٍ..." : "استيراد CSV"}
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportCSV}>
+              <Download className="w-4 h-4" /> تصدير CSV
+            </Button>
+            {isAdmin && selected.size > 0 && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm"><Trash2 className="w-4 h-4" /> حذف ({selected.size})</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader><AlertDialogTitle>حذف {selected.size} عنصر؟</AlertDialogTitle>
+                    <AlertDialogDescription>لا يمكن التراجع.</AlertDialogDescription></AlertDialogHeader>
+                  <AlertDialogFooter><AlertDialogCancel>إلغاء</AlertDialogCancel>
+                    <AlertDialogAction onClick={bulkDelete} className="bg-destructive">حذف الكل</AlertDialogAction></AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            <Button onClick={openNew}><Plus className="w-4 h-4" /> {addLabel}</Button>
+          </div>
+        } />
 
       {searchable.length > 0 && (
         <Card className="mb-4"><CardContent className="pt-4">
@@ -159,12 +243,18 @@ export function CrudPage<T extends { id: string }>({
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader><TableRow>
+                  <TableHead className="w-10">
+                    <Checkbox checked={allSelected} onCheckedChange={toggleAll} />
+                  </TableHead>
                   {columns.map(c => <TableHead key={String(c.key)} className={c.className}>{c.header}</TableHead>)}
                   <TableHead className="text-left">إجراءات</TableHead>
                 </TableRow></TableHeader>
                 <TableBody>
                   {filtered.map(r => (
-                    <TableRow key={r.id}>
+                    <TableRow key={r.id} data-state={selected.has(r.id) ? "selected" : undefined}>
+                      <TableCell>
+                        <Checkbox checked={selected.has(r.id)} onCheckedChange={() => toggleRow(r.id)} />
+                      </TableCell>
                       {columns.map(c => (
                         <TableCell key={String(c.key)} className={c.className}>
                           {c.render ? c.render(r) : ((r as any)[c.key] ?? "—")}
@@ -195,6 +285,7 @@ export function CrudPage<T extends { id: string }>({
             </div>
           )}
       </CardContent></Card>
+
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
