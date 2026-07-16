@@ -22,25 +22,34 @@ function AuthPage() {
   const [remember, setRemember] = useState(true);
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"login" | "forgot">("login");
-  const [needsBootstrap, setNeedsBootstrap] = useState(false);
-  const [bootstrapping, setBootstrapping] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) navigate({ to: "/dashboard" });
-    });
-    // Check whether any profiles exist (bootstrap first admin)
-    supabase.from("profiles").select("id", { count: "exact", head: true }).then(({ count }) => {
-      setNeedsBootstrap((count ?? 0) === 0);
     });
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      setLoading(false);
+      toast.error(error.message);
+      return;
+    }
+    // Enforce is_active
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("is_active")
+      .eq("id", data.user!.id)
+      .maybeSingle();
     setLoading(false);
-    if (error) { toast.error(error.message); return; }
+    if (prof && prof.is_active === false) {
+      await supabase.auth.signOut();
+      toast.error("الحساب موقوف. تواصل مع مسؤول النظام.");
+      return;
+    }
     toast.success("تم تسجيل الدخول");
     navigate({ to: "/dashboard" });
   };
@@ -54,24 +63,6 @@ function AuthPage() {
     setLoading(false);
     if (error) toast.error(error.message);
     else toast.success("تم إرسال رابط إعادة تعيين كلمة المرور");
-  };
-
-  const bootstrapOwner = async () => {
-    if (!email || password.length < 6) {
-      toast.error("أدخل البريد وكلمة مرور 6 أحرف على الأقل");
-      return;
-    }
-    setBootstrapping(true);
-    const { error } = await supabase.auth.signUp({
-      email, password,
-      options: { emailRedirectTo: window.location.origin },
-    });
-    setBootstrapping(false);
-    if (error) { toast.error(error.message); return; }
-    toast.success("تم إنشاء حساب مالك النظام. جاري تسجيل الدخول...");
-    const { error: e2 } = await supabase.auth.signInWithPassword({ email, password });
-    if (e2) toast.error(e2.message);
-    else navigate({ to: "/dashboard" });
   };
 
   return (
@@ -117,20 +108,9 @@ function AuthPage() {
                   {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                   تسجيل الدخول
                 </Button>
-
-                {needsBootstrap && (
-                  <div className="mt-4 p-3 rounded-lg bg-gold/10 border border-gold/30 text-sm">
-                    <p className="font-semibold text-primary mb-2">إعداد أولي — لا يوجد مستخدمون بعد</p>
-                    <p className="text-muted-foreground mb-3">
-                      املأ البريد وكلمة المرور أعلاه ثم اضغط لإنشاء حساب مالك النظام (يتم مرة واحدة فقط).
-                    </p>
-                    <Button type="button" variant="outline" className="w-full border-gold text-primary"
-                      disabled={bootstrapping} onClick={bootstrapOwner}>
-                      {bootstrapping && <Loader2 className="w-4 h-4 animate-spin" />}
-                      إنشاء حساب مالك النظام
-                    </Button>
-                  </div>
-                )}
+                <p className="text-xs text-center text-muted-foreground pt-2">
+                  الدخول مقتصر على المستخدمين المُضافين من قِبل مسؤول النظام.
+                </p>
               </form>
             ) : (
               <form onSubmit={handleForgot} className="space-y-4">
