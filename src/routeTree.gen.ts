@@ -35,6 +35,7 @@ import { Route as AuthenticatedCompaniesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
 import { Route as AuthenticatedAuditLogRouteImport } from './routes/_authenticated/audit-log'
 import { Route as AuthenticatedActivitiesRouteImport } from './routes/_authenticated/activities'
+import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticated/orders.$id'
 import { Route as AuthenticatedContactsIdRouteImport } from './routes/_authenticated/contacts.$id'
 import { Route as AuthenticatedCompaniesIdRouteImport } from './routes/_authenticated/companies.$id'
 
@@ -170,6 +171,11 @@ const AuthenticatedActivitiesRoute = AuthenticatedActivitiesRouteImport.update({
   path: '/activities',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedOrdersIdRoute = AuthenticatedOrdersIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedOrdersRoute,
+} as any)
 const AuthenticatedContactsIdRoute = AuthenticatedContactsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -196,7 +202,7 @@ export interface FileRoutesByFullPath {
   '/export-documents': typeof AuthenticatedExportDocumentsRoute
   '/leads': typeof AuthenticatedLeadsRoute
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
-  '/orders': typeof AuthenticatedOrdersRoute
+  '/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/payments': typeof AuthenticatedPaymentsRoute
   '/products': typeof AuthenticatedProductsRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -210,6 +216,7 @@ export interface FileRoutesByFullPath {
   '/users': typeof AuthenticatedUsersRoute
   '/companies/$id': typeof AuthenticatedCompaniesIdRoute
   '/contacts/$id': typeof AuthenticatedContactsIdRoute
+  '/orders/$id': typeof AuthenticatedOrdersIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -225,7 +232,7 @@ export interface FileRoutesByTo {
   '/export-documents': typeof AuthenticatedExportDocumentsRoute
   '/leads': typeof AuthenticatedLeadsRoute
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
-  '/orders': typeof AuthenticatedOrdersRoute
+  '/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/payments': typeof AuthenticatedPaymentsRoute
   '/products': typeof AuthenticatedProductsRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -239,6 +246,7 @@ export interface FileRoutesByTo {
   '/users': typeof AuthenticatedUsersRoute
   '/companies/$id': typeof AuthenticatedCompaniesIdRoute
   '/contacts/$id': typeof AuthenticatedContactsIdRoute
+  '/orders/$id': typeof AuthenticatedOrdersIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -256,7 +264,7 @@ export interface FileRoutesById {
   '/_authenticated/export-documents': typeof AuthenticatedExportDocumentsRoute
   '/_authenticated/leads': typeof AuthenticatedLeadsRoute
   '/_authenticated/opportunities': typeof AuthenticatedOpportunitiesRoute
-  '/_authenticated/orders': typeof AuthenticatedOrdersRoute
+  '/_authenticated/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
@@ -270,6 +278,7 @@ export interface FileRoutesById {
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/_authenticated/companies/$id': typeof AuthenticatedCompaniesIdRoute
   '/_authenticated/contacts/$id': typeof AuthenticatedContactsIdRoute
+  '/_authenticated/orders/$id': typeof AuthenticatedOrdersIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -301,6 +310,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/companies/$id'
     | '/contacts/$id'
+    | '/orders/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -330,6 +340,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/companies/$id'
     | '/contacts/$id'
+    | '/orders/$id'
   id:
     | '__root__'
     | '/'
@@ -360,6 +371,7 @@ export interface FileRouteTypes {
     | '/_authenticated/users'
     | '/_authenticated/companies/$id'
     | '/_authenticated/contacts/$id'
+    | '/_authenticated/orders/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -553,6 +565,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedActivitiesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/orders/$id': {
+      id: '/_authenticated/orders/$id'
+      path: '/$id'
+      fullPath: '/orders/$id'
+      preLoaderRoute: typeof AuthenticatedOrdersIdRouteImport
+      parentRoute: typeof AuthenticatedOrdersRoute
+    }
     '/_authenticated/contacts/$id': {
       id: '/_authenticated/contacts/$id'
       path: '/$id'
@@ -597,6 +616,17 @@ const AuthenticatedContactsRouteWithChildren =
     AuthenticatedContactsRouteChildren,
   )
 
+interface AuthenticatedOrdersRouteChildren {
+  AuthenticatedOrdersIdRoute: typeof AuthenticatedOrdersIdRoute
+}
+
+const AuthenticatedOrdersRouteChildren: AuthenticatedOrdersRouteChildren = {
+  AuthenticatedOrdersIdRoute: AuthenticatedOrdersIdRoute,
+}
+
+const AuthenticatedOrdersRouteWithChildren =
+  AuthenticatedOrdersRoute._addFileChildren(AuthenticatedOrdersRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedActivitiesRoute: typeof AuthenticatedActivitiesRoute
   AuthenticatedAuditLogRoute: typeof AuthenticatedAuditLogRoute
@@ -608,7 +638,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedExportDocumentsRoute: typeof AuthenticatedExportDocumentsRoute
   AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRoute
   AuthenticatedOpportunitiesRoute: typeof AuthenticatedOpportunitiesRoute
-  AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
+  AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRouteWithChildren
   AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
@@ -633,7 +663,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedExportDocumentsRoute: AuthenticatedExportDocumentsRoute,
   AuthenticatedLeadsRoute: AuthenticatedLeadsRoute,
   AuthenticatedOpportunitiesRoute: AuthenticatedOpportunitiesRoute,
-  AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
+  AuthenticatedOrdersRoute: AuthenticatedOrdersRouteWithChildren,
   AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
