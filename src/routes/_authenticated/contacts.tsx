@@ -132,8 +132,8 @@ function Contacts() {
                 {filtered.map(c => (
                   <TableRow key={c.id}>
                     <TableCell>
-                      <div className="font-medium">{c.full_name}</div>
-                      {c.is_decision_maker && <span className="text-xs text-gold">★ صانع قرار</span>}
+                      <Link to="/contacts/$id" params={{ id: c.id }} className="font-medium hover:underline">{c.full_name}</Link>
+                      {c.is_decision_maker && <span className="text-xs text-gold block">★ صانع قرار</span>}
                     </TableCell>
                     <TableCell className="text-sm">{companyName(c.company_id)}</TableCell>
                     <TableCell className="text-sm">{c.job_title || "—"}</TableCell>
