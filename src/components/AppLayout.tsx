@@ -44,17 +44,12 @@ export function AppLayout({ children }: { children: ReactNode }) {
           <header className="h-14 border-b bg-card flex items-center gap-3 px-4 sticky top-0 z-10">
             <SidebarTrigger />
             <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input placeholder="بحث سريع..." className="pr-9 h-9" />
-              </div>
+              <GlobalSearch />
             </div>
             <Button variant="ghost" size="icon" onClick={toggleDark}>
               {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="w-4 h-4" />
-            </Button>
+            <NotificationCenter />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="w-9 h-9 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center">
