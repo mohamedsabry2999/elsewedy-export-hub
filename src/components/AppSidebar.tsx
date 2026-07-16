@@ -2,7 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Building2, Users, Contact2, Sparkles, Settings2, Package,
   Target, CheckSquare, FileText, Activity, ShieldCheck, Beaker, ShoppingCart,
-  Ship, Wallet, FileCheck2, CalendarDays, BarChart3, Store,
+  Ship, Wallet, FileCheck2, CalendarDays, BarChart3, Store, UserCircle, KeyRound,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -33,8 +33,12 @@ const productivityNav = [
   { title: "المعارض", url: "/exhibitions", icon: Store },
   { title: "التقارير", url: "/reports", icon: BarChart3 },
 ];
+const personalNav = [
+  { title: "الملف الشخصي", url: "/profile", icon: UserCircle },
+];
 const admin = [
-  { title: "المستخدمون والصلاحيات", url: "/users", icon: Users },
+  { title: "المستخدمون", url: "/users", icon: Users },
+  { title: "الأدوار والصلاحيات", url: "/roles", icon: KeyRound },
   { title: "سجل التدقيق", url: "/audit-log", icon: ShieldCheck },
   { title: "الإعدادات", url: "/settings", icon: Settings2 },
 ];
@@ -85,6 +89,7 @@ export function AppSidebar() {
         {renderGroup("المبيعات", salesNav)}
         {renderGroup("العمليات", opsNav)}
         {renderGroup("الإنتاجية", productivityNav)}
+        {renderGroup("حسابي", personalNav)}
         {isAdmin && renderGroup("الإدارة", admin)}
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border">
