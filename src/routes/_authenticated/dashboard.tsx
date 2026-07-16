@@ -68,8 +68,8 @@ function Dashboard() {
       const topIds = Object.entries(companyTotals).sort((a, b) => b[1] - a[1]).slice(0, 5);
       let topRows: { name: string; total: number }[] = [];
       if (topIds.length) {
-        const { data: cs } = await supabase.from("companies").select("id,name").in("id", topIds.map(t => t[0]));
-        const map = Object.fromEntries((cs ?? []).map((c: any) => [c.id, c.name]));
+        const { data: cs } = await supabase.from("companies").select("id,name_en,name_ar").in("id", topIds.map(t => t[0]));
+        const map = Object.fromEntries((cs ?? []).map((c: any) => [c.id, c.name_en || c.name_ar || "—"]));
         topRows = topIds.map(([id, total]) => ({ name: map[id] || "—", total }));
       }
 
