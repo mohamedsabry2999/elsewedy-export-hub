@@ -1,7 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Building2, Users, Contact2, Sparkles, Settings2, Package,
-  Target, CheckSquare, FileText, Activity, ShieldCheck,
+  Target, CheckSquare, FileText, Activity, ShieldCheck, Beaker, ShoppingCart,
+  Ship, Wallet, FileCheck2, CalendarDays, BarChart3, Store,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -10,15 +11,27 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/lib/hooks/useAuth";
 
-const nav = [
+const salesNav = [
   { title: "لوحة التحكم", url: "/dashboard", icon: LayoutDashboard },
   { title: "الشركات", url: "/companies", icon: Building2 },
   { title: "جهات الاتصال", url: "/contacts", icon: Contact2 },
   { title: "العملاء المحتملون", url: "/leads", icon: Sparkles },
-  { title: "الفرص (Pipeline)", url: "/opportunities", icon: Target },
+  { title: "الفرص - Pipeline", url: "/opportunities", icon: Target },
   { title: "عروض الأسعار", url: "/quotations", icon: FileText },
+  { title: "العينات", url: "/samples", icon: Beaker },
+];
+const opsNav = [
+  { title: "الطلبيات", url: "/orders", icon: ShoppingCart },
+  { title: "الشحنات", url: "/shipments", icon: Ship },
+  { title: "المدفوعات", url: "/payments", icon: Wallet },
+  { title: "مستندات التصدير", url: "/export-documents", icon: FileCheck2 },
+];
+const productivityNav = [
   { title: "المهام", url: "/tasks", icon: CheckSquare },
+  { title: "التقويم", url: "/calendar", icon: CalendarDays },
   { title: "سجل التواصل", url: "/activities", icon: Activity },
+  { title: "المعارض", url: "/exhibitions", icon: Store },
+  { title: "التقارير", url: "/reports", icon: BarChart3 },
 ];
 const admin = [
   { title: "المستخدمون والصلاحيات", url: "/users", icon: Users },
@@ -32,6 +45,26 @@ export function AppSidebar() {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const { isAdmin, profile } = useAuth();
   const isActive = (u: string) => pathname === u || pathname.startsWith(u + "/");
+
+  const renderGroup = (label: string, items: typeof salesNav) => (
+    <SidebarGroup>
+      <SidebarGroupLabel>{label}</SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {items.map((item) => (
+            <SidebarMenuItem key={item.url}>
+              <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
+                <Link to={item.url}>
+                  <item.icon />
+                  <span>{item.title}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
 
   return (
     <Sidebar collapsible="icon" side="right">
@@ -49,42 +82,10 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>الرئيسية</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {nav.map((item) => (
-                <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                    <Link to={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        {isAdmin && (
-          <SidebarGroup>
-            <SidebarGroupLabel>الإدارة</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {admin.map((item) => (
-                  <SidebarMenuItem key={item.url}>
-                    <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                      <Link to={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        {renderGroup("المبيعات", salesNav)}
+        {renderGroup("العمليات", opsNav)}
+        {renderGroup("الإنتاجية", productivityNav)}
+        {isAdmin && renderGroup("الإدارة", admin)}
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border">
         {!collapsed && profile && (
