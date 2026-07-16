@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Building2, Users, Contact2, Sparkles, Settings2, Package,
+  Target, CheckSquare, FileText, Activity, ShieldCheck,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -14,9 +15,14 @@ const nav = [
   { title: "الشركات", url: "/companies", icon: Building2 },
   { title: "جهات الاتصال", url: "/contacts", icon: Contact2 },
   { title: "العملاء المحتملون", url: "/leads", icon: Sparkles },
+  { title: "الفرص (Pipeline)", url: "/opportunities", icon: Target },
+  { title: "عروض الأسعار", url: "/quotations", icon: FileText },
+  { title: "المهام", url: "/tasks", icon: CheckSquare },
+  { title: "سجل التواصل", url: "/activities", icon: Activity },
 ];
 const admin = [
   { title: "المستخدمون والصلاحيات", url: "/users", icon: Users },
+  { title: "سجل التدقيق", url: "/audit-log", icon: ShieldCheck },
   { title: "الإعدادات", url: "/settings", icon: Settings2 },
 ];
 
