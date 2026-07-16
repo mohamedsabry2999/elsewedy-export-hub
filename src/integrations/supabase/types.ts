@@ -14,6 +14,106 @@ export type Database = {
   }
   public: {
     Tables: {
+      activities: {
+        Row: {
+          company_id: string | null
+          contact_id: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          occurred_at: string
+          opportunity_id: string | null
+          related_id: string | null
+          related_type: string | null
+          subject: string
+          type: Database["public"]["Enums"]["activity_type"]
+          updated_at: string
+        }
+        Insert: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          occurred_at?: string
+          opportunity_id?: string | null
+          related_id?: string | null
+          related_type?: string | null
+          subject: string
+          type: Database["public"]["Enums"]["activity_type"]
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          occurred_at?: string
+          opportunity_id?: string | null
+          related_id?: string | null
+          related_type?: string | null
+          subject?: string
+          type?: Database["public"]["Enums"]["activity_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activities_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activities_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activities_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          details: Json | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+        }
+        Relationships: []
+      }
       companies: {
         Row: {
           address: string | null
@@ -334,6 +434,88 @@ export type Database = {
           },
         ]
       }
+      opportunities: {
+        Row: {
+          amount: number | null
+          company_id: string | null
+          contact_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          description: string | null
+          expected_close_date: string | null
+          id: string
+          lead_id: string | null
+          lost_reason: string | null
+          name: string
+          owner_id: string | null
+          probability: number | null
+          product_category: string | null
+          stage: Database["public"]["Enums"]["opportunity_stage"]
+          updated_at: string
+        }
+        Insert: {
+          amount?: number | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          expected_close_date?: string | null
+          id?: string
+          lead_id?: string | null
+          lost_reason?: string | null
+          name: string
+          owner_id?: string | null
+          probability?: number | null
+          product_category?: string | null
+          stage?: Database["public"]["Enums"]["opportunity_stage"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          expected_close_date?: string | null
+          id?: string
+          lead_id?: string | null
+          lost_reason?: string | null
+          name?: string
+          owner_id?: string | null
+          probability?: number | null
+          product_category?: string | null
+          stage?: Database["public"]["Enums"]["opportunity_stage"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunities_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunities_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -379,6 +561,195 @@ export type Database = {
         }
         Relationships: []
       }
+      quotation_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          discount_pct: number | null
+          id: string
+          line_total: number
+          position: number | null
+          product_name: string
+          quantity: number
+          quotation_id: string
+          unit: string | null
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          discount_pct?: number | null
+          id?: string
+          line_total?: number
+          position?: number | null
+          product_name: string
+          quantity?: number
+          quotation_id: string
+          unit?: string | null
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          discount_pct?: number | null
+          id?: string
+          line_total?: number
+          position?: number | null
+          product_name?: string
+          quantity?: number
+          quotation_id?: string
+          unit?: string | null
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotation_items_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quotations: {
+        Row: {
+          company_id: string | null
+          contact_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          delivery_terms: string | null
+          discount: number | null
+          id: string
+          incoterms: string | null
+          notes: string | null
+          opportunity_id: string | null
+          owner_id: string | null
+          payment_terms: string | null
+          quote_number: string
+          status: Database["public"]["Enums"]["quotation_status"]
+          subtotal: number | null
+          tax: number | null
+          total: number | null
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          delivery_terms?: string | null
+          discount?: number | null
+          id?: string
+          incoterms?: string | null
+          notes?: string | null
+          opportunity_id?: string | null
+          owner_id?: string | null
+          payment_terms?: string | null
+          quote_number: string
+          status?: Database["public"]["Enums"]["quotation_status"]
+          subtotal?: number | null
+          tax?: number | null
+          total?: number | null
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          delivery_terms?: string | null
+          discount?: number | null
+          id?: string
+          incoterms?: string | null
+          notes?: string | null
+          opportunity_id?: string | null
+          owner_id?: string | null
+          payment_terms?: string | null
+          quote_number?: string
+          status?: Database["public"]["Enums"]["quotation_status"]
+          subtotal?: number | null
+          tax?: number | null
+          total?: number | null
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotations_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotations_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: Database["public"]["Enums"]["task_priority"]
+          related_id: string | null
+          related_type: string | null
+          status: Database["public"]["Enums"]["task_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          related_id?: string | null
+          related_type?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          related_id?: string | null
+          related_type?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -415,6 +786,14 @@ export type Database = {
       is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
+      activity_type:
+        | "call"
+        | "email"
+        | "meeting"
+        | "whatsapp"
+        | "note"
+        | "sample"
+        | "visit"
       app_role:
         | "system_owner"
         | "export_manager"
@@ -440,6 +819,16 @@ export type Database = {
         | "won"
         | "lost"
       lead_temperature: "hot" | "warm" | "cold"
+      opportunity_stage:
+        | "new"
+        | "qualified"
+        | "proposal"
+        | "negotiation"
+        | "won"
+        | "lost"
+      quotation_status: "draft" | "sent" | "accepted" | "rejected" | "expired"
+      task_priority: "low" | "medium" | "high" | "urgent"
+      task_status: "open" | "in_progress" | "done" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -567,6 +956,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      activity_type: [
+        "call",
+        "email",
+        "meeting",
+        "whatsapp",
+        "note",
+        "sample",
+        "visit",
+      ],
       app_role: [
         "system_owner",
         "export_manager",
@@ -595,6 +993,17 @@ export const Constants = {
         "lost",
       ],
       lead_temperature: ["hot", "warm", "cold"],
+      opportunity_stage: [
+        "new",
+        "qualified",
+        "proposal",
+        "negotiation",
+        "won",
+        "lost",
+      ],
+      quotation_status: ["draft", "sent", "accepted", "rejected", "expired"],
+      task_priority: ["low", "medium", "high", "urgent"],
+      task_status: ["open", "in_progress", "done", "cancelled"],
     },
   },
 } as const
