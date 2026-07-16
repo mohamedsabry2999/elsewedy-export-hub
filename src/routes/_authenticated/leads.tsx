@@ -51,6 +51,7 @@ const STATUSES = [
 function Leads() {
   const qc = useQueryClient();
   const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [tempFilter, setTempFilter] = useState("all");
