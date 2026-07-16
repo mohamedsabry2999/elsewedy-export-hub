@@ -52,7 +52,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
             <NotificationCenter />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="w-9 h-9 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center">
+                <button className="w-9 h-9 shrink-0 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center" aria-label="قائمة المستخدم">
                   {(profile?.full_name || profile?.email || "?").charAt(0).toUpperCase()}
                 </button>
               </DropdownMenuTrigger>
