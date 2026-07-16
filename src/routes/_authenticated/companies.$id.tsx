@@ -75,7 +75,7 @@ function CompanyDetail() {
   });
   const tasks = useQuery({
     queryKey: ["company-tasks", id],
-    queryFn: async () => (await supabase.from("tasks").select("*").eq("company_id", id).order("due_date", { ascending: true })).data ?? [],
+    queryFn: async () => (await supabase.from("tasks").select("*").eq("related_type", "company").eq("related_id", id).order("due_date", { ascending: true })).data ?? [],
   });
 
   if (isLoading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin" /></div>;
