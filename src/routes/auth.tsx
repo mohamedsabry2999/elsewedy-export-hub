@@ -67,13 +67,15 @@ function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-gold/10 p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-gold/10 p-4 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        style={{ backgroundImage: "radial-gradient(circle at 20% 20%, var(--primary) 0, transparent 40%), radial-gradient(circle at 80% 80%, var(--gold) 0, transparent 40%)" }} />
+      <div className="w-full max-w-md relative">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary text-primary-foreground mb-4">
-            <Package className="w-8 h-8" />
+          <div className="inline-flex items-center justify-center bg-white rounded-2xl px-6 py-4 shadow-brand mb-5">
+            <Logo variant="full" className="h-14" />
           </div>
-          <h1 className="text-2xl font-bold text-primary">Elsewedy Export Hub</h1>
+          <h1 className="text-xl font-bold text-foreground">Export Hub</h1>
           <p className="text-sm text-muted-foreground mt-1">مركز إدارة التصدير والمبيعات الدولية</p>
         </div>
 
