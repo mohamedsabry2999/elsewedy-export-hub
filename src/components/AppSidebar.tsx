@@ -49,28 +49,33 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const { isAdmin, profile } = useAuth();
+  const { isAdmin, profile, hasPermission } = useAuth();
   const isActive = (u: string) => pathname === u || pathname.startsWith(u + "/");
+  const canSee = (perm: string | null) => !perm || isAdmin || hasPermission(perm);
 
-  const renderGroup = (label: string, items: typeof salesNav) => (
-    <SidebarGroup>
-      <SidebarGroupLabel>{label}</SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.url}>
-              <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                <Link to={item.url}>
-                  <item.icon />
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
-  );
+  const renderGroup = (label: string, items: typeof salesNav) => {
+    const visible = items.filter(i => canSee(i.perm));
+    if (!visible.length) return null;
+    return (
+      <SidebarGroup>
+        <SidebarGroupLabel>{label}</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {visible.map((item) => (
+              <SidebarMenuItem key={item.url}>
+                <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
+                  <Link to={item.url}>
+                    <item.icon />
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    );
+  };
 
   return (
     <Sidebar collapsible="icon" side="right">
@@ -92,7 +97,7 @@ export function AppSidebar() {
         {renderGroup("العمليات", opsNav)}
         {renderGroup("الإنتاجية", productivityNav)}
         {renderGroup("حسابي", personalNav)}
-        {isAdmin && renderGroup("الإدارة", admin)}
+        {renderGroup("الإدارة", admin)}
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border">
         {!collapsed && profile && (
