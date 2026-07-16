@@ -41,12 +41,12 @@ export function AppLayout({ children }: { children: ReactNode }) {
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-14 border-b bg-card flex items-center gap-3 px-4 sticky top-0 z-10">
+          <header className="h-14 border-b bg-card flex items-center gap-2 px-3 md:px-4 sticky top-0 z-10">
             <SidebarTrigger />
-            <div className="flex-1 max-w-md">
+            <div className="flex-1 min-w-0 max-w-md">
               <GlobalSearch />
             </div>
-            <Button variant="ghost" size="icon" onClick={toggleDark}>
+            <Button variant="ghost" size="icon" onClick={toggleDark} aria-label="تبديل الوضع الليلي">
               {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
             <NotificationCenter />
