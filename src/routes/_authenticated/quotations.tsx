@@ -13,10 +13,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Trash2, Edit, FileText, X } from "lucide-react";
+import { Plus, Trash2, Edit, FileText, X, Download, ArrowRightLeft } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/hooks/useAuth";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/quotations")({
   ssr: false,
@@ -59,6 +62,7 @@ const emptyItem = (): Item => ({
 function Quotations() {
   const qc = useQueryClient();
   const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Quote | null>(null);
   const [form, setForm] = useState(emptyQuote);
