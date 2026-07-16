@@ -89,6 +89,7 @@ export function AppSidebar() {
         {renderGroup("المبيعات", salesNav)}
         {renderGroup("العمليات", opsNav)}
         {renderGroup("الإنتاجية", productivityNav)}
+        {renderGroup("حسابي", personalNav)}
         {isAdmin && renderGroup("الإدارة", admin)}
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border">
