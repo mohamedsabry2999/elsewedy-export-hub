@@ -57,7 +57,13 @@ export function CrudPage<T extends { id: string }>({
   searchable = [], invalidateKeys = [], numberGenerator, ownedFields = true,
 }: Props<T>) {
   const qc = useQueryClient();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, hasPermission } = useAuth();
+  // Permission codes derived from table name (companies.create, .edit, .delete, .export)
+  const permBase = table;
+  const canCreate = hasPermission(`${permBase}.create`);
+  const canEdit = hasPermission(`${permBase}.edit`);
+  const canDelete = hasPermission(`${permBase}.delete`);
+  const canExport = hasPermission(`${permBase}.export`) || isAdmin;
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<T | null>(null);
