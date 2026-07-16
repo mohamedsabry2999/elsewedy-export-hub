@@ -206,13 +206,17 @@ export function CrudPage<T extends { id: string }>({
           <div className="flex gap-2 flex-wrap">
             <input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden"
               onChange={e => e.target.files?.[0] && importCSV(e.target.files[0])} />
-            <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={importing}>
-              <Upload className="w-4 h-4" /> {importing ? "جارٍ..." : "استيراد CSV"}
-            </Button>
-            <Button variant="outline" size="sm" onClick={exportCSV}>
-              <Download className="w-4 h-4" /> تصدير CSV
-            </Button>
-            {isAdmin && selected.size > 0 && (
+            {canCreate && (
+              <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={importing}>
+                <Upload className="w-4 h-4" /> {importing ? "جارٍ..." : "استيراد CSV"}
+              </Button>
+            )}
+            {canExport && (
+              <Button variant="outline" size="sm" onClick={exportCSV}>
+                <Download className="w-4 h-4" /> تصدير CSV
+              </Button>
+            )}
+            {canDelete && selected.size > 0 && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive" size="sm"><Trash2 className="w-4 h-4" /> حذف ({selected.size})</Button>
@@ -225,7 +229,7 @@ export function CrudPage<T extends { id: string }>({
                 </AlertDialogContent>
               </AlertDialog>
             )}
-            <Button onClick={openNew}><Plus className="w-4 h-4" /> {addLabel}</Button>
+            {canCreate && <Button onClick={openNew}><Plus className="w-4 h-4" /> {addLabel}</Button>}
           </div>
         } />
 
