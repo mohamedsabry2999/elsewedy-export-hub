@@ -20,15 +20,18 @@ function Payments() {
     <CrudPage
       title="المدفوعات" addLabel="دفعة جديدة" table="payments"
       searchable={["payment_number", "reference"]}
+      invalidateKeys={["orders", "reports-all"]}
       defaults={{
         payment_number: "", status: "pending", amount: 0, currency: "USD",
-        method: "wire_transfer", reference: "",
+        method: "wire_transfer", reference: "", order_id: "", company_id: "",
         paid_at: "", due_date: "", notes: "",
       }}
       numberGenerator={() => ({ payment_number: `PAY-${Date.now().toString().slice(-6)}` })}
       fields={[
         { name: "payment_number", label: "رقم الدفعة", required: true },
         { name: "status", label: "الحالة", type: "select", options: STATUSES },
+        { name: "order_id", label: "الطلبية", type: "async-select", optionsTable: "orders", optionsLabelField: "order_number" },
+        { name: "company_id", label: "العميل", type: "async-select", optionsTable: "companies", optionsLabelField: "name_en" },
         { name: "amount", label: "المبلغ", type: "number", required: true },
         { name: "currency", label: "العملة" },
         { name: "method", label: "طريقة الدفع", type: "select", options: METHODS },

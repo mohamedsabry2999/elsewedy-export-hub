@@ -1,6 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { CrudPage } from "@/components/CrudPage";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { MapPin } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/shipments")({ ssr: false, component: Shipments });
 
@@ -22,7 +24,7 @@ function Shipments() {
       defaults={{
         shipment_number: "", status: "pending", mode: "sea", carrier: "",
         tracking_number: "", origin_port: "", destination_port: "",
-        destination_country: "", container_number: "",
+        destination_country: "", container_number: "", order_id: "", company_id: "",
         weight_kg: 0, volume_cbm: 0, shipped_at: "", eta: "", delivered_at: "",
         freight_cost: 0, insurance_cost: 0, notes: "",
       }}
@@ -30,6 +32,8 @@ function Shipments() {
       fields={[
         { name: "shipment_number", label: "رقم الشحنة", required: true },
         { name: "status", label: "الحالة", type: "select", options: STATUSES },
+        { name: "order_id", label: "الطلبية المرتبطة", type: "async-select", optionsTable: "orders", optionsLabelField: "order_number" },
+        { name: "company_id", label: "العميل", type: "async-select", optionsTable: "companies", optionsLabelField: "name_en" },
         { name: "mode", label: "الوسيلة", type: "select", options: MODES },
         { name: "carrier", label: "شركة الشحن" },
         { name: "tracking_number", label: "رقم التتبع" },
@@ -53,6 +57,7 @@ function Shipments() {
         { key: "destination_country", header: "الوجهة" },
         { key: "tracking_number", header: "التتبع" },
         { key: "eta", header: "الوصول المتوقع" },
+        { key: "id", header: "التتبع", render: (r: any) => <Button asChild size="sm" variant="outline"><Link to="/shipments/$id" params={{ id: r.id }}><MapPin className="w-3 h-3" /> أحداث</Link></Button> },
       ]}
     />
   );
