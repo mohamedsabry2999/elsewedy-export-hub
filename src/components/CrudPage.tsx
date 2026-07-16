@@ -62,6 +62,9 @@ export function CrudPage<T extends { id: string }>({
   const [editing, setEditing] = useState<T | null>(null);
   const [form, setForm] = useState<any>(defaults);
   const [saving, setSaving] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const fileRef = useRef<HTMLInputElement | null>(null);
+  const [importing, setImporting] = useState(false);
 
   const { data: rows, isLoading } = useQuery({
     queryKey: [table],
