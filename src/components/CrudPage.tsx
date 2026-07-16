@@ -18,8 +18,12 @@ import { useAuth } from "@/lib/hooks/useAuth";
 export type FieldDef = {
   name: string;
   label: string;
-  type?: "text" | "number" | "date" | "textarea" | "select";
+  type?: "text" | "number" | "date" | "textarea" | "select" | "async-select" | "file";
   options?: { v: string; l: string }[];
+  optionsTable?: string;
+  optionsLabelField?: string;
+  optionsValueField?: string;
+  bucket?: string;
   colSpan?: number;
   required?: boolean;
   hidden?: boolean;
@@ -204,6 +208,10 @@ export function CrudPage<T extends { id: string }>({
                     <option value="">اختر</option>
                     {f.options?.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
                   </select>
+                ) : f.type === "async-select" ? (
+                  <AsyncSelect field={f} value={form[f.name] ?? ""} onChange={v => setForm({ ...form, [f.name]: v })} />
+                ) : f.type === "file" ? (
+                  <FileUpload bucket={f.bucket || "documents"} value={form[f.name] ?? ""} onChange={v => setForm({ ...form, [f.name]: v })} />
                 ) : (
                   <Input type={f.type || "text"} dir={f.dir || (f.type === "number" || f.type === "date" ? "ltr" : undefined)}
                     value={form[f.name] ?? ""} onChange={e => setForm({ ...form, [f.name]: e.target.value })} />
