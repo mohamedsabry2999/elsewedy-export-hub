@@ -212,7 +212,10 @@ function Leads() {
                     <TableCell><StatusBadge s={l.status} /></TableCell>
                     <TableCell className="text-left">
                       <div className="flex gap-1">
-                        <Button size="icon" variant="ghost" onClick={()=>openEdit(l)}><Edit className="w-4 h-4" /></Button>
+                        <Button size="icon" variant="ghost" onClick={()=>openEdit(l)} title="تعديل"><Edit className="w-4 h-4" /></Button>
+                        {l.status !== "won" && l.status !== "lost" && (
+                          <Button size="icon" variant="ghost" onClick={()=>convert(l)} title="تحويل إلى فرصة" className="text-primary"><Zap className="w-4 h-4" /></Button>
+                        )}
                         {isAdmin && (
                           <AlertDialog>
                             <AlertDialogTrigger asChild><Button size="icon" variant="ghost" className="text-destructive"><Trash2 className="w-4 h-4" /></Button></AlertDialogTrigger>
