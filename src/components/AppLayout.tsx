@@ -13,6 +13,7 @@ import {
 import { useAuth } from "@/lib/hooks/useAuth";
 import { NotificationCenter } from "./NotificationCenter";
 import { GlobalSearch } from "./GlobalSearch";
+import { Logo } from "./Logo";
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
