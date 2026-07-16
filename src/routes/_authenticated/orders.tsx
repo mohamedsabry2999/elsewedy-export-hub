@@ -50,6 +50,7 @@ function Orders() {
         { key: "total", header: "الإجمالي", render: (r: any) => <span className="font-mono">{Number(r.total || 0).toLocaleString()} {r.currency}</span> },
         { key: "paid_amount", header: "المدفوع", render: (r: any) => <span className="font-mono">{Number(r.paid_amount || 0).toLocaleString()}</span> },
         { key: "expected_delivery", header: "التسليم المتوقع" },
+        { key: "id", header: "الإنتاج", render: (r: any) => <Button asChild size="sm" variant="outline"><Link to="/orders/$id" params={{ id: r.id }}><Factory className="w-3 h-3" /> تفاصيل</Link></Button> },
       ]}
     />
   );
