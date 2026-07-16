@@ -181,6 +181,46 @@ function Quotations() {
     qc.invalidateQueries({ queryKey: ["quotations"] });
   };
 
+  const exportPdf = async (q: Quote) => {
+    const { data: rows } = await supabase.from("quotation_items").select("*").eq("quotation_id", q.id).order("position");
+    const doc = new jsPDF();
+    doc.setFontSize(18); doc.text("Elsewedy Export Hub - Quotation", 14, 18);
+    doc.setFontSize(10);
+    doc.text(`Quote #: ${q.quote_number}`, 14, 28);
+    doc.text(`Status: ${q.status}`, 14, 34);
+    doc.text(`Currency: ${q.currency ?? "USD"}`, 14, 40);
+    doc.text(`Valid Until: ${q.valid_until ?? "-"}`, 80, 28);
+    doc.text(`Incoterms: ${q.incoterms ?? "-"}`, 80, 34);
+    autoTable(doc, {
+      startY: 48,
+      head: [["#", "Product", "Qty", "Unit", "Unit Price", "Disc%", "Line Total"]],
+      body: (rows ?? []).map((it: any, i: number) => [
+        i + 1, it.product_name, it.quantity, it.unit ?? "pcs",
+        Number(it.unit_price).toFixed(2), Number(it.discount_pct ?? 0).toFixed(1),
+        Number(it.line_total).toFixed(2),
+      ]),
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [180, 141, 66] },
+    });
+    const y = (doc as any).lastAutoTable.finalY + 8;
+    doc.text(`Subtotal: ${Number(q.subtotal ?? 0).toFixed(2)}`, 140, y);
+    doc.text(`Discount: ${Number(q.discount ?? 0).toFixed(2)}`, 140, y + 6);
+    doc.text(`Tax: ${Number(q.tax ?? 0).toFixed(2)}`, 140, y + 12);
+    doc.setFontSize(12);
+    doc.text(`TOTAL: ${Number(q.total ?? 0).toFixed(2)} ${q.currency ?? ""}`, 140, y + 22);
+    if (q.notes) { doc.setFontSize(9); doc.text(`Notes: ${q.notes.slice(0, 200)}`, 14, y + 6); }
+    doc.save(`${q.quote_number}.pdf`);
+  };
+
+  const convertToOrder = async (q: Quote) => {
+    const { data, error } = await supabase.rpc("convert_quotation_to_order", { _quotation_id: q.id });
+    if (error) { toast.error(error.message); return; }
+    toast.success("تم تحويل العرض إلى طلبية");
+    qc.invalidateQueries({ queryKey: ["quotations"] });
+    if (data) navigate({ to: "/orders/$id", params: { id: data as string } });
+  };
+
+
   return (
     <div>
       <PageHeader title="عروض الأسعار" subtitle={`${filtered.length} عرض`}
