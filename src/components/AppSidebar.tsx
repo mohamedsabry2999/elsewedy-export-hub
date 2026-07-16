@@ -2,7 +2,8 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Building2, Users, Contact2, Sparkles, Settings2, Package,
   Target, CheckSquare, FileText, Activity, ShieldCheck, Beaker, ShoppingCart,
-  Ship, Wallet, FileCheck2, CalendarDays, BarChart3, Store, UserCircle, KeyRound,
+  Ship, Wallet, FileCheck2, CalendarDays, BarChart3, Store, UserCircle, KeyRound, Boxes,
+
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -21,6 +22,7 @@ const salesNav = [
   { title: "العينات", url: "/samples", icon: Beaker },
 ];
 const opsNav = [
+  { title: "المنتجات", url: "/products", icon: Boxes },
   { title: "الطلبيات", url: "/orders", icon: ShoppingCart },
   { title: "الشحنات", url: "/shipments", icon: Ship },
   { title: "المدفوعات", url: "/payments", icon: Wallet },
