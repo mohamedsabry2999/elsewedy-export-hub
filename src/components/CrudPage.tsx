@@ -234,11 +234,11 @@ export function CrudPage<T extends { id: string }>({
       <Card><CardContent className="pt-4">
         {isLoading ? <Skeleton className="h-40 w-full" /> :
           filtered.length === 0 ? (
-            <div className="py-16 text-center">
-              <Inbox className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
-              <p className="text-muted-foreground mb-4">لا توجد بيانات بعد</p>
-              <Button onClick={openNew}><Plus className="w-4 h-4" /> {addLabel}</Button>
-            </div>
+            <EmptyState
+              title={q ? "لا توجد نتائج" : `لا توجد بيانات بعد`}
+              description={q ? "جرّب تعديل مصطلح البحث." : "ابدأ بإضافة أول عنصر لهذه القائمة."}
+              action={q ? undefined : { label: addLabel, onClick: openNew, icon: Plus }}
+            />
           ) : (
             <div className="overflow-x-auto">
               <Table>
