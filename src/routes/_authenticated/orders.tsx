@@ -1,6 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { CrudPage } from "@/components/CrudPage";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Factory } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/orders")({ ssr: false, component: Orders });
 
