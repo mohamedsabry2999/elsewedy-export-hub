@@ -10,7 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Trash2, Edit, Search, Inbox, Download, Upload } from "lucide-react";
+import { Plus, Trash2, Edit, Search, Download, Upload } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -234,11 +235,11 @@ export function CrudPage<T extends { id: string }>({
       <Card><CardContent className="pt-4">
         {isLoading ? <Skeleton className="h-40 w-full" /> :
           filtered.length === 0 ? (
-            <div className="py-16 text-center">
-              <Inbox className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
-              <p className="text-muted-foreground mb-4">لا توجد بيانات بعد</p>
-              <Button onClick={openNew}><Plus className="w-4 h-4" /> {addLabel}</Button>
-            </div>
+            <EmptyState
+              title={q ? "لا توجد نتائج" : `لا توجد بيانات بعد`}
+              description={q ? "جرّب تعديل مصطلح البحث." : "ابدأ بإضافة أول عنصر لهذه القائمة."}
+              action={q ? undefined : { label: addLabel, onClick: openNew, icon: Plus }}
+            />
           ) : (
             <div className="overflow-x-auto">
               <Table>
