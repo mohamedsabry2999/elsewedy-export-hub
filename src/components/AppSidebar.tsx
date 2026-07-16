@@ -13,64 +13,69 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { Logo } from "./Logo";
 
 const salesNav = [
-  { title: "لوحة التحكم", url: "/dashboard", icon: LayoutDashboard },
-  { title: "الشركات", url: "/companies", icon: Building2 },
-  { title: "جهات الاتصال", url: "/contacts", icon: Contact2 },
-  { title: "العملاء المحتملون", url: "/leads", icon: Sparkles },
-  { title: "الفرص - Pipeline", url: "/opportunities", icon: Target },
-  { title: "عروض الأسعار", url: "/quotations", icon: FileText },
-  { title: "العينات", url: "/samples", icon: Beaker },
+  { title: "لوحة التحكم", url: "/dashboard", icon: LayoutDashboard, perm: null },
+  { title: "الشركات", url: "/companies", icon: Building2, perm: "companies.view" },
+  { title: "جهات الاتصال", url: "/contacts", icon: Contact2, perm: "contacts.view" },
+  { title: "العملاء المحتملون", url: "/leads", icon: Sparkles, perm: "leads.view" },
+  { title: "الفرص - Pipeline", url: "/opportunities", icon: Target, perm: "opportunities.view" },
+  { title: "عروض الأسعار", url: "/quotations", icon: FileText, perm: "quotations.view" },
+  { title: "العينات", url: "/samples", icon: Beaker, perm: "samples.view" },
 ];
 const opsNav = [
-  { title: "المنتجات", url: "/products", icon: Boxes },
-  { title: "الطلبيات", url: "/orders", icon: ShoppingCart },
-  { title: "الشحنات", url: "/shipments", icon: Ship },
-  { title: "المدفوعات", url: "/payments", icon: Wallet },
-  { title: "مستندات التصدير", url: "/export-documents", icon: FileCheck2 },
+  { title: "المنتجات", url: "/products", icon: Boxes, perm: null },
+  { title: "الطلبيات", url: "/orders", icon: ShoppingCart, perm: "orders.view" },
+  { title: "الشحنات", url: "/shipments", icon: Ship, perm: "shipments.view" },
+  { title: "المدفوعات", url: "/payments", icon: Wallet, perm: "payments.view" },
+  { title: "مستندات التصدير", url: "/export-documents", icon: FileCheck2, perm: "export_documents.view" },
 ];
 const productivityNav = [
-  { title: "المهام", url: "/tasks", icon: CheckSquare },
-  { title: "التقويم", url: "/calendar", icon: CalendarDays },
-  { title: "سجل التواصل", url: "/activities", icon: Activity },
-  { title: "المعارض", url: "/exhibitions", icon: Store },
-  { title: "التقارير", url: "/reports", icon: BarChart3 },
+  { title: "المهام", url: "/tasks", icon: CheckSquare, perm: "tasks.view" },
+  { title: "التقويم", url: "/calendar", icon: CalendarDays, perm: null },
+  { title: "سجل التواصل", url: "/activities", icon: Activity, perm: "activities.view" },
+  { title: "المعارض", url: "/exhibitions", icon: Store, perm: "exhibitions.view" },
+  { title: "التقارير", url: "/reports", icon: BarChart3, perm: "reports.view" },
 ];
 const personalNav = [
-  { title: "الملف الشخصي", url: "/profile", icon: UserCircle },
+  { title: "الملف الشخصي", url: "/profile", icon: UserCircle, perm: null },
 ];
 const admin = [
-  { title: "المستخدمون", url: "/users", icon: Users },
-  { title: "الأدوار والصلاحيات", url: "/roles", icon: KeyRound },
-  { title: "سجل التدقيق", url: "/audit-log", icon: ShieldCheck },
-  { title: "الإعدادات", url: "/settings", icon: Settings2 },
+  { title: "المستخدمون", url: "/users", icon: Users, perm: "users.view" },
+  { title: "الأدوار والصلاحيات", url: "/roles", icon: KeyRound, perm: "users.manage" },
+  { title: "سجل التدقيق", url: "/audit-log", icon: ShieldCheck, perm: "audit_log.view" },
+  { title: "الإعدادات", url: "/settings", icon: Settings2, perm: "settings.view" },
 ];
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const { isAdmin, profile } = useAuth();
+  const { isAdmin, profile, hasPermission } = useAuth();
   const isActive = (u: string) => pathname === u || pathname.startsWith(u + "/");
+  const canSee = (perm: string | null) => !perm || isAdmin || hasPermission(perm);
 
-  const renderGroup = (label: string, items: typeof salesNav) => (
-    <SidebarGroup>
-      <SidebarGroupLabel>{label}</SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.url}>
-              <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                <Link to={item.url}>
-                  <item.icon />
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
-  );
+  const renderGroup = (label: string, items: typeof salesNav) => {
+    const visible = items.filter(i => canSee(i.perm));
+    if (!visible.length) return null;
+    return (
+      <SidebarGroup>
+        <SidebarGroupLabel>{label}</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {visible.map((item) => (
+              <SidebarMenuItem key={item.url}>
+                <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
+                  <Link to={item.url}>
+                    <item.icon />
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    );
+  };
 
   return (
     <Sidebar collapsible="icon" side="right">
@@ -92,7 +97,7 @@ export function AppSidebar() {
         {renderGroup("العمليات", opsNav)}
         {renderGroup("الإنتاجية", productivityNav)}
         {renderGroup("حسابي", personalNav)}
-        {isAdmin && renderGroup("الإدارة", admin)}
+        {renderGroup("الإدارة", admin)}
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border">
         {!collapsed && profile && (
