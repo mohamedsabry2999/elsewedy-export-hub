@@ -62,6 +62,9 @@ export function AppLayout({ children }: { children: ReactNode }) {
                   <div className="text-xs text-muted-foreground">{roles.join(", ") || "—"}</div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/profile"><UserCircle className="w-4 h-4" /> الملف الشخصي</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={signOut} className="text-destructive">
                   <LogOut className="w-4 h-4" /> تسجيل الخروج
                 </DropdownMenuItem>
