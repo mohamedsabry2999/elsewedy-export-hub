@@ -74,15 +74,15 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" side="right">
-      <SidebarHeader className="border-b border-sidebar-border">
+      <SidebarHeader className="border-b border-sidebar-border bg-white/[0.03]">
         <div className="flex items-center gap-2 px-2 py-3">
-          <div className="w-9 h-9 rounded-lg bg-gold text-gold-foreground flex items-center justify-center shrink-0">
-            <Package className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center shrink-0 shadow-sm">
+            <Logo variant="mark" className="w-full h-full" />
           </div>
           {!collapsed && (
-            <div className="min-w-0">
-              <div className="font-bold text-sm text-sidebar-foreground truncate">Elsewedy</div>
-              <div className="text-[10px] text-sidebar-foreground/70 truncate">Export Hub</div>
+            <div className="min-w-0 leading-tight">
+              <div className="font-bold text-sm text-sidebar-foreground truncate">Medhat Elsewedy</div>
+              <div className="text-[10px] text-sidebar-foreground/70 truncate">Print House — Export Hub</div>
             </div>
           )}
         </div>
