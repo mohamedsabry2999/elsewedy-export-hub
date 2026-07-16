@@ -80,7 +80,7 @@ function Contacts() {
   const save = async () => {
     if (!form.full_name.trim()) { toast.error("الاسم مطلوب"); return; }
     setSaving(true);
-    const payload = { ...form, company_id: form.company_id || null };
+    const payload: any = { ...form, company_id: form.company_id || null };
     let error;
     if (editing) ({ error } = await supabase.from("contacts").update(payload).eq("id", editing.id));
     else ({ error } = await supabase.from("contacts").insert({ ...payload, created_by: user?.id }));

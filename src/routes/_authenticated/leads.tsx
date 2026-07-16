@@ -98,7 +98,7 @@ function Leads() {
   const save = async () => {
     if (!form.company_name?.trim() && !form.company_id) { toast.error("اسم الشركة أو ربطها مطلوب"); return; }
     setSaving(true);
-    const payload = {
+    const payload: any = {
       ...form,
       expected_value: form.expected_value ? Number(form.expected_value) : null,
       probability: Number(form.probability) || 0,

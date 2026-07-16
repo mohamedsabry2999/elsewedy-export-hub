@@ -63,7 +63,7 @@ function UsersPage() {
     setSaving(userId);
     // Remove all existing roles and set new
     await supabase.from("user_roles").delete().eq("user_id", userId);
-    const { error } = await supabase.from("user_roles").insert({ user_id: userId, role });
+    const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: role as any });
     setSaving(null);
     if (error) { toast.error(error.message); return; }
     toast.success("تم تحديث الدور");

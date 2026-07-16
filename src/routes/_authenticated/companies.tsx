@@ -89,7 +89,7 @@ function Companies() {
   const save = async () => {
     if (!form.name_en.trim()) { toast.error("اسم الشركة مطلوب"); return; }
     setSaving(true);
-    const payload = { ...form, name_ar: form.name_ar || null };
+    const payload: any = { ...form, name_ar: form.name_ar || null };
     let error;
     if (editing) {
       ({ error } = await supabase.from("companies").update(payload).eq("id", editing.id));
