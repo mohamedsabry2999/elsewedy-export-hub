@@ -38,7 +38,7 @@ function Dashboard() {
         supabase.from("leads").select("id", { count: "exact", head: true }).eq("temperature", "hot"),
         supabase.from("leads").select("expected_value").eq("status", "won"),
         supabase.from("orders").select("id, total, created_at, status"),
-        supabase.from("shipments").select("id", { count: "exact", head: true }).in("status", ["prepared", "shipped", "in_transit"]),
+        supabase.from("shipments").select("id", { count: "exact", head: true }).in("status", ["booked", "in_transit"]),
         supabase.from("payments").select("amount, paid_at").gte("paid_at", monthISO).eq("status", "paid"),
         supabase.from("orders").select("id, total, paid_amount, order_number, company_id").gt("total", 0),
         supabase.from("leads").select("status"),
