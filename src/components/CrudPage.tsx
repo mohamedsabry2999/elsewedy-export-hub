@@ -228,3 +228,57 @@ export function CrudPage<T extends { id: string }>({
     </div>
   );
 }
+
+function AsyncSelect({ field, value, onChange }: { field: FieldDef; value: string; onChange: (v: string) => void }) {
+  const { data } = useQuery({
+    queryKey: ["opts", field.optionsTable, field.optionsLabelField],
+    queryFn: async () => {
+      if (!field.optionsTable) return [];
+      const label = field.optionsLabelField || "name";
+      const val = field.optionsValueField || "id";
+      const { data } = await (supabase as any).from(field.optionsTable).select(`${val},${label}`).order(label).limit(500);
+      return (data ?? []) as Record<string, any>[];
+    },
+  });
+  const label = field.optionsLabelField || "name";
+  const val = field.optionsValueField || "id";
+  return (
+    <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+      value={value} onChange={e => onChange(e.target.value)}>
+      <option value="">— اختر —</option>
+      {(data ?? []).map((o) => <option key={o[val]} value={o[val]}>{o[label]}</option>)}
+    </select>
+  );
+}
+
+function FileUpload({ bucket, value, onChange }: { bucket: string; value: string; onChange: (v: string) => void }) {
+  const [uploading, setUploading] = useState(false);
+  const onFile = async (file: File) => {
+    setUploading(true);
+    const path = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+    const { error } = await supabase.storage.from(bucket).upload(path, file, { upsert: false });
+    setUploading(false);
+    if (error) { toast.error(error.message); return; }
+    onChange(path);
+    toast.success("تم رفع الملف");
+  };
+  const openFile = async () => {
+    if (!value) return;
+    const { data } = await supabase.storage.from(bucket).createSignedUrl(value, 3600);
+    if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+  };
+  return (
+    <div className="space-y-2">
+      <Input type="file" onChange={e => e.target.files?.[0] && onFile(e.target.files[0])} disabled={uploading} />
+      {value && (
+        <div className="flex items-center gap-2 text-xs">
+          <span className="truncate flex-1 font-mono">{value}</span>
+          <Button size="sm" variant="outline" onClick={openFile} type="button">عرض</Button>
+          <Button size="sm" variant="ghost" onClick={() => onChange("")} type="button">إزالة</Button>
+        </div>
+      )}
+      {uploading && <div className="text-xs text-muted-foreground">جارٍ الرفع...</div>}
+    </div>
+  );
+}
+
