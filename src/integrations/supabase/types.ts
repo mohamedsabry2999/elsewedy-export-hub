@@ -731,6 +731,7 @@ export type Database = {
           line_total: number
           order_id: string
           position: number | null
+          product_id: string | null
           product_name: string
           quantity: number
           unit: string | null
@@ -743,6 +744,7 @@ export type Database = {
           line_total?: number
           order_id: string
           position?: number | null
+          product_id?: string | null
           product_name: string
           quantity?: number
           unit?: string | null
@@ -755,6 +757,7 @@ export type Database = {
           line_total?: number
           order_id?: string
           position?: number | null
+          product_id?: string | null
           product_name?: string
           quantity?: number
           unit?: string | null
@@ -766,6 +769,13 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]
@@ -789,6 +799,8 @@ export type Database = {
           owner_id: string | null
           paid_amount: number | null
           payment_terms: string | null
+          production_progress: number
+          production_status: string
           quotation_id: string | null
           status: Database["public"]["Enums"]["order_status"]
           subtotal: number | null
@@ -814,6 +826,8 @@ export type Database = {
           owner_id?: string | null
           paid_amount?: number | null
           payment_terms?: string | null
+          production_progress?: number
+          production_status?: string
           quotation_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number | null
@@ -839,6 +853,8 @@ export type Database = {
           owner_id?: string | null
           paid_amount?: number | null
           payment_terms?: string | null
+          production_progress?: number
+          production_status?: string
           quotation_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number | null
@@ -976,6 +992,125 @@ export type Database = {
         }
         Relationships: []
       }
+      production_stages: {
+        Row: {
+          assignee_id: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          order_id: string
+          position: number
+          progress_pct: number
+          stage_name: string
+          started_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assignee_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          order_id: string
+          position?: number
+          progress_pct?: number
+          stage_name: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assignee_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          order_id?: string
+          position?: number
+          progress_pct?: number
+          stage_name?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_stages_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          base_price: number | null
+          category: string | null
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          description: string | null
+          hs_code: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          min_order_qty: number | null
+          name_ar: string
+          name_en: string | null
+          notes: string | null
+          sku: string
+          stock_qty: number | null
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          base_price?: number | null
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          hs_code?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          min_order_qty?: number | null
+          name_ar: string
+          name_en?: string | null
+          notes?: string | null
+          sku: string
+          stock_qty?: number | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          base_price?: number | null
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          hs_code?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          min_order_qty?: number | null
+          name_ar?: string
+          name_en?: string | null
+          notes?: string | null
+          sku?: string
+          stock_qty?: number | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1029,6 +1164,7 @@ export type Database = {
           id: string
           line_total: number
           position: number | null
+          product_id: string | null
           product_name: string
           quantity: number
           quotation_id: string
@@ -1042,6 +1178,7 @@ export type Database = {
           id?: string
           line_total?: number
           position?: number | null
+          product_id?: string | null
           product_name: string
           quantity?: number
           quotation_id: string
@@ -1055,6 +1192,7 @@ export type Database = {
           id?: string
           line_total?: number
           position?: number | null
+          product_id?: string | null
           product_name?: string
           quantity?: number
           quotation_id?: string
@@ -1062,6 +1200,13 @@ export type Database = {
           unit_price?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "quotation_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "quotation_items_quotation_id_fkey"
             columns: ["quotation_id"]
@@ -1073,8 +1218,10 @@ export type Database = {
       }
       quotations: {
         Row: {
+          accepted_at: string | null
           company_id: string | null
           contact_id: string | null
+          converted_order_id: string | null
           created_at: string
           created_by: string | null
           currency: string | null
@@ -1085,8 +1232,12 @@ export type Database = {
           notes: string | null
           opportunity_id: string | null
           owner_id: string | null
+          parent_quotation_id: string | null
           payment_terms: string | null
+          pdf_url: string | null
           quote_number: string
+          revision: number
+          sent_at: string | null
           status: Database["public"]["Enums"]["quotation_status"]
           subtotal: number | null
           tax: number | null
@@ -1095,8 +1246,10 @@ export type Database = {
           valid_until: string | null
         }
         Insert: {
+          accepted_at?: string | null
           company_id?: string | null
           contact_id?: string | null
+          converted_order_id?: string | null
           created_at?: string
           created_by?: string | null
           currency?: string | null
@@ -1107,8 +1260,12 @@ export type Database = {
           notes?: string | null
           opportunity_id?: string | null
           owner_id?: string | null
+          parent_quotation_id?: string | null
           payment_terms?: string | null
+          pdf_url?: string | null
           quote_number: string
+          revision?: number
+          sent_at?: string | null
           status?: Database["public"]["Enums"]["quotation_status"]
           subtotal?: number | null
           tax?: number | null
@@ -1117,8 +1274,10 @@ export type Database = {
           valid_until?: string | null
         }
         Update: {
+          accepted_at?: string | null
           company_id?: string | null
           contact_id?: string | null
+          converted_order_id?: string | null
           created_at?: string
           created_by?: string | null
           currency?: string | null
@@ -1129,8 +1288,12 @@ export type Database = {
           notes?: string | null
           opportunity_id?: string | null
           owner_id?: string | null
+          parent_quotation_id?: string | null
           payment_terms?: string | null
+          pdf_url?: string | null
           quote_number?: string
+          revision?: number
+          sent_at?: string | null
           status?: Database["public"]["Enums"]["quotation_status"]
           subtotal?: number | null
           tax?: number | null
@@ -1154,10 +1317,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "quotations_converted_order_id_fkey"
+            columns: ["converted_order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "quotations_opportunity_id_fkey"
             columns: ["opportunity_id"]
             isOneToOne: false
             referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotations_parent_quotation_id_fkey"
+            columns: ["parent_quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotations"
             referencedColumns: ["id"]
           },
         ]
@@ -1544,6 +1721,10 @@ export type Database = {
       compute_lead_score: {
         Args: { _lead: Database["public"]["Tables"]["leads"]["Row"] }
         Returns: number
+      }
+      convert_quotation_to_order: {
+        Args: { _quotation_id: string }
+        Returns: string
       }
       has_permission: {
         Args: { _code: string; _user_id: string }
