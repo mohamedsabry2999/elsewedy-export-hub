@@ -28,7 +28,7 @@ function ContactDetail() {
   });
   const tasks = useQuery({
     queryKey: ["contact-tasks", id],
-    queryFn: async () => (await supabase.from("tasks").select("*").eq("contact_id", id).order("due_date", { ascending: true })).data ?? [],
+    queryFn: async () => (await supabase.from("tasks").select("*").eq("related_type", "contact").eq("related_id", id).order("due_date", { ascending: true })).data ?? [],
   });
   const company = useQuery({
     queryKey: ["contact-company", (c as any)?.company_id],
