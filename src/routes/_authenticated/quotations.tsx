@@ -17,8 +17,7 @@ import { Plus, Trash2, Edit, FileText, X, Download, ArrowRightLeft } from "lucid
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/hooks/useAuth";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import { generateBrandedPdf } from "@/lib/pdf";
 import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/quotations")({
