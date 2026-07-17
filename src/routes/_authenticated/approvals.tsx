@@ -95,6 +95,36 @@ function Approvals() {
     return u ? (u.full_name || u.email) : id.slice(0, 8);
   };
 
+  // Load entities matching the selected entity type for the create dialog
+  const { data: entityOptions, isFetching: loadingEntities } = useQuery({
+    queryKey: ["approval-entity-options", form.entity_type],
+    enabled: open && form.entity_type !== "other",
+    queryFn: async () => {
+      const t = form.entity_type;
+      if (t === "quotation") {
+        const { data } = await supabase.from("quotations").select("id, quotation_number, total, currency").order("created_at", { ascending: false }).limit(100);
+        return (data ?? []).map((r: any) => ({ id: r.id, label: `${r.quotation_number} — ${r.total} ${r.currency}` }));
+      }
+      if (t === "order") {
+        const { data } = await supabase.from("orders").select("id, order_number, total, currency").order("created_at", { ascending: false }).limit(100);
+        return (data ?? []).map((r: any) => ({ id: r.id, label: `${r.order_number} — ${r.total} ${r.currency}` }));
+      }
+      if (t === "payment") {
+        const { data } = await supabase.from("payments").select("id, amount, currency, status").order("created_at", { ascending: false }).limit(100);
+        return (data ?? []).map((r: any) => ({ id: r.id, label: `${r.amount} ${r.currency} — ${r.status}` }));
+      }
+      if (t === "shipment") {
+        const { data } = await supabase.from("shipments").select("id, tracking_number, status").order("created_at", { ascending: false }).limit(100);
+        return (data ?? []).map((r: any) => ({ id: r.id, label: `${r.tracking_number ?? r.id.slice(0,8)} — ${r.status}` }));
+      }
+      if (t === "sample") {
+        const { data } = await supabase.from("samples").select("id, sample_number, status").order("created_at", { ascending: false }).limit(100);
+        return (data ?? []).map((r: any) => ({ id: r.id, label: `${r.sample_number ?? r.id.slice(0,8)} — ${r.status}` }));
+      }
+      return [];
+    },
+  });
+
   const filtered = (rows ?? []).filter(r => {
     if (tab === "pending") return r.status === "pending";
     if (tab === "mine") return r.requested_by === user?.id;
