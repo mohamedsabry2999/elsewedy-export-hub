@@ -48,8 +48,11 @@ function AuthenticatedLayout() {
   }, []);
 
   return (
-    <AppLayout>
-      <Outlet />
-    </AppLayout>
+    <AuthProvider>
+      <AppLayout>
+        <Outlet />
+      </AppLayout>
+    </AuthProvider>
   );
 }
+
