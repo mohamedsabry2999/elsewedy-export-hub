@@ -185,6 +185,9 @@ function SettingsPage() {
         </div>
       )}
       <div className="mt-6">
+        <DemoDataCenter />
+      </div>
+      <div className="mt-6">
         <SystemDiagnostics />
       </div>
     </div>
