@@ -30,6 +30,7 @@ import { Route as AuthenticatedLeadsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedExportDocumentsRouteImport } from './routes/_authenticated/export-documents'
 import { Route as AuthenticatedExhibitionsRouteImport } from './routes/_authenticated/exhibitions'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCurrenciesRouteImport } from './routes/_authenticated/currencies'
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
 import { Route as AuthenticatedCompaniesRouteImport } from './routes/_authenticated/companies'
 import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
@@ -147,6 +148,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCurrenciesRoute = AuthenticatedCurrenciesRouteImport.update({
+  id: '/currencies',
+  path: '/currencies',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedContactsRoute = AuthenticatedContactsRouteImport.update({
   id: '/contacts',
   path: '/contacts',
@@ -204,6 +210,7 @@ export interface FileRoutesByFullPath {
   '/calendar': typeof AuthenticatedCalendarRoute
   '/companies': typeof AuthenticatedCompaniesRouteWithChildren
   '/contacts': typeof AuthenticatedContactsRouteWithChildren
+  '/currencies': typeof AuthenticatedCurrenciesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exhibitions': typeof AuthenticatedExhibitionsRoute
   '/export-documents': typeof AuthenticatedExportDocumentsRoute
@@ -235,6 +242,7 @@ export interface FileRoutesByTo {
   '/calendar': typeof AuthenticatedCalendarRoute
   '/companies': typeof AuthenticatedCompaniesRouteWithChildren
   '/contacts': typeof AuthenticatedContactsRouteWithChildren
+  '/currencies': typeof AuthenticatedCurrenciesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exhibitions': typeof AuthenticatedExhibitionsRoute
   '/export-documents': typeof AuthenticatedExportDocumentsRoute
@@ -268,6 +276,7 @@ export interface FileRoutesById {
   '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
   '/_authenticated/companies': typeof AuthenticatedCompaniesRouteWithChildren
   '/_authenticated/contacts': typeof AuthenticatedContactsRouteWithChildren
+  '/_authenticated/currencies': typeof AuthenticatedCurrenciesRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/exhibitions': typeof AuthenticatedExhibitionsRoute
   '/_authenticated/export-documents': typeof AuthenticatedExportDocumentsRoute
@@ -301,6 +310,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/companies'
     | '/contacts'
+    | '/currencies'
     | '/dashboard'
     | '/exhibitions'
     | '/export-documents'
@@ -332,6 +342,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/companies'
     | '/contacts'
+    | '/currencies'
     | '/dashboard'
     | '/exhibitions'
     | '/export-documents'
@@ -364,6 +375,7 @@ export interface FileRouteTypes {
     | '/_authenticated/calendar'
     | '/_authenticated/companies'
     | '/_authenticated/contacts'
+    | '/_authenticated/currencies'
     | '/_authenticated/dashboard'
     | '/_authenticated/exhibitions'
     | '/_authenticated/export-documents'
@@ -543,6 +555,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/currencies': {
+      id: '/_authenticated/currencies'
+      path: '/currencies'
+      fullPath: '/currencies'
+      preLoaderRoute: typeof AuthenticatedCurrenciesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/contacts': {
       id: '/_authenticated/contacts'
       path: '/contacts'
@@ -667,6 +686,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
   AuthenticatedCompaniesRoute: typeof AuthenticatedCompaniesRouteWithChildren
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRouteWithChildren
+  AuthenticatedCurrenciesRoute: typeof AuthenticatedCurrenciesRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedExhibitionsRoute: typeof AuthenticatedExhibitionsRoute
   AuthenticatedExportDocumentsRoute: typeof AuthenticatedExportDocumentsRoute
@@ -692,6 +712,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
   AuthenticatedCompaniesRoute: AuthenticatedCompaniesRouteWithChildren,
   AuthenticatedContactsRoute: AuthenticatedContactsRouteWithChildren,
+  AuthenticatedCurrenciesRoute: AuthenticatedCurrenciesRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedExhibitionsRoute: AuthenticatedExhibitionsRoute,
   AuthenticatedExportDocumentsRoute: AuthenticatedExportDocumentsRoute,
