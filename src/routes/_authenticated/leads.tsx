@@ -56,9 +56,11 @@ function Leads() {
   const qc = useQueryClient();
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const search = Route.useSearch();
   const [q, setQ] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [tempFilter, setTempFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState(search.status ?? "all");
+  const [tempFilter, setTempFilter] = useState(search.temperature ?? "all");
+  const [sourceFilter, setSourceFilter] = useState("all");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Lead | null>(null);
   const [form, setForm] = useState(empty);
