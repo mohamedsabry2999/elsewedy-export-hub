@@ -177,6 +177,11 @@ function Quotations() {
         quotation_id: quoteId, product_name: it.product_name, description: it.description || null,
         quantity: Number(it.quantity), unit: it.unit || "pcs", unit_price: Number(it.unit_price),
         discount_pct: Number(it.discount_pct || 0), line_total: Number(it.line_total), position: idx,
+        material: it.material || null, thickness: it.thickness || null, dimensions: it.dimensions || null,
+        color: it.color || null, finish: it.finish || null, print_colors: it.print_colors || null,
+        packaging: it.packaging || null,
+        lead_time_days: it.lead_time_days != null && it.lead_time_days !== undefined && String(it.lead_time_days) !== "" ? Number(it.lead_time_days) : null,
+        specs_notes: it.specs_notes || null,
       }));
       if (rows.length) await supabase.from("quotation_items").insert(rows);
     }
