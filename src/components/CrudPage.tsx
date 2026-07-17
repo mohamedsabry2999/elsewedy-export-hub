@@ -154,6 +154,15 @@ export function CrudPage<T extends { id: string }>({
     qc.invalidateQueries({ queryKey: [table] });
   };
 
+  const bulkUpdate = async (field: string, value: string) => {
+    const ids = Array.from(selected);
+    if (!ids.length) return;
+    const { error } = await (supabase as any).from(table).update({ [field]: value }).in("id", ids);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`تم تحديث ${ids.length} عنصر`);
+    setSelected(new Set());
+    qc.invalidateQueries({ queryKey: [table] });
+
   const exportCSV = () => {
     const src = selected.size > 0 ? filtered.filter((r: any) => selected.has(r.id)) : filtered;
     if (!src.length) { toast.error("لا توجد بيانات للتصدير"); return; }
