@@ -317,6 +317,39 @@ export type Database = {
           },
         ]
       }
+      currencies: {
+        Row: {
+          code: string
+          created_at: string
+          decimals: number
+          is_active: boolean
+          name_ar: string
+          name_en: string
+          symbol: string | null
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          decimals?: number
+          is_active?: boolean
+          name_ar: string
+          name_en: string
+          symbol?: string | null
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          decimals?: number
+          is_active?: boolean
+          name_ar?: string
+          name_en?: string
+          symbol?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       exhibitions: {
         Row: {
           booth_cost: number | null
@@ -444,6 +477,54 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "shipments"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      fx_rates: {
+        Row: {
+          base_code: string
+          code: string
+          created_at: string
+          id: string
+          rate: number
+          rate_date: string
+          source: string | null
+          updated_at: string
+        }
+        Insert: {
+          base_code: string
+          code: string
+          created_at?: string
+          id?: string
+          rate: number
+          rate_date?: string
+          source?: string | null
+          updated_at?: string
+        }
+        Update: {
+          base_code?: string
+          code?: string
+          created_at?: string
+          id?: string
+          rate?: number
+          rate_date?: string
+          source?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fx_rates_base_code_fkey"
+            columns: ["base_code"]
+            isOneToOne: false
+            referencedRelation: "currencies"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "fx_rates_code_fkey"
+            columns: ["code"]
+            isOneToOne: false
+            referencedRelation: "currencies"
+            referencedColumns: ["code"]
           },
         ]
       }
@@ -782,6 +863,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          base_total: number | null
           company_id: string | null
           contact_id: string | null
           created_at: string
@@ -789,6 +871,7 @@ export type Database = {
           currency: string | null
           delivered_at: string | null
           discount: number | null
+          exchange_rate: number | null
           expected_delivery: string | null
           id: string
           incoterms: string | null
@@ -809,6 +892,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          base_total?: number | null
           company_id?: string | null
           contact_id?: string | null
           created_at?: string
@@ -816,6 +900,7 @@ export type Database = {
           currency?: string | null
           delivered_at?: string | null
           discount?: number | null
+          exchange_rate?: number | null
           expected_delivery?: string | null
           id?: string
           incoterms?: string | null
@@ -836,6 +921,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          base_total?: number | null
           company_id?: string | null
           contact_id?: string | null
           created_at?: string
@@ -843,6 +929,7 @@ export type Database = {
           currency?: string | null
           delivered_at?: string | null
           discount?: number | null
+          exchange_rate?: number | null
           expected_delivery?: string | null
           id?: string
           incoterms?: string | null
@@ -896,11 +983,13 @@ export type Database = {
       payments: {
         Row: {
           amount: number
+          base_amount: number | null
           company_id: string | null
           created_at: string
           created_by: string | null
           currency: string | null
           due_date: string | null
+          exchange_rate: number | null
           id: string
           method: string | null
           notes: string | null
@@ -913,11 +1002,13 @@ export type Database = {
         }
         Insert: {
           amount?: number
+          base_amount?: number | null
           company_id?: string | null
           created_at?: string
           created_by?: string | null
           currency?: string | null
           due_date?: string | null
+          exchange_rate?: number | null
           id?: string
           method?: string | null
           notes?: string | null
@@ -930,11 +1021,13 @@ export type Database = {
         }
         Update: {
           amount?: number
+          base_amount?: number | null
           company_id?: string | null
           created_at?: string
           created_by?: string | null
           currency?: string | null
           due_date?: string | null
+          exchange_rate?: number | null
           id?: string
           method?: string | null
           notes?: string | null
@@ -1219,6 +1312,7 @@ export type Database = {
       quotations: {
         Row: {
           accepted_at: string | null
+          base_total: number | null
           company_id: string | null
           contact_id: string | null
           converted_order_id: string | null
@@ -1227,6 +1321,7 @@ export type Database = {
           currency: string | null
           delivery_terms: string | null
           discount: number | null
+          exchange_rate: number | null
           id: string
           incoterms: string | null
           notes: string | null
@@ -1247,6 +1342,7 @@ export type Database = {
         }
         Insert: {
           accepted_at?: string | null
+          base_total?: number | null
           company_id?: string | null
           contact_id?: string | null
           converted_order_id?: string | null
@@ -1255,6 +1351,7 @@ export type Database = {
           currency?: string | null
           delivery_terms?: string | null
           discount?: number | null
+          exchange_rate?: number | null
           id?: string
           incoterms?: string | null
           notes?: string | null
@@ -1275,6 +1372,7 @@ export type Database = {
         }
         Update: {
           accepted_at?: string | null
+          base_total?: number | null
           company_id?: string | null
           contact_id?: string | null
           converted_order_id?: string | null
@@ -1283,6 +1381,7 @@ export type Database = {
           currency?: string | null
           delivery_terms?: string | null
           discount?: number | null
+          exchange_rate?: number | null
           id?: string
           incoterms?: string | null
           notes?: string | null
@@ -1599,6 +1698,7 @@ export type Database = {
       system_settings: {
         Row: {
           address: string | null
+          base_currency: string
           company_name: string
           company_name_ar: string
           created_at: string
@@ -1618,6 +1718,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          base_currency?: string
           company_name?: string
           company_name_ar?: string
           created_at?: string
@@ -1637,6 +1738,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          base_currency?: string
           company_name?: string
           company_name_ar?: string
           created_at?: string
@@ -1769,6 +1871,10 @@ export type Database = {
       convert_quotation_to_order: {
         Args: { _quotation_id: string }
         Returns: string
+      }
+      fx_to_base: {
+        Args: { _amount: number; _code: string; _on_date?: string }
+        Returns: number
       }
       has_permission: {
         Args: { _code: string; _user_id: string }
