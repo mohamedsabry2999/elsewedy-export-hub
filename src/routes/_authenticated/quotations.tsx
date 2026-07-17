@@ -367,9 +367,35 @@ function Quotations() {
                       <TableCell><Input type="number" value={it.unit_price} onChange={e => updateItem(i, { unit_price: Number(e.target.value) })} dir="ltr" /></TableCell>
                       <TableCell><Input type="number" value={it.discount_pct ?? 0} onChange={e => updateItem(i, { discount_pct: Number(e.target.value) })} dir="ltr" /></TableCell>
                       <TableCell className="font-mono text-sm">{it.line_total.toFixed(2)}</TableCell>
+                      <TableCell>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button size="icon" variant={specCount > 0 ? "secondary" : "ghost"} title="مواصفات فنية">
+                              <Settings2 className="w-4 h-4" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-96" align="end">
+                            <div className="text-sm font-semibold mb-2">المواصفات الفنية</div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <F label="المادة"><Input value={it.material ?? ""} onChange={e => updateItem(i, { material: e.target.value } as any)} /></F>
+                              <F label="السماكة"><Input value={it.thickness ?? ""} onChange={e => updateItem(i, { thickness: e.target.value } as any)} /></F>
+                              <F label="الأبعاد"><Input value={it.dimensions ?? ""} onChange={e => updateItem(i, { dimensions: e.target.value } as any)} /></F>
+                              <F label="اللون"><Input value={it.color ?? ""} onChange={e => updateItem(i, { color: e.target.value } as any)} /></F>
+                              <F label="اللمسة النهائية"><Input value={it.finish ?? ""} onChange={e => updateItem(i, { finish: e.target.value } as any)} /></F>
+                              <F label="ألوان الطباعة"><Input value={it.print_colors ?? ""} onChange={e => updateItem(i, { print_colors: e.target.value } as any)} /></F>
+                              <F label="التغليف"><Input value={it.packaging ?? ""} onChange={e => updateItem(i, { packaging: e.target.value } as any)} /></F>
+                              <F label="مهلة التسليم (يوم)"><Input type="number" value={it.lead_time_days ?? ""} onChange={e => updateItem(i, { lead_time_days: e.target.value === "" ? null : Number(e.target.value) } as any)} dir="ltr" /></F>
+                            </div>
+                            <div className="mt-2">
+                              <F label="ملاحظات إضافية"><Textarea rows={2} value={it.specs_notes ?? ""} onChange={e => updateItem(i, { specs_notes: e.target.value } as any)} /></F>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </TableCell>
                       <TableCell><Button size="icon" variant="ghost" onClick={() => removeItem(i)}><X className="w-4 h-4" /></Button></TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
