@@ -99,15 +99,15 @@ function Reports() {
 
   return (
     <div>
-      <PageHeader title="التقارير التنفيذية" subtitle="ملخص أداء التصدير" />
+      <PageHeader title="التقارير التنفيذية" subtitle={`ملخص أداء التصدير — القيم بالعملة الأساسية (${base})`} />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <Kpi icon={Target} label="حجم الـ Pipeline" value={sum(data.opps, "amount").toLocaleString()} color="text-blue-500" />
+        <Kpi icon={Target} label="حجم الـ Pipeline" value={sum(data.opps, "amount").toLocaleString()} color="text-blue-500" sub={base} />
         <Kpi icon={Award} label="Win Rate" value={`${winRate.toFixed(1)}%`} color="text-success" />
-        <Kpi icon={DollarSign} label="إجمالي الطلبيات" value={totalRevenue.toLocaleString()} color="text-primary" />
-        <Kpi icon={Wallet} label="المحصّل" value={totalPaid.toLocaleString()} color="text-success" />
-        <Kpi icon={TrendingUp} label="متبقي التحصيل" value={outstanding.toLocaleString()} color="text-warning" />
-        <Kpi icon={AlertTriangle} label="متأخرات" value={overdueAmount.toLocaleString()} color="text-destructive" sub={`${overduePayments.length} دفعة`} />
+        <Kpi icon={DollarSign} label="إجمالي الطلبيات" value={totalRevenue.toLocaleString()} color="text-primary" sub={base} />
+        <Kpi icon={Wallet} label="المحصّل" value={totalPaid.toLocaleString()} color="text-success" sub={base} />
+        <Kpi icon={TrendingUp} label="متبقي التحصيل" value={outstanding.toLocaleString()} color="text-warning" sub={base} />
+        <Kpi icon={AlertTriangle} label="متأخرات" value={overdueAmount.toLocaleString()} color="text-destructive" sub={`${overduePayments.length} دفعة · ${base}`} />
         <Kpi icon={Ship} label="عدد الشحنات" value={data.shipments.length.toString()} color="text-indigo-500" />
         <Kpi icon={Users} label="عدد الليدز" value={data.leads.length.toString()} color="text-amber-500" />
       </div>
