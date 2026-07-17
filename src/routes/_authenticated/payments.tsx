@@ -64,6 +64,7 @@ function Payments() {
       bulkFields={[
         { name: "status", label: "تحديث الحالة", options: STATUSES },
       ]}
+      initialFilters={initial}
       ownedFields={false}
     />
   );
