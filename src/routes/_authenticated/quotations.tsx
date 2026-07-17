@@ -238,6 +238,20 @@ function Quotations() {
     if (data) navigate({ to: "/orders/$id", params: { id: data as string } });
   };
 
+  const requestApproval = async (q: Quote) => {
+    const reason = window.prompt(`طلب موافقة على العرض ${q.quote_number}\nاكتب سبب الطلب:`, "مراجعة عرض السعر");
+    if (reason == null) return;
+    const { error } = await supabase.from("approvals").insert({
+      entity_type: "quotation", entity_id: q.id, status: "pending",
+      reason, requested_by: user?.id!,
+    });
+    if (error) { toast.error(error.message); return; }
+    toast.success("تم إرسال طلب الموافقة");
+    navigate({ to: "/approvals" });
+  };
+
+
+
 
   return (
     <div>
