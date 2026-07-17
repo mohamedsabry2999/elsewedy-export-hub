@@ -154,14 +154,15 @@ export const assignUserRoles = createServerFn({ method: "POST" })
       if ((count ?? 0) <= 1) throw new Error("Cannot remove the last system owner");
     }
 
-    // Atomic replace via RPC-like sequence (best effort)
-    await supabaseAdmin.from("user_roles").delete().eq("user_id", data.user_id);
-    const { error } = await supabaseAdmin
-      .from("user_roles")
-      .insert(data.roles.map((role) => ({ user_id: data.user_id, role: role as Role })));
+    // Atomic transactional replace via SECURITY DEFINER RPC (protects last owner)
+    const { error } = await supabaseAdmin.rpc("replace_user_roles_atomic", {
+      _target_user: data.user_id,
+      _new_roles: data.roles as Role[],
+    });
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
 
 export const resetUserPassword = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
