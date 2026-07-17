@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Building2, Contact2, Sparkles, Target, FileText, ShoppingCart, Search } from "lucide-react";
+import { Building2, Contact2, Sparkles, Target, FileText, ShoppingCart, Search, Ship, Wallet, CheckSquare, Boxes, ClipboardCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem,
