@@ -246,7 +246,12 @@ export function CrudPage<T extends { id: string }>({
             )}
             {canExport && (
               <Button variant="outline" size="sm" onClick={exportCSV}>
-                <Download className="w-4 h-4" /> تصدير CSV
+                <Download className="w-4 h-4" /> CSV
+              </Button>
+            )}
+            {canExport && (
+              <Button variant="outline" size="sm" onClick={exportXLSX}>
+                <FileSpreadsheet className="w-4 h-4" /> Excel
               </Button>
             )}
             {canDelete && selected.size > 0 && (
