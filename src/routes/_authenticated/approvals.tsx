@@ -22,7 +22,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 export const Route = createFileRoute("/_authenticated/approvals")({
   ssr: false,
   component: () => (
-    <PermissionGuard permission="approvals.read">
+    <PermissionGuard perm="approvals.read">
       <Approvals />
     </PermissionGuard>
   ),
