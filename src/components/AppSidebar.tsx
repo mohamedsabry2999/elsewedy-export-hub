@@ -49,9 +49,10 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const { isAdmin, profile, hasPermission } = useAuth();
+  const { isSystemOwner, profile, hasPermission, loading, error, refreshPermissions } = useAuth();
   const isActive = (u: string) => pathname === u || pathname.startsWith(u + "/");
-  const canSee = (perm: string | null) => !perm || isAdmin || hasPermission(perm);
+  const canSee = (perm: string | null) => !perm || isSystemOwner || hasPermission(perm);
+
 
   const renderGroup = (label: string, items: typeof salesNav) => {
     const visible = items.filter(i => canSee(i.perm));
