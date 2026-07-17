@@ -186,6 +186,38 @@ function Reports() {
             )}
           </CardContent>
         </Card>
+
+        <Card><CardHeader><CardTitle className="text-sm">الليدز حسب المصدر</CardTitle></CardHeader>
+          <CardContent className="h-72">
+            {leadSourceData.length === 0 ? <Empty /> : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={leadSourceData} dataKey="value" nameKey="name" outerRadius={90} label>
+                    {leadSourceData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card><CardHeader><CardTitle className="text-sm">العيّنات حسب الحالة</CardTitle></CardHeader>
+          <CardContent className="h-72">
+            {sampleData.length === 0 ? <Empty /> : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={sampleData}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                  <XAxis dataKey="name" style={{ fontSize: 10 }} />
+                  <YAxis style={{ fontSize: 10 }} allowDecimals={false} />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#22c55e" />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
