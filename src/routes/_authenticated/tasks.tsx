@@ -12,10 +12,11 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Edit, CheckSquare, Calendar as CalIcon } from "lucide-react";
+import { Plus, Trash2, Edit, CheckSquare, Calendar as CalIcon, MessageSquare } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { TaskComments } from "@/components/TaskComments";
 
 export const Route = createFileRoute("/_authenticated/tasks")({
   ssr: false,
@@ -50,6 +51,7 @@ function Tasks() {
   const [statusFilter, setStatusFilter] = useState("open");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Task | null>(null);
+  const [commentsFor, setCommentsFor] = useState<Task | null>(null);
   const [form, setForm] = useState(empty);
   const [saving, setSaving] = useState(false);
 
@@ -175,6 +177,7 @@ function Tasks() {
                       </div>
                     </div>
                     <div className="flex gap-1">
+                      <Button size="icon" variant="ghost" onClick={() => setCommentsFor(t)} title="التعليقات"><MessageSquare className="w-4 h-4" /></Button>
                       <Button size="icon" variant="ghost" onClick={() => openEdit(t)}><Edit className="w-4 h-4" /></Button>
                       {(isAdmin || t.created_by === user?.id || t.assigned_to === user?.id) && (
                         <Button size="icon" variant="ghost" className="text-destructive" onClick={() => del(t.id)}>
@@ -221,6 +224,13 @@ function Tasks() {
             <Button variant="outline" onClick={() => setOpen(false)}>إلغاء</Button>
             <Button onClick={save} disabled={saving}>{saving ? "جاري..." : "حفظ"}</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!commentsFor} onOpenChange={(o) => !o && setCommentsFor(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle className="truncate">{commentsFor?.title}</DialogTitle></DialogHeader>
+          {commentsFor && <TaskComments taskId={commentsFor.id} />}
         </DialogContent>
       </Dialog>
     </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Building2, Contact2, Sparkles, Target, FileText, ShoppingCart, Search } from "lucide-react";
+import { Building2, Contact2, Sparkles, Target, FileText, ShoppingCart, Search, Ship, Wallet, CheckSquare, Boxes, ClipboardCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem,
@@ -31,13 +31,18 @@ export function GlobalSearch() {
     let cancel = false;
     const t = setTimeout(async () => {
       const term = `%${q}%`;
-      const [companies, contacts, leads, opps, quotes, orders] = await Promise.all([
+      const [companies, contacts, leads, opps, quotes, orders, shipments, payments, tasks, products, approvals] = await Promise.all([
         supabase.from("companies").select("id,name_en,name_ar,country").or(`name_en.ilike.${term},name_ar.ilike.${term}`).limit(5),
         supabase.from("contacts").select("id,full_name,job_title,email").or(`full_name.ilike.${term},email.ilike.${term}`).limit(5),
         supabase.from("leads").select("id,company_name,contact_name,product_requested").or(`company_name.ilike.${term},contact_name.ilike.${term},product_requested.ilike.${term}`).limit(5),
         supabase.from("opportunities").select("id,name,stage").ilike("name", term).limit(5),
         supabase.from("quotations").select("id,quote_number,status").ilike("quote_number", term).limit(5),
         supabase.from("orders").select("id,order_number,status").ilike("order_number", term).limit(5),
+        supabase.from("shipments").select("id,shipment_number,tracking_number,status").or(`shipment_number.ilike.${term},tracking_number.ilike.${term}`).limit(5),
+        supabase.from("payments").select("id,payment_number,status").ilike("payment_number", term).limit(5),
+        supabase.from("tasks").select("id,title,status").ilike("title", term).limit(5),
+        supabase.from("products").select("id,name_en,name_ar,sku").or(`name_en.ilike.${term},name_ar.ilike.${term},sku.ilike.${term}`).limit(5),
+        supabase.from("approvals").select("id,entity_type,entity_id,reason,status").ilike("reason", term).limit(5),
       ]);
       if (cancel) return;
       const r: Result[] = [];
@@ -47,6 +52,11 @@ export function GlobalSearch() {
       (opps.data ?? []).forEach((o: any) => r.push({ id: o.id, title: o.name, subtitle: o.stage, kind: "الفرص", path: "/opportunities" }));
       (quotes.data ?? []).forEach((q2: any) => r.push({ id: q2.id, title: q2.quote_number, subtitle: q2.status, kind: "عروض الأسعار", path: "/quotations" }));
       (orders.data ?? []).forEach((o: any) => r.push({ id: o.id, title: o.order_number, subtitle: o.status, kind: "الطلبيات", path: `/orders/${o.id}` }));
+      (shipments.data ?? []).forEach((s: any) => r.push({ id: s.id, title: s.shipment_number || s.tracking_number || "شحنة", subtitle: s.status, kind: "الشحنات", path: `/shipments/${s.id}` }));
+      (payments.data ?? []).forEach((p: any) => r.push({ id: p.id, title: p.payment_number || "دفعة", subtitle: p.status, kind: "المدفوعات", path: "/payments" }));
+      (tasks.data ?? []).forEach((t: any) => r.push({ id: t.id, title: t.title, subtitle: t.status, kind: "المهام", path: "/tasks" }));
+      (products.data ?? []).forEach((p: any) => r.push({ id: p.id, title: p.name_en || p.name_ar, subtitle: p.sku ?? undefined, kind: "المنتجات", path: "/products" }));
+      (approvals.data ?? []).forEach((a: any) => r.push({ id: a.id, title: a.reason || a.entity_type, subtitle: a.status, kind: "الموافقات", path: "/approvals" }));
       setResults(r);
     }, 250);
     return () => { cancel = true; clearTimeout(t); };
@@ -59,6 +69,8 @@ export function GlobalSearch() {
   const icons: Record<string, any> = {
     "الشركات": Building2, "جهات الاتصال": Contact2, "العملاء المحتملون": Sparkles,
     "الفرص": Target, "عروض الأسعار": FileText, "الطلبيات": ShoppingCart,
+    "الشحنات": Ship, "المدفوعات": Wallet, "المهام": CheckSquare,
+    "المنتجات": Boxes, "الموافقات": ClipboardCheck,
   };
 
   const go = (path: string) => { setOpen(false); navigate({ to: path }); };

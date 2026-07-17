@@ -2,7 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Building2, Users, Contact2, Sparkles, Settings2,
   Target, CheckSquare, FileText, Activity, ShieldCheck, Beaker, ShoppingCart,
-  Ship, Wallet, FileCheck2, CalendarDays, BarChart3, Store, UserCircle, KeyRound, Boxes, Coins,
+  Ship, Wallet, FileCheck2, CalendarDays, BarChart3, Store, UserCircle, KeyRound, Boxes, Coins, ClipboardCheck,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -30,6 +30,7 @@ const opsNav = [
 ];
 const productivityNav = [
   { title: "المهام", url: "/tasks", icon: CheckSquare, perm: "tasks.view" },
+  { title: "الموافقات", url: "/approvals", icon: ClipboardCheck, perm: "approvals.read" },
   { title: "التقويم", url: "/calendar", icon: CalendarDays, perm: null },
   { title: "سجل التواصل", url: "/activities", icon: Activity, perm: "activities.view" },
   { title: "المعارض", url: "/exhibitions", icon: Store, perm: "exhibitions.view" },

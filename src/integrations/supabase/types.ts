@@ -84,6 +84,48 @@ export type Database = {
           },
         ]
       }
+      approvals: {
+        Row: {
+          approver_id: string | null
+          created_at: string
+          decided_at: string | null
+          decision_note: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          reason: string | null
+          requested_by: string
+          status: Database["public"]["Enums"]["approval_status"]
+          updated_at: string
+        }
+        Insert: {
+          approver_id?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decision_note?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          reason?: string | null
+          requested_by: string
+          status?: Database["public"]["Enums"]["approval_status"]
+          updated_at?: string
+        }
+        Update: {
+          approver_id?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decision_note?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          reason?: string | null
+          requested_by?: string
+          status?: Database["public"]["Enums"]["approval_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           action: string
@@ -1758,6 +1800,41 @@ export type Database = {
         }
         Relationships: []
       }
+      task_comments: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          task_id: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          task_id: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          task_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_comments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           assigned_to: string | null
@@ -1929,6 +2006,7 @@ export type Database = {
         | "logistics"
         | "accounting"
         | "viewer"
+      approval_status: "pending" | "approved" | "rejected" | "cancelled"
       company_status:
         | "active"
         | "inactive"
@@ -2152,6 +2230,7 @@ export const Constants = {
         "accounting",
         "viewer",
       ],
+      approval_status: ["pending", "approved", "rejected", "cancelled"],
       company_status: [
         "active",
         "inactive",
