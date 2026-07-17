@@ -62,7 +62,7 @@ type Props<T extends { id: string }> = {
 export function CrudPage<T extends { id: string }>({
   title, addLabel, table, columns, fields, defaults,
   searchable = [], invalidateKeys = [], numberGenerator, ownedFields = true,
-  bulkFields = [],
+  bulkFields = [], filterFields = [],
 }: Props<T>) {
   const qc = useQueryClient();
   const { user, isAdmin, hasPermission } = useAuth();
