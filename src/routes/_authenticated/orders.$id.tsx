@@ -138,6 +138,17 @@ function OrderDetail() {
         actions={
           <div className="flex gap-2">
             <Button variant="outline" onClick={exportInvoice}><FileText className="w-4 h-4" /> فاتورة PDF</Button>
+            <Button variant="outline" onClick={async () => {
+              const reason = window.prompt(`طلب موافقة على الطلبية ${order.order_number}\nاكتب سبب الطلب:`, "مراجعة طلبية");
+              if (reason == null) return;
+              const { error } = await supabase.from("approvals").insert({
+                entity_type: "order", entity_id: order.id, status: "pending",
+                reason, requested_by: user?.id!,
+              });
+              if (error) { toast.error(error.message); return; }
+              toast.success("تم إرسال طلب الموافقة");
+              navigate({ to: "/approvals" });
+            }}><ShieldCheck className="w-4 h-4" /> طلب موافقة</Button>
             <Button asChild variant="outline"><Link to="/orders"><ArrowRight className="w-4 h-4" /> رجوع</Link></Button>
           </div>
         }
