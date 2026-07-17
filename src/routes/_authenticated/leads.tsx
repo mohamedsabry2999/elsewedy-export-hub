@@ -21,6 +21,10 @@ import { useAuth } from "@/lib/hooks/useAuth";
 
 export const Route = createFileRoute("/_authenticated/leads")({
   ssr: false,
+  validateSearch: (s: Record<string, unknown>) => ({
+    temperature: (s.temperature as string) || undefined,
+    status: (s.status as string) || undefined,
+  }),
   component: Leads,
 });
 
