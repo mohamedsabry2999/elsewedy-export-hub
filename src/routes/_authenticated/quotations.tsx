@@ -20,6 +20,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { downloadBrandedPdf } from "@/lib/pdf-service";
 import { useBranding } from "@/components/BrandingProvider";
 import { useNavigate } from "@tanstack/react-router";
+import { convertToBase } from "@/lib/fx";
 
 export const Route = createFileRoute("/_authenticated/quotations")({
   ssr: false,
