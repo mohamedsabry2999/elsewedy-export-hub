@@ -177,6 +177,7 @@ function Tasks() {
                       </div>
                     </div>
                     <div className="flex gap-1">
+                      <Button size="icon" variant="ghost" onClick={() => setCommentsFor(t)} title="التعليقات"><MessageSquare className="w-4 h-4" /></Button>
                       <Button size="icon" variant="ghost" onClick={() => openEdit(t)}><Edit className="w-4 h-4" /></Button>
                       {(isAdmin || t.created_by === user?.id || t.assigned_to === user?.id) && (
                         <Button size="icon" variant="ghost" className="text-destructive" onClick={() => del(t.id)}>
