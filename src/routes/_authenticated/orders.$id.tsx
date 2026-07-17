@@ -13,10 +13,11 @@ import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Edit, ArrowRight, Factory } from "lucide-react";
+import { Plus, Trash2, Edit, ArrowRight, Factory, FileText } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { generateBrandedPdf } from "@/lib/pdf";
 
 export const Route = createFileRoute("/_authenticated/orders/$id")({
   ssr: false,
