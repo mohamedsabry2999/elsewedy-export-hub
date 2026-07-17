@@ -277,12 +277,34 @@ export function CrudPage<T extends { id: string }>({
           </div>
         } />
 
-      {searchable.length > 0 && (
-        <Card className="mb-4"><CardContent className="pt-4">
-          <div className="relative max-w-md">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input placeholder="بحث..." value={q} onChange={e => setQ(e.target.value)} className="pr-9" />
-          </div>
+      {(searchable.length > 0 || filterFields.length > 0) && (
+        <Card className="mb-4"><CardContent className="pt-4 space-y-3">
+          {searchable.length > 0 && (
+            <div className="relative max-w-md">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input placeholder="بحث..." value={q} onChange={e => setQ(e.target.value)} className="pr-9" />
+            </div>
+          )}
+          {filterFields.length > 0 && (
+            <div className="flex flex-wrap gap-2 items-center">
+              <Filter className="w-4 h-4 text-muted-foreground" />
+              {filterFields.map(ff => (
+                <Select key={ff.name} value={filters[ff.name] ?? "__all"}
+                  onValueChange={v => setFilters(prev => { const n = { ...prev }; if (v === "__all") delete n[ff.name]; else n[ff.name] = v; return n; })}>
+                  <SelectTrigger className="h-8 w-[160px] text-xs"><SelectValue placeholder={ff.label} /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all">— {ff.label}: الكل —</SelectItem>
+                    {ff.options.map(o => <SelectItem key={o.v} value={o.v}>{o.l}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              ))}
+              {Object.keys(filters).length > 0 && (
+                <Button size="sm" variant="ghost" onClick={() => setFilters({})}>
+                  <X className="w-3 h-3" /> مسح الفلاتر
+                </Button>
+              )}
+            </div>
+          )}
         </CardContent></Card>
       )}
 
