@@ -41,6 +41,7 @@ import { Route as AuthenticatedShipmentsIdRouteImport } from './routes/_authenti
 import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticated/orders.$id'
 import { Route as AuthenticatedContactsIdRouteImport } from './routes/_authenticated/contacts.$id'
 import { Route as AuthenticatedCompaniesIdRouteImport } from './routes/_authenticated/companies.$id'
+import { Route as ApiPublicHooksAutomationsDailyRouteImport } from './routes/api/public/hooks/automations-daily'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -206,6 +207,12 @@ const AuthenticatedCompaniesIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedCompaniesRoute,
   } as any)
+const ApiPublicHooksAutomationsDailyRoute =
+  ApiPublicHooksAutomationsDailyRouteImport.update({
+    id: '/api/public/hooks/automations-daily',
+    path: '/api/public/hooks/automations-daily',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -239,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/contacts/$id': typeof AuthenticatedContactsIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/shipments/$id': typeof AuthenticatedShipmentsIdRoute
+  '/api/public/hooks/automations-daily': typeof ApiPublicHooksAutomationsDailyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -272,6 +280,7 @@ export interface FileRoutesByTo {
   '/contacts/$id': typeof AuthenticatedContactsIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/shipments/$id': typeof AuthenticatedShipmentsIdRoute
+  '/api/public/hooks/automations-daily': typeof ApiPublicHooksAutomationsDailyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -307,6 +316,7 @@ export interface FileRoutesById {
   '/_authenticated/contacts/$id': typeof AuthenticatedContactsIdRoute
   '/_authenticated/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/_authenticated/shipments/$id': typeof AuthenticatedShipmentsIdRoute
+  '/api/public/hooks/automations-daily': typeof ApiPublicHooksAutomationsDailyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -342,6 +352,7 @@ export interface FileRouteTypes {
     | '/contacts/$id'
     | '/orders/$id'
     | '/shipments/$id'
+    | '/api/public/hooks/automations-daily'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -375,6 +386,7 @@ export interface FileRouteTypes {
     | '/contacts/$id'
     | '/orders/$id'
     | '/shipments/$id'
+    | '/api/public/hooks/automations-daily'
   id:
     | '__root__'
     | '/'
@@ -409,6 +421,7 @@ export interface FileRouteTypes {
     | '/_authenticated/contacts/$id'
     | '/_authenticated/orders/$id'
     | '/_authenticated/shipments/$id'
+    | '/api/public/hooks/automations-daily'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -416,6 +429,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ApiPublicHooksAutomationsDailyRoute: typeof ApiPublicHooksAutomationsDailyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -644,6 +658,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCompaniesIdRouteImport
       parentRoute: typeof AuthenticatedCompaniesRoute
     }
+    '/api/public/hooks/automations-daily': {
+      id: '/api/public/hooks/automations-daily'
+      path: '/api/public/hooks/automations-daily'
+      fullPath: '/api/public/hooks/automations-daily'
+      preLoaderRoute: typeof ApiPublicHooksAutomationsDailyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -761,6 +782,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ApiPublicHooksAutomationsDailyRoute: ApiPublicHooksAutomationsDailyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
