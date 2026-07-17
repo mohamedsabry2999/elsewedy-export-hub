@@ -48,6 +48,13 @@ function Payments() {
         { key: "due_date", header: "الاستحقاق" },
         { key: "paid_at", header: "تاريخ الدفع" },
       ]}
+      filterFields={[
+        { name: "status", label: "الحالة", options: STATUSES },
+        { name: "method", label: "طريقة الدفع", options: METHODS },
+      ]}
+      bulkFields={[
+        { name: "status", label: "تحديث الحالة", options: STATUSES },
+      ]}
       ownedFields={false}
     />
   );
