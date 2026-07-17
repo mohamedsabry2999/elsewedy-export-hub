@@ -46,6 +46,8 @@ function Contacts() {
   const qc = useQueryClient();
   const { user, isAdmin } = useAuth();
   const [q, setQ] = useState("");
+  const [companyFilter, setCompanyFilter] = useState<string>("all");
+  const [dmFilter, setDmFilter] = useState<string>("all");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Contact | null>(null);
   const [form, setForm] = useState(empty);
@@ -68,8 +70,15 @@ function Contacts() {
     },
   });
   const companyName = (id: string | null) => id ? companies?.find(c => c.id === id)?.name_en ?? "—" : "—";
-  const filtered = (contacts ?? []).filter(c => !q ||
-    `${c.full_name} ${c.email ?? ""} ${c.phone ?? ""}`.toLowerCase().includes(q.toLowerCase()));
+  const filtered = (contacts ?? []).filter(c => {
+    if (q && !`${c.full_name} ${c.email ?? ""} ${c.phone ?? ""}`.toLowerCase().includes(q.toLowerCase())) return false;
+    if (companyFilter !== "all" && c.company_id !== companyFilter) return false;
+    if (dmFilter === "yes" && !c.is_decision_maker) return false;
+    if (dmFilter === "no" && c.is_decision_maker) return false;
+    return true;
+  });
+  const clearFilters = () => { setQ(""); setCompanyFilter("all"); setDmFilter("all"); };
+  const hasFilters = q || companyFilter !== "all" || dmFilter !== "all";
 
   const openNew = () => { setEditing(null); setForm(empty); setOpen(true); };
   const openEdit = (c: Contact) => {
@@ -103,11 +112,27 @@ function Contacts() {
       <PageHeader title="جهات الاتصال" subtitle={`${filtered.length} جهة اتصال`}
         actions={<Button onClick={openNew}><Plus className="w-4 h-4" /> إضافة جهة اتصال</Button>} />
 
-      <Card className="mb-4"><CardContent className="pt-4">
-        <div className="relative">
+      <Card className="mb-4"><CardContent className="pt-4 flex flex-wrap gap-2 items-center">
+        <div className="relative flex-1 min-w-[220px]">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="بحث بالاسم أو البريد أو الهاتف..." value={q} onChange={e=>setQ(e.target.value)} className="pr-9" />
         </div>
+        <Select value={companyFilter} onValueChange={setCompanyFilter}>
+          <SelectTrigger className="w-56"><SelectValue placeholder="الشركة" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">كل الشركات</SelectItem>
+            {companies?.map(c => <SelectItem key={c.id} value={c.id}>{c.name_en}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={dmFilter} onValueChange={setDmFilter}>
+          <SelectTrigger className="w-44"><SelectValue placeholder="صانع قرار" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">الكل</SelectItem>
+            <SelectItem value="yes">صانع قرار فقط</SelectItem>
+            <SelectItem value="no">غير صانع قرار</SelectItem>
+          </SelectContent>
+        </Select>
+        {hasFilters && <Button variant="outline" size="sm" onClick={clearFilters}>مسح الفلاتر</Button>}
       </CardContent></Card>
 
       <Card><CardContent className="pt-4">
