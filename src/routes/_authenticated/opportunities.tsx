@@ -226,6 +226,7 @@ function Opportunities() {
               </div>
             </div>
           ))}
+          </div>
         </div>
       )}
 
