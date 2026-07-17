@@ -16,13 +16,20 @@ export const Route = createFileRoute("/_authenticated/reports")({ ssr: false, co
 const COLORS = ["#b48d42", "#3b82f6", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#ec4899"];
 
 function Reports() {
+  const { data: baseCurrency } = useQuery({
+    queryKey: ["system-base-currency"],
+    queryFn: async () => {
+      const { data } = await supabase.from("system_settings").select("base_currency").order("created_at").limit(1).maybeSingle();
+      return (data?.base_currency as string) || "USD";
+    },
+  });
   const { data, isLoading } = useQuery({
     queryKey: ["reports-all"],
     queryFn: async () => {
       const [opps, orders, payments, shipments, leads, samples, companies] = await Promise.all([
         supabase.from("opportunities").select("stage,amount,currency,expected_close_date,created_at"),
-        supabase.from("orders").select("id,order_number,company_id,status,total,paid_amount,currency,order_date"),
-        supabase.from("payments").select("status,amount,currency,due_date,paid_at,order_id"),
+        supabase.from("orders").select("id,order_number,company_id,status,total,base_total,paid_amount,currency,exchange_rate,order_date"),
+        supabase.from("payments").select("status,amount,base_amount,currency,due_date,paid_at,order_id"),
         supabase.from("shipments").select("status,destination_country,freight_cost,shipped_at"),
         supabase.from("leads").select("source,status,country,temperature,expected_value"),
         supabase.from("samples").select("status"),
@@ -38,16 +45,19 @@ function Reports() {
 
   if (isLoading || !data) return <div><PageHeader title="التقارير" /><Skeleton className="h-96 w-full" /></div>;
 
+  const base = baseCurrency || "USD";
   const wonAmount = (data.opps as any[]).filter(o => o.stage === "won").reduce((a, o) => a + Number(o.amount || 0), 0);
   const lostAmount = (data.opps as any[]).filter(o => o.stage === "lost").reduce((a, o) => a + Number(o.amount || 0), 0);
   const winRate = (wonAmount + lostAmount) > 0 ? (wonAmount / (wonAmount + lostAmount)) * 100 : 0;
 
-  const totalRevenue = (data.orders as any[]).reduce((a, o) => a + Number(o.total || 0), 0);
-  const totalPaid = (data.orders as any[]).reduce((a, o) => a + Number(o.paid_amount || 0), 0);
+  // Use base_total for consistent cross-currency aggregation; fall back to total when null
+  const totalRevenue = (data.orders as any[]).reduce((a, o) => a + Number(o.base_total ?? o.total ?? 0), 0);
+  const totalPaid = (data.payments as any[]).filter(p => p.status === "paid" || p.status === "partial")
+    .reduce((a, p) => a + Number(p.base_amount ?? p.amount ?? 0), 0);
   const outstanding = totalRevenue - totalPaid;
 
   const overduePayments = (data.payments as any[]).filter(p => p.status !== "paid" && p.due_date && new Date(p.due_date) < new Date());
-  const overdueAmount = overduePayments.reduce((a, p) => a + Number(p.amount || 0), 0);
+  const overdueAmount = overduePayments.reduce((a, p) => a + Number(p.base_amount ?? p.amount ?? 0), 0);
 
   // Monthly revenue trend (last 12 months)
   const monthly = new Map<string, { month: string; revenue: number; paid: number }>();
@@ -62,16 +72,16 @@ function Reports() {
     const d = new Date(o.order_date);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     const m = monthly.get(key);
-    if (m) { m.revenue += Number(o.total || 0); m.paid += Number(o.paid_amount || 0); }
+    if (m) { m.revenue += Number(o.base_total ?? o.total ?? 0); m.paid += Number(o.paid_amount ?? 0); }
   }
   const trendData = [...monthly.values()];
 
-  // Top companies by revenue
+  // Top companies by revenue (in base currency)
   const compMap = new Map((data.companies as any[]).map(c => [c.id, c]));
   const byCompany = new Map<string, number>();
   for (const o of data.orders as any[]) {
     if (!o.company_id) continue;
-    byCompany.set(o.company_id, (byCompany.get(o.company_id) ?? 0) + Number(o.total || 0));
+    byCompany.set(o.company_id, (byCompany.get(o.company_id) ?? 0) + Number(o.base_total ?? o.total ?? 0));
   }
   const topCompanies = [...byCompany.entries()]
     .map(([id, v]) => ({ name: (compMap.get(id) as any)?.name_en ?? "—", value: v }))
@@ -89,15 +99,15 @@ function Reports() {
 
   return (
     <div>
-      <PageHeader title="التقارير التنفيذية" subtitle="ملخص أداء التصدير" />
+      <PageHeader title="التقارير التنفيذية" subtitle={`ملخص أداء التصدير — القيم بالعملة الأساسية (${base})`} />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <Kpi icon={Target} label="حجم الـ Pipeline" value={sum(data.opps, "amount").toLocaleString()} color="text-blue-500" />
+        <Kpi icon={Target} label="حجم الـ Pipeline" value={sum(data.opps, "amount").toLocaleString()} color="text-blue-500" sub={base} />
         <Kpi icon={Award} label="Win Rate" value={`${winRate.toFixed(1)}%`} color="text-success" />
-        <Kpi icon={DollarSign} label="إجمالي الطلبيات" value={totalRevenue.toLocaleString()} color="text-primary" />
-        <Kpi icon={Wallet} label="المحصّل" value={totalPaid.toLocaleString()} color="text-success" />
-        <Kpi icon={TrendingUp} label="متبقي التحصيل" value={outstanding.toLocaleString()} color="text-warning" />
-        <Kpi icon={AlertTriangle} label="متأخرات" value={overdueAmount.toLocaleString()} color="text-destructive" sub={`${overduePayments.length} دفعة`} />
+        <Kpi icon={DollarSign} label="إجمالي الطلبيات" value={totalRevenue.toLocaleString()} color="text-primary" sub={base} />
+        <Kpi icon={Wallet} label="المحصّل" value={totalPaid.toLocaleString()} color="text-success" sub={base} />
+        <Kpi icon={TrendingUp} label="متبقي التحصيل" value={outstanding.toLocaleString()} color="text-warning" sub={base} />
+        <Kpi icon={AlertTriangle} label="متأخرات" value={overdueAmount.toLocaleString()} color="text-destructive" sub={`${overduePayments.length} دفعة · ${base}`} />
         <Kpi icon={Ship} label="عدد الشحنات" value={data.shipments.length.toString()} color="text-indigo-500" />
         <Kpi icon={Users} label="عدد الليدز" value={data.leads.length.toString()} color="text-amber-500" />
       </div>
