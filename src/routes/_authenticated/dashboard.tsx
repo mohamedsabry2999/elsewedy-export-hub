@@ -123,7 +123,7 @@ function Dashboard() {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
         {kpiCards.map((c) => (
-          <Link key={c.label} to={c.to} className="block">
+          <Link key={c.label} to={c.to} search={c.search as any} className="block">
             <Card className="transition-all hover:shadow-md hover:-translate-y-0.5 h-full">
               <CardContent className="pt-5">
                 <div className="flex items-center justify-between mb-2">
