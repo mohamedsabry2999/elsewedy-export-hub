@@ -106,7 +106,7 @@ function Dashboard() {
     { label: "العملاء المحتملون", value: stats?.leads ?? 0, icon: Sparkles, tone: "text-gold", to: "/leads" },
     { label: "Hot Leads", value: stats?.hot ?? 0, icon: Flame, tone: "text-destructive", to: "/leads", search: { temperature: "hot" } },
     { label: "الطلبيات", value: stats?.ordersCount ?? 0, icon: ShoppingCart, tone: "text-primary", to: "/orders" },
-    { label: "شحنات نشطة", value: stats?.activeShipments ?? 0, icon: Ship, tone: "text-chart-3", to: "/shipments" },
+    { label: "شحنات نشطة", value: stats?.activeShipments ?? 0, icon: Ship, tone: "text-chart-3", to: "/shipments", search: { status: "in_transit" } },
     { label: "إيرادات الشهر", value: fmt(stats?.monthRevenue ?? 0), icon: DollarSign, tone: "text-success", to: "/payments" },
     { label: "مستحقات معلّقة", value: fmt(stats?.pendingAmount ?? 0), icon: AlertTriangle, tone: "text-warning", to: "/payments" },
     { label: "قيمة الصفقات المكتسبة", value: fmt(stats?.wonValue ?? 0), icon: Trophy, tone: "text-success", to: "/leads", search: { status: "won" } },

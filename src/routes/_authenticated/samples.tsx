@@ -2,7 +2,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CrudPage } from "@/components/CrudPage";
 import { Badge } from "@/components/ui/badge";
 
-export const Route = createFileRoute("/_authenticated/samples")({ ssr: false, component: Samples });
+type Search = { status?: string };
+
+export const Route = createFileRoute("/_authenticated/samples")({
+  ssr: false,
+  component: Samples,
+  validateSearch: (s: Record<string, unknown>): Search => ({
+    status: typeof s.status === "string" ? s.status : undefined,
+  }),
+});
 
 const STATUSES = [
   { v: "requested", l: "مطلوبة" }, { v: "preparing", l: "قيد التحضير" },
@@ -12,10 +20,16 @@ const STATUSES = [
 ];
 
 function Samples() {
+  const search = Route.useSearch();
+  const initialFilters: Record<string, string> = {};
+  if (search.status) initialFilters.status = search.status;
+
   return (
     <CrudPage
       title="العينات" addLabel="عينة جديدة" table="samples"
+      initialFilters={initialFilters}
       searchable={["sample_number", "product_name", "tracking_number"]}
+
       defaults={{
         sample_number: "", product_name: "", quantity: 1, status: "requested",
         courier: "", tracking_number: "", cost: 0, shipped_at: "",
