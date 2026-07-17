@@ -82,12 +82,19 @@ export function NotificationCenter() {
             </Button>
           )}
         </div>
+        <Tabs value={filter} onValueChange={(v) => setFilter(v as any)} className="px-3 pt-2">
+          <TabsList className="w-full h-8">
+            <TabsTrigger value="all" className="flex-1 text-xs h-7">الكل ({items.length})</TabsTrigger>
+            <TabsTrigger value="unread" className="flex-1 text-xs h-7">غير مقروءة ({unread})</TabsTrigger>
+          </TabsList>
+        </Tabs>
         <ScrollArea className="h-96">
           {loading ? (
             <div className="p-8 flex justify-center"><Loader2 className="animate-spin w-5 h-5" /></div>
-          ) : items.length === 0 ? (
-            <div className="p-8 text-center text-sm text-muted-foreground">لا توجد إشعارات</div>
-          ) : (
+          ) : (() => {
+            const list = filter === "unread" ? items.filter(n => !n.is_read) : items;
+            if (list.length === 0) return <div className="p-8 text-center text-sm text-muted-foreground">لا توجد إشعارات</div>;
+            return (
             <div className="divide-y">
               {items.map((n) => (
                 <div key={n.id} className={`p-3 hover:bg-muted/50 ${!n.is_read ? "bg-primary/5" : ""}`}>
