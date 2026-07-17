@@ -21,6 +21,10 @@ function Shipments() {
     <CrudPage
       title="الشحنات" addLabel="شحنة جديدة" table="shipments"
       searchable={["shipment_number", "tracking_number", "destination_country"]}
+      bulkFields={[
+        { name: "status", label: "الحالة", options: STATUSES },
+        { name: "mode", label: "الوسيلة", options: MODES },
+      ]}
       defaults={{
         shipment_number: "", status: "pending", mode: "sea", carrier: "",
         tracking_number: "", origin_port: "", destination_port: "",
