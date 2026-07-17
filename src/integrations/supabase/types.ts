@@ -20,6 +20,7 @@ export type Database = {
           contact_id: string | null
           created_at: string
           created_by: string | null
+          demo_seed_id: string | null
           id: string
           notes: string | null
           occurred_at: string
@@ -35,6 +36,7 @@ export type Database = {
           contact_id?: string | null
           created_at?: string
           created_by?: string | null
+          demo_seed_id?: string | null
           id?: string
           notes?: string | null
           occurred_at?: string
@@ -50,6 +52,7 @@ export type Database = {
           contact_id?: string | null
           created_at?: string
           created_by?: string | null
+          demo_seed_id?: string | null
           id?: string
           notes?: string | null
           occurred_at?: string
@@ -76,6 +79,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "activities_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "activities_opportunity_id_fkey"
             columns: ["opportunity_id"]
             isOneToOne: false
@@ -90,6 +100,7 @@ export type Database = {
           created_at: string
           decided_at: string | null
           decision_note: string | null
+          demo_seed_id: string | null
           entity_id: string
           entity_type: string
           id: string
@@ -103,6 +114,7 @@ export type Database = {
           created_at?: string
           decided_at?: string | null
           decision_note?: string | null
+          demo_seed_id?: string | null
           entity_id: string
           entity_type: string
           id?: string
@@ -116,6 +128,7 @@ export type Database = {
           created_at?: string
           decided_at?: string | null
           decision_note?: string | null
+          demo_seed_id?: string | null
           entity_id?: string
           entity_type?: string
           id?: string
@@ -124,7 +137,15 @@ export type Database = {
           status?: Database["public"]["Enums"]["approval_status"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "approvals_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       audit_log: {
         Row: {
@@ -167,6 +188,7 @@ export type Database = {
           created_by: string | null
           currency: string | null
           current_supplier: string | null
+          demo_seed_id: string | null
           description: string | null
           employees_count: number | null
           expected_volume: string | null
@@ -202,6 +224,7 @@ export type Database = {
           created_by?: string | null
           currency?: string | null
           current_supplier?: string | null
+          demo_seed_id?: string | null
           description?: string | null
           employees_count?: number | null
           expected_volume?: string | null
@@ -237,6 +260,7 @@ export type Database = {
           created_by?: string | null
           currency?: string | null
           current_supplier?: string | null
+          demo_seed_id?: string | null
           description?: string | null
           employees_count?: number | null
           expected_volume?: string | null
@@ -262,7 +286,15 @@ export type Database = {
           updated_at?: string
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "companies_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contacts: {
         Row: {
@@ -274,6 +306,7 @@ export type Database = {
           country: string | null
           created_at: string
           created_by: string | null
+          demo_seed_id: string | null
           department: string | null
           email: string | null
           full_name: string
@@ -302,6 +335,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           created_by?: string | null
+          demo_seed_id?: string | null
           department?: string | null
           email?: string | null
           full_name: string
@@ -330,6 +364,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           created_by?: string | null
+          demo_seed_id?: string | null
           department?: string | null
           email?: string | null
           full_name?: string
@@ -355,6 +390,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contacts_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
             referencedColumns: ["id"]
           },
         ]
@@ -392,6 +434,48 @@ export type Database = {
         }
         Relationships: []
       }
+      demo_seed_runs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          error_message: string | null
+          id: string
+          name: string
+          scale: string
+          scenario: string
+          status: string
+          summary: Json | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          error_message?: string | null
+          id?: string
+          name: string
+          scale?: string
+          scenario?: string
+          status?: string
+          summary?: Json | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          error_message?: string | null
+          id?: string
+          name?: string
+          scale?: string
+          scenario?: string
+          status?: string
+          summary?: Json | null
+        }
+        Relationships: []
+      }
       exhibitions: {
         Row: {
           booth_cost: number | null
@@ -400,6 +484,7 @@ export type Database = {
           country: string | null
           created_at: string
           created_by: string | null
+          demo_seed_id: string | null
           end_date: string | null
           id: string
           leads_collected: number | null
@@ -419,6 +504,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           created_by?: string | null
+          demo_seed_id?: string | null
           end_date?: string | null
           id?: string
           leads_collected?: number | null
@@ -438,6 +524,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           created_by?: string | null
+          demo_seed_id?: string | null
           end_date?: string | null
           id?: string
           leads_collected?: number | null
@@ -450,13 +537,22 @@ export type Database = {
           venue?: string | null
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "exhibitions_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       export_documents: {
         Row: {
           company_id: string | null
           created_at: string
           created_by: string | null
+          demo_seed_id: string | null
           doc_number: string
           doc_type: Database["public"]["Enums"]["doc_type"]
           expiry_date: string | null
@@ -472,6 +568,7 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           created_by?: string | null
+          demo_seed_id?: string | null
           doc_number: string
           doc_type: Database["public"]["Enums"]["doc_type"]
           expiry_date?: string | null
@@ -487,6 +584,7 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           created_by?: string | null
+          demo_seed_id?: string | null
           doc_number?: string
           doc_type?: Database["public"]["Enums"]["doc_type"]
           expiry_date?: string | null
@@ -504,6 +602,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "export_documents_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
             referencedColumns: ["id"]
           },
           {
@@ -581,6 +686,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           currency: string | null
+          demo_seed_id: string | null
           exhibition_id: string | null
           expected_order_date: string | null
           expected_quantity: string | null
@@ -614,6 +720,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string | null
+          demo_seed_id?: string | null
           exhibition_id?: string | null
           expected_order_date?: string | null
           expected_quantity?: string | null
@@ -647,6 +754,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string | null
+          demo_seed_id?: string | null
           exhibition_id?: string | null
           expected_order_date?: string | null
           expected_quantity?: string | null
@@ -685,12 +793,20 @@ export type Database = {
             referencedRelation: "contacts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "leads_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
+            referencedColumns: ["id"]
+          },
         ]
       }
       notifications: {
         Row: {
           body: string | null
           created_at: string
+          demo_seed_id: string | null
           entity_id: string | null
           entity_type: string | null
           id: string
@@ -703,6 +819,7 @@ export type Database = {
         Insert: {
           body?: string | null
           created_at?: string
+          demo_seed_id?: string | null
           entity_id?: string | null
           entity_type?: string | null
           id?: string
@@ -715,6 +832,7 @@ export type Database = {
         Update: {
           body?: string | null
           created_at?: string
+          demo_seed_id?: string | null
           entity_id?: string | null
           entity_type?: string | null
           id?: string
@@ -724,7 +842,15 @@ export type Database = {
           type?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notifications_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       opportunities: {
         Row: {
@@ -734,6 +860,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           currency: string | null
+          demo_seed_id: string | null
           description: string | null
           expected_close_date: string | null
           id: string
@@ -753,6 +880,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string | null
+          demo_seed_id?: string | null
           description?: string | null
           expected_close_date?: string | null
           id?: string
@@ -772,6 +900,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string | null
+          demo_seed_id?: string | null
           description?: string | null
           expected_close_date?: string | null
           id?: string
@@ -800,6 +929,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "opportunities_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "opportunities_lead_id_fkey"
             columns: ["lead_id"]
             isOneToOne: false
@@ -812,6 +948,7 @@ export type Database = {
         Row: {
           changed_by: string | null
           created_at: string
+          demo_seed_id: string | null
           from_stage: Database["public"]["Enums"]["opportunity_stage"] | null
           id: string
           notes: string | null
@@ -821,6 +958,7 @@ export type Database = {
         Insert: {
           changed_by?: string | null
           created_at?: string
+          demo_seed_id?: string | null
           from_stage?: Database["public"]["Enums"]["opportunity_stage"] | null
           id?: string
           notes?: string | null
@@ -830,6 +968,7 @@ export type Database = {
         Update: {
           changed_by?: string | null
           created_at?: string
+          demo_seed_id?: string | null
           from_stage?: Database["public"]["Enums"]["opportunity_stage"] | null
           id?: string
           notes?: string | null
@@ -837,6 +976,13 @@ export type Database = {
           to_stage?: Database["public"]["Enums"]["opportunity_stage"]
         }
         Relationships: [
+          {
+            foreignKeyName: "opportunity_stage_history_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "opportunity_stage_history_opportunity_id_fkey"
             columns: ["opportunity_id"]
@@ -850,6 +996,7 @@ export type Database = {
         Row: {
           color: string | null
           created_at: string
+          demo_seed_id: string | null
           description: string | null
           dimensions: string | null
           finish: string | null
@@ -872,6 +1019,7 @@ export type Database = {
         Insert: {
           color?: string | null
           created_at?: string
+          demo_seed_id?: string | null
           description?: string | null
           dimensions?: string | null
           finish?: string | null
@@ -894,6 +1042,7 @@ export type Database = {
         Update: {
           color?: string | null
           created_at?: string
+          demo_seed_id?: string | null
           description?: string | null
           dimensions?: string | null
           finish?: string | null
@@ -914,6 +1063,13 @@ export type Database = {
           unit_price?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "order_items_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "order_items_order_id_fkey"
             columns: ["order_id"]
@@ -939,6 +1095,7 @@ export type Database = {
           created_by: string | null
           currency: string | null
           delivered_at: string | null
+          demo_seed_id: string | null
           discount: number | null
           exchange_rate: number | null
           expected_delivery: string | null
@@ -968,6 +1125,7 @@ export type Database = {
           created_by?: string | null
           currency?: string | null
           delivered_at?: string | null
+          demo_seed_id?: string | null
           discount?: number | null
           exchange_rate?: number | null
           expected_delivery?: string | null
@@ -997,6 +1155,7 @@ export type Database = {
           created_by?: string | null
           currency?: string | null
           delivered_at?: string | null
+          demo_seed_id?: string | null
           discount?: number | null
           exchange_rate?: number | null
           expected_delivery?: string | null
@@ -1034,6 +1193,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "orders_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "orders_opportunity_id_fkey"
             columns: ["opportunity_id"]
             isOneToOne: false
@@ -1057,6 +1223,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           currency: string | null
+          demo_seed_id: string | null
           due_date: string | null
           exchange_rate: number | null
           id: string
@@ -1076,6 +1243,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string | null
+          demo_seed_id?: string | null
           due_date?: string | null
           exchange_rate?: number | null
           id?: string
@@ -1095,6 +1263,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string | null
+          demo_seed_id?: string | null
           due_date?: string | null
           exchange_rate?: number | null
           id?: string
@@ -1113,6 +1282,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
             referencedColumns: ["id"]
           },
           {
@@ -1160,6 +1336,7 @@ export type Database = {
           completed_at: string | null
           created_at: string
           created_by: string | null
+          demo_seed_id: string | null
           id: string
           notes: string | null
           order_id: string
@@ -1175,6 +1352,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           created_by?: string | null
+          demo_seed_id?: string | null
           id?: string
           notes?: string | null
           order_id: string
@@ -1190,6 +1368,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           created_by?: string | null
+          demo_seed_id?: string | null
           id?: string
           notes?: string | null
           order_id?: string
@@ -1201,6 +1380,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "production_stages_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "production_stages_order_id_fkey"
             columns: ["order_id"]
@@ -1217,6 +1403,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           currency: string | null
+          demo_seed_id: string | null
           description: string | null
           hs_code: string | null
           id: string
@@ -1237,6 +1424,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string | null
+          demo_seed_id?: string | null
           description?: string | null
           hs_code?: string | null
           id?: string
@@ -1257,6 +1445,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string | null
+          demo_seed_id?: string | null
           description?: string | null
           hs_code?: string | null
           id?: string
@@ -1271,7 +1460,15 @@ export type Database = {
           unit?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -1322,6 +1519,7 @@ export type Database = {
         Row: {
           color: string | null
           created_at: string
+          demo_seed_id: string | null
           description: string | null
           dimensions: string | null
           discount_pct: number | null
@@ -1345,6 +1543,7 @@ export type Database = {
         Insert: {
           color?: string | null
           created_at?: string
+          demo_seed_id?: string | null
           description?: string | null
           dimensions?: string | null
           discount_pct?: number | null
@@ -1368,6 +1567,7 @@ export type Database = {
         Update: {
           color?: string | null
           created_at?: string
+          demo_seed_id?: string | null
           description?: string | null
           dimensions?: string | null
           discount_pct?: number | null
@@ -1389,6 +1589,13 @@ export type Database = {
           unit_price?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "quotation_items_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "quotation_items_product_id_fkey"
             columns: ["product_id"]
@@ -1416,6 +1623,7 @@ export type Database = {
           created_by: string | null
           currency: string | null
           delivery_terms: string | null
+          demo_seed_id: string | null
           discount: number | null
           exchange_rate: number | null
           id: string
@@ -1446,6 +1654,7 @@ export type Database = {
           created_by?: string | null
           currency?: string | null
           delivery_terms?: string | null
+          demo_seed_id?: string | null
           discount?: number | null
           exchange_rate?: number | null
           id?: string
@@ -1476,6 +1685,7 @@ export type Database = {
           created_by?: string | null
           currency?: string | null
           delivery_terms?: string | null
+          demo_seed_id?: string | null
           discount?: number | null
           exchange_rate?: number | null
           id?: string
@@ -1516,6 +1726,13 @@ export type Database = {
             columns: ["converted_order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotations_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
             referencedColumns: ["id"]
           },
           {
@@ -1572,6 +1789,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           delivered_at: string | null
+          demo_seed_id: string | null
           feedback_at: string | null
           feedback_notes: string | null
           id: string
@@ -1594,6 +1812,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           delivered_at?: string | null
+          demo_seed_id?: string | null
           feedback_at?: string | null
           feedback_notes?: string | null
           id?: string
@@ -1616,6 +1835,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           delivered_at?: string | null
+          demo_seed_id?: string | null
           feedback_at?: string | null
           feedback_notes?: string | null
           id?: string
@@ -1646,6 +1866,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "samples_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "samples_opportunity_id_fkey"
             columns: ["opportunity_id"]
             isOneToOne: false
@@ -1658,6 +1885,7 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          demo_seed_id: string | null
           description: string | null
           event_at: string
           event_status: string
@@ -1668,6 +1896,7 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string | null
+          demo_seed_id?: string | null
           description?: string | null
           event_at?: string
           event_status: string
@@ -1678,6 +1907,7 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string | null
+          demo_seed_id?: string | null
           description?: string | null
           event_at?: string
           event_status?: string
@@ -1686,6 +1916,13 @@ export type Database = {
           shipment_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "shipment_events_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "shipment_events_shipment_id_fkey"
             columns: ["shipment_id"]
@@ -1703,6 +1940,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           delivered_at: string | null
+          demo_seed_id: string | null
           destination_country: string | null
           destination_port: string | null
           eta: string | null
@@ -1729,6 +1967,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           delivered_at?: string | null
+          demo_seed_id?: string | null
           destination_country?: string | null
           destination_port?: string | null
           eta?: string | null
@@ -1755,6 +1994,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           delivered_at?: string | null
+          demo_seed_id?: string | null
           destination_country?: string | null
           destination_port?: string | null
           eta?: string | null
@@ -1780,6 +2020,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipments_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
             referencedColumns: ["id"]
           },
           {
@@ -1859,6 +2106,7 @@ export type Database = {
           author_id: string
           body: string
           created_at: string
+          demo_seed_id: string | null
           id: string
           task_id: string
           updated_at: string
@@ -1867,6 +2115,7 @@ export type Database = {
           author_id: string
           body: string
           created_at?: string
+          demo_seed_id?: string | null
           id?: string
           task_id: string
           updated_at?: string
@@ -1875,11 +2124,19 @@ export type Database = {
           author_id?: string
           body?: string
           created_at?: string
+          demo_seed_id?: string | null
           id?: string
           task_id?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "task_comments_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "task_comments_task_id_fkey"
             columns: ["task_id"]
@@ -1895,6 +2152,7 @@ export type Database = {
           completed_at: string | null
           created_at: string
           created_by: string | null
+          demo_seed_id: string | null
           description: string | null
           due_date: string | null
           id: string
@@ -1910,6 +2168,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           created_by?: string | null
+          demo_seed_id?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
@@ -1925,6 +2184,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           created_by?: string | null
+          demo_seed_id?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
@@ -1935,7 +2195,15 @@ export type Database = {
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tasks_demo_seed_id_fkey"
+            columns: ["demo_seed_id"]
+            isOneToOne: false
+            referencedRelation: "demo_seed_runs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_permissions: {
         Row: {
@@ -2039,6 +2307,15 @@ export type Database = {
           _target_user: string
         }
         Returns: undefined
+      }
+      reset_demo_data: { Args: { _run_id: string }; Returns: Json }
+      save_quotation_with_items: {
+        Args: { _header: Json; _items: Json; _quotation_id: string }
+        Returns: string
+      }
+      seed_demo_data: {
+        Args: { _scale?: string; _scenario?: string }
+        Returns: Json
       }
     }
     Enums: {
