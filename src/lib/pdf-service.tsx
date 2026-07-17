@@ -22,6 +22,7 @@ export interface PdfLine {
   price: number;
   discount?: number | null;
   total: number;
+  specs?: string | null;
 }
 
 export interface PdfDocOptions {
