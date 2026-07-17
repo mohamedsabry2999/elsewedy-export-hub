@@ -92,6 +92,9 @@ export function CrudPage<T extends { id: string }>({
   });
 
   const filtered = (rows ?? []).filter((r: any) => {
+    for (const [k, v] of Object.entries(filters)) {
+      if (v && String(r[k] ?? "") !== v) return false;
+    }
     if (!q) return true;
     return searchable.some(k => String(r[k as string] ?? "").toLowerCase().includes(q.toLowerCase()));
   });
