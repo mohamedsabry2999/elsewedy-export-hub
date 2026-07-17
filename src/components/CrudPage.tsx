@@ -42,6 +42,7 @@ export type ColumnDef<T> = {
 };
 
 export type BulkFieldDef = { name: string; label: string; options: { v: string; l: string }[] };
+export type FilterFieldDef = { name: string; label: string; options: { v: string; l: string }[] };
 
 type Props<T extends { id: string }> = {
   title: string;
@@ -55,6 +56,7 @@ type Props<T extends { id: string }> = {
   numberGenerator?: (form: any) => Record<string, string>;
   ownedFields?: boolean;
   bulkFields?: BulkFieldDef[];
+  filterFields?: FilterFieldDef[];
 };
 
 export function CrudPage<T extends { id: string }>({
