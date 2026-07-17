@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Plus, Trash2, Edit, Search, Download, Upload } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
@@ -39,6 +40,8 @@ export type ColumnDef<T> = {
   className?: string;
 };
 
+export type BulkFieldDef = { name: string; label: string; options: { v: string; l: string }[] };
+
 type Props<T extends { id: string }> = {
   title: string;
   addLabel: string;
@@ -50,11 +53,13 @@ type Props<T extends { id: string }> = {
   invalidateKeys?: string[];
   numberGenerator?: (form: any) => Record<string, string>;
   ownedFields?: boolean;
+  bulkFields?: BulkFieldDef[];
 };
 
 export function CrudPage<T extends { id: string }>({
   title, addLabel, table, columns, fields, defaults,
   searchable = [], invalidateKeys = [], numberGenerator, ownedFields = true,
+  bulkFields = [],
 }: Props<T>) {
   const qc = useQueryClient();
   const { user, isAdmin, hasPermission } = useAuth();
@@ -150,6 +155,17 @@ export function CrudPage<T extends { id: string }>({
     qc.invalidateQueries({ queryKey: [table] });
   };
 
+  const bulkUpdate = async (field: string, value: string) => {
+    const ids = Array.from(selected);
+    if (!ids.length) return;
+    const { error } = await (supabase as any).from(table).update({ [field]: value }).in("id", ids);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`تم تحديث ${ids.length} عنصر`);
+    setSelected(new Set());
+    qc.invalidateQueries({ queryKey: [table] });
+  };
+
+
   const exportCSV = () => {
     const src = selected.size > 0 ? filtered.filter((r: any) => selected.has(r.id)) : filtered;
     if (!src.length) { toast.error("لا توجد بيانات للتصدير"); return; }
@@ -229,6 +245,12 @@ export function CrudPage<T extends { id: string }>({
                 </AlertDialogContent>
               </AlertDialog>
             )}
+            {canEdit && selected.size > 0 && bulkFields.map((bf) => (
+              <Select key={bf.name} onValueChange={(v) => bulkUpdate(bf.name, v)}>
+                <SelectTrigger className="h-9 w-[180px]"><SelectValue placeholder={`تحديث ${bf.label} (${selected.size})`} /></SelectTrigger>
+                <SelectContent>{bf.options.map(o => <SelectItem key={o.v} value={o.v}>{o.l}</SelectItem>)}</SelectContent>
+              </Select>
+            ))}
             {canCreate && <Button onClick={openNew}><Plus className="w-4 h-4" /> {addLabel}</Button>}
           </div>
         } />

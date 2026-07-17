@@ -216,11 +216,25 @@ function Quotations() {
         { labelAr: "Incoterms", labelEn: "Incoterms", value: q.incoterms ?? "-" },
         { labelAr: "شروط الدفع", labelEn: "Payment", value: q.payment_terms ?? "-" },
       ],
-      lines: (rows ?? []).map((it: any) => ({
-        name: it.product_name, qty: Number(it.quantity), unit: it.unit,
-        price: Number(it.unit_price), discount: Number(it.discount_pct ?? 0),
-        total: Number(it.line_total),
-      })),
+      lines: (rows ?? []).map((it: any) => {
+        const specs = [
+          it.material && `المادة: ${it.material}`,
+          it.thickness && `السماكة: ${it.thickness}`,
+          it.dimensions && `الأبعاد: ${it.dimensions}`,
+          it.color && `اللون: ${it.color}`,
+          it.finish && `اللمسة: ${it.finish}`,
+          it.print_colors && `ألوان الطباعة: ${it.print_colors}`,
+          it.packaging && `التغليف: ${it.packaging}`,
+          it.lead_time_days != null && `مهلة: ${it.lead_time_days} يوم`,
+          it.specs_notes,
+        ].filter(Boolean).join(" · ");
+        return {
+          name: it.product_name, qty: Number(it.quantity), unit: it.unit,
+          price: Number(it.unit_price), discount: Number(it.discount_pct ?? 0),
+          total: Number(it.line_total),
+          specs: specs || null,
+        };
+      }),
       totals: {
         subtotal: Number(q.subtotal ?? 0), discount: Number(q.discount ?? 0),
         tax: Number(q.tax ?? 0), total: Number(q.total ?? 0), currency: q.currency ?? "USD",
