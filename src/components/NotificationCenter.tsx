@@ -21,6 +21,7 @@ export function NotificationCenter() {
   const [items, setItems] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [filter, setFilter] = useState<"all" | "unread">("all");
 
   const load = async () => {
     if (!user) return;
