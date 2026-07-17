@@ -168,11 +168,6 @@ function Opportunities() {
               onDrop={() => { if (dragId) { moveTo(dragId, s.v); setDragId(null); } }}
               className={`rounded-lg border ${s.color} p-2 min-h-[400px] w-[220px] shrink-0`}
             >
-            <div
-              key={s.v}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={() => { if (dragId) { moveTo(dragId, s.v); setDragId(null); } }}
-              className={`rounded-lg border ${s.color} p-2 min-h-[400px]`}
             >
               <div className="flex items-center justify-between mb-2 px-1">
                 <div>
