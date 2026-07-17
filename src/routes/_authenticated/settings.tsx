@@ -183,6 +183,9 @@ function SettingsPage() {
           </Button>
         </div>
       )}
+      <div className="mt-6">
+        <SystemDiagnostics />
+      </div>
     </div>
   );
 }
