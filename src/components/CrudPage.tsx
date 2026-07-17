@@ -57,12 +57,13 @@ type Props<T extends { id: string }> = {
   ownedFields?: boolean;
   bulkFields?: BulkFieldDef[];
   filterFields?: FilterFieldDef[];
+  initialFilters?: Record<string, string>;
 };
 
 export function CrudPage<T extends { id: string }>({
   title, addLabel, table, columns, fields, defaults,
   searchable = [], invalidateKeys = [], numberGenerator, ownedFields = true,
-  bulkFields = [], filterFields = [],
+  bulkFields = [], filterFields = [], initialFilters,
 }: Props<T>) {
   const qc = useQueryClient();
   const { user, isAdmin, hasPermission } = useAuth();
@@ -78,7 +79,7 @@ export function CrudPage<T extends { id: string }>({
   const [form, setForm] = useState<any>(defaults);
   const [saving, setSaving] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [filters, setFilters] = useState<Record<string, string>>({});
+  const [filters, setFilters] = useState<Record<string, string>>(initialFilters ?? {});
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [importing, setImporting] = useState(false);
 

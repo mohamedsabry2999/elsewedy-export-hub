@@ -111,7 +111,7 @@ function Dashboard() {
     { label: "مستحقات معلّقة", value: fmt(stats?.pendingAmount ?? 0), icon: AlertTriangle, tone: "text-warning", to: "/payments" },
     { label: "قيمة الصفقات المكتسبة", value: fmt(stats?.wonValue ?? 0), icon: Trophy, tone: "text-success", to: "/leads", search: { status: "won" } },
     { label: "موافقات معلّقة", value: stats?.pendingApprovals ?? 0, icon: ClipboardCheck, tone: "text-amber-600", to: "/approvals" },
-    { label: "دفعات متأخرة", value: stats?.overduePayments ?? 0, icon: Clock, tone: "text-destructive", to: "/payments" },
+    { label: "دفعات متأخرة", value: stats?.overduePayments ?? 0, icon: Clock, tone: "text-destructive", to: "/payments", search: { status: "overdue" } },
     { label: "نشاط إجمالي", value: (stats?.companies ?? 0) + (stats?.leads ?? 0), icon: TrendingUp, tone: "text-primary", to: "/reports" },
   ];
 
