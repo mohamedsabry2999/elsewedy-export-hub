@@ -139,12 +139,15 @@ function Quotations() {
     if (!form.quote_number.trim()) { toast.error("رقم العرض مطلوب"); return; }
     if (items.length === 0 || !items[0].product_name) { toast.error("أضف بند واحد على الأقل"); return; }
     setSaving(true);
+    const fx = await convertToBase(form.currency, total);
     const payload: any = {
       quote_number: form.quote_number,
       company_id: form.company_id || null,
       opportunity_id: form.opportunity_id || null,
       status: form.status, currency: form.currency,
       subtotal, discount: Number(form.discount) || 0, tax: Number(form.tax) || 0, total,
+      exchange_rate: fx.rate,
+      base_total: fx.base,
       valid_until: form.valid_until || null,
       incoterms: form.incoterms || null,
       payment_terms: form.payment_terms || null,
