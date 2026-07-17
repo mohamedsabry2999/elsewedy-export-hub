@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useBranding } from "@/components/BrandingProvider";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   ssr: false,
@@ -22,6 +23,7 @@ interface Settings {
   company_name: string;
   company_name_ar: string;
   logo_url: string | null;
+  logo_path: string | null;
   primary_color: string | null;
   default_currency: string;
   default_language: string;
@@ -36,6 +38,7 @@ interface Settings {
 
 function SettingsPage() {
   const { isAdmin } = useAuth();
+  const { brand, refresh, logoFullFallback } = useBranding();
   const [s, setS] = useState<Settings | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -57,24 +60,46 @@ function SettingsPage() {
       primary_color: s.primary_color, default_currency: s.default_currency,
       default_language: s.default_language, timezone: s.timezone,
       address: s.address, phone: s.phone, email: s.email, website: s.website,
-      tax_id: s.tax_id, invoice_footer: s.invoice_footer, logo_url: s.logo_url,
+      tax_id: s.tax_id, invoice_footer: s.invoice_footer,
+      logo_path: s.logo_path, logo_url: s.logo_url,
     }).eq("id", "default");
     setSaving(false);
-    if (error) toast.error(error.message); else toast.success("تم الحفظ");
+    if (error) toast.error(error.message);
+    else { toast.success("تم الحفظ"); refresh(); }
   };
 
   const uploadLogo = async (file: File) => {
     if (!isAdmin) return toast.error("للمسؤولين فقط");
     setUploading(true);
-    const ext = file.name.split(".").pop() ?? "png";
+    const ext = (file.name.split(".").pop() ?? "png").toLowerCase();
     const path = `logo-${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("branding").upload(path, file, { upsert: true });
+    const { error } = await supabase.storage.from("branding").upload(path, file, {
+      upsert: true, contentType: file.type || "image/png",
+    });
     if (error) { toast.error(error.message); setUploading(false); return; }
-    const { data } = await supabase.storage.from("branding").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
-    upd("logo_url", data?.signedUrl ?? null);
+    // Persist stable path; BrandingProvider resolves signed URL at read time.
+    const { error: upErr } = await supabase.from("system_settings")
+      .update({ logo_path: path, logo_url: null }).eq("id", "default");
+    if (upErr) { toast.error(upErr.message); setUploading(false); return; }
+    setS({ ...s, logo_path: path, logo_url: null });
     setUploading(false);
-    toast.success("تم رفع الشعار — اضغط حفظ لتثبيته");
+    toast.success("تم رفع الشعار بنجاح");
+    refresh();
   };
+
+  const resetLogo = async () => {
+    if (!isAdmin) return;
+    if (s.logo_path) {
+      await supabase.storage.from("branding").remove([s.logo_path]);
+    }
+    await supabase.from("system_settings")
+      .update({ logo_path: null, logo_url: null }).eq("id", "default");
+    setS({ ...s, logo_path: null, logo_url: null });
+    toast.success("تمت إعادة الشعار للنسخة الافتراضية");
+    refresh();
+  };
+
+  const currentLogo = brand.logo_url || logoFullFallback;
 
   return (
     <div>
@@ -98,17 +123,25 @@ function SettingsPage() {
           <CardContent className="space-y-3">
             <div>
               <Label>شعار الشركة</Label>
-              {s.logo_url && <img src={s.logo_url} alt="logo" className="h-16 my-2 rounded border" />}
+              <div className="flex items-center gap-3 my-2">
+                <img src={currentLogo} alt="logo" className="h-16 rounded border p-1 bg-white" />
+                {s.logo_path && (
+                  <Button size="sm" variant="outline" type="button" onClick={resetLogo} disabled={!isAdmin}>
+                    <Trash2 className="w-3 h-3" /> إعادة تعيين
+                  </Button>
+                )}
+              </div>
               <div className="flex items-center gap-2">
                 <Input type="file" accept="image/*" disabled={!isAdmin || uploading}
                   onChange={(e) => e.target.files?.[0] && uploadLogo(e.target.files[0])} />
                 {uploading && <Loader2 className="animate-spin w-4 h-4" />}
               </div>
+              <p className="text-xs text-muted-foreground mt-1">يُرفع مرة واحدة، ويُعرض تلقائياً في كل مكان (الواجهة والـ PDF).</p>
             </div>
             <div>
               <Label>اللون الأساسي</Label>
               <div className="flex gap-2 items-center">
-                <Input type="color" value={s.primary_color ?? "#B8860B"} onChange={(e) => upd("primary_color", e.target.value)} disabled={!isAdmin} className="w-16 h-10 p-1" />
+                <Input type="color" value={s.primary_color ?? "#C1272D"} onChange={(e) => upd("primary_color", e.target.value)} disabled={!isAdmin} className="w-16 h-10 p-1" />
                 <Input value={s.primary_color ?? ""} onChange={(e) => upd("primary_color", e.target.value)} disabled={!isAdmin} dir="ltr" />
               </div>
             </div>
