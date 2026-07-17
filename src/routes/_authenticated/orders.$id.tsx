@@ -117,10 +117,24 @@ function OrderDetail() {
         { labelAr: "التسليم", labelEn: "Delivery", value: order.expected_delivery ?? "-" },
         { labelAr: "Incoterms", labelEn: "Incoterms", value: order.incoterms ?? "-" },
       ],
-      lines: (items ?? []).map((it: any) => ({
-        name: it.product_name, qty: Number(it.quantity), unit: it.unit,
-        price: Number(it.unit_price), discount: 0, total: Number(it.line_total),
-      })),
+      lines: (items ?? []).map((it: any) => {
+        const specs = [
+          it.material && `المادة: ${it.material}`,
+          it.thickness && `السماكة: ${it.thickness}`,
+          it.dimensions && `الأبعاد: ${it.dimensions}`,
+          it.color && `اللون: ${it.color}`,
+          it.finish && `اللمسة: ${it.finish}`,
+          it.print_colors && `ألوان الطباعة: ${it.print_colors}`,
+          it.packaging && `التغليف: ${it.packaging}`,
+          it.lead_time_days != null && `مهلة: ${it.lead_time_days} يوم`,
+          it.specs_notes,
+        ].filter(Boolean).join(" · ");
+        return {
+          name: it.product_name, qty: Number(it.quantity), unit: it.unit,
+          price: Number(it.unit_price), discount: 0, total: Number(it.line_total),
+          specs: specs || null,
+        };
+      }),
       totals: {
         subtotal: Number(order.subtotal ?? 0), discount: Number(order.discount ?? 0),
         tax: Number(order.tax ?? 0), total: Number(order.total ?? 0), currency: order.currency ?? "USD",
