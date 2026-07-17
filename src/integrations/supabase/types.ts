@@ -1782,6 +1782,8 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_export_manager: { Args: { _user_id: string }; Returns: boolean }
+      is_system_owner: { Args: { _user_id: string }; Returns: boolean }
       notify_user: {
         Args: {
           _body?: string
@@ -1793,6 +1795,13 @@ export type Database = {
           _user_id: string
         }
         Returns: string
+      }
+      replace_user_roles_atomic: {
+        Args: {
+          _new_roles: Database["public"]["Enums"]["app_role"][]
+          _target_user: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
