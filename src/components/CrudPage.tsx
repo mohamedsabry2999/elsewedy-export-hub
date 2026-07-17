@@ -162,6 +162,8 @@ export function CrudPage<T extends { id: string }>({
     toast.success(`تم تحديث ${ids.length} عنصر`);
     setSelected(new Set());
     qc.invalidateQueries({ queryKey: [table] });
+  };
+
 
   const exportCSV = () => {
     const src = selected.size > 0 ? filtered.filter((r: any) => selected.has(r.id)) : filtered;
