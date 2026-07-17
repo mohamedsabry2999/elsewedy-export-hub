@@ -209,6 +209,12 @@ function Approvals() {
                               <Badge variant="outline" className={st.c}>{st.l}</Badge>
                               <Badge variant="outline">{entityLabel}</Badge>
                               <span className="text-xs text-muted-foreground font-mono">{r.entity_id.slice(0, 8)}</span>
+                              {ENTITY_LINK[r.entity_type] && (
+                                <Link to={ENTITY_LINK[r.entity_type]!(r.entity_id)}
+                                  className="text-xs text-primary hover:underline inline-flex items-center gap-1">
+                                  <ExternalLink className="w-3 h-3" /> فتح السجل
+                                </Link>
+                              )}
                             </div>
                             {r.reason && <div className="text-sm mt-2">{r.reason}</div>}
                             <div className="text-xs text-muted-foreground mt-2 flex flex-wrap gap-x-4 gap-y-1">
