@@ -17,12 +17,16 @@ const ROLES = [
 type Role = (typeof ROLES)[number];
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
-  const { data, error } = await ctx.supabase.rpc("is_admin", {
-    _user_id: ctx.userId,
-  });
-  if (error) throw new Error(error.message);
-  if (!data) throw new Error("Forbidden: admin role required");
+  // System owner OR explicit users.manage permission may perform admin user ops.
+  const [{ data: isOwner, error: e1 }, { data: canManage, error: e2 }] = await Promise.all([
+    ctx.supabase.rpc("is_system_owner", { _user_id: ctx.userId }),
+    ctx.supabase.rpc("has_permission", { _user_id: ctx.userId, _code: "users.manage" }),
+  ]);
+  if (e1) throw new Error(e1.message);
+  if (e2) throw new Error(e2.message);
+  if (!isOwner && !canManage) throw new Error("Forbidden: users.manage required");
 }
+
 
 export const listUsers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
