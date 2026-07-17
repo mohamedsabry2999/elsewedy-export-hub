@@ -353,10 +353,13 @@ function Quotations() {
                   <TableHead className="w-28">سعر الوحدة</TableHead>
                   <TableHead className="w-20">خصم %</TableHead>
                   <TableHead className="w-28">الإجمالي</TableHead>
+                  <TableHead className="w-10">مواصفات</TableHead>
                   <TableHead className="w-10"></TableHead>
                 </TableRow></TableHeader>
                 <TableBody>
-                  {items.map((it, i) => (
+                  {items.map((it, i) => {
+                    const specCount = [it.material, it.thickness, it.dimensions, it.color, it.finish, it.print_colors, it.packaging, it.lead_time_days, it.specs_notes].filter(v => v !== "" && v != null).length;
+                    return (
                     <TableRow key={i}>
                       <TableCell><Input value={it.product_name} onChange={e => updateItem(i, { product_name: e.target.value })} placeholder="اسم المنتج" /></TableCell>
                       <TableCell><Input type="number" value={it.quantity} onChange={e => updateItem(i, { quantity: Number(e.target.value) })} dir="ltr" /></TableCell>
