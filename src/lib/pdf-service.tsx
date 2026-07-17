@@ -170,7 +170,10 @@ function BrandedDoc({
           {lines.map((it, i) => (
             <View key={i} style={[styles.tRow, i % 2 ? styles.tRowAlt : {}]} wrap={false}>
               <Text style={styles.cIdx}>{i + 1}</Text>
-              <Text style={styles.cName}>{it.name}</Text>
+              <View style={styles.cName}>
+                <Text>{it.name}</Text>
+                {it.specs ? <Text style={{ fontSize: 7, color: "#666", marginTop: 2 }}>{it.specs}</Text> : null}
+              </View>
               <Text style={styles.cQty}>{it.qty}</Text>
               <Text style={styles.cUnit}>{it.unit ?? "-"}</Text>
               <Text style={styles.cPrice}>{it.price.toFixed(2)}</Text>
