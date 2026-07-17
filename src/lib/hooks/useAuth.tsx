@@ -26,7 +26,7 @@ export interface AuthContextValue {
   permissions: Set<string>;
   isSystemOwner: boolean;
   isExportManager: boolean;
-  /** @deprecated kept for backward compat — equals isSystemOwner || isExportManager */
+  /** @deprecated Now strictly equals isSystemOwner. Use hasPermission for gating. */
   isAdmin: boolean;
   loading: boolean;
   error: string | null;
@@ -43,36 +43,38 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 async function loadAll(u: User): Promise<{
   profile: Profile | null; roles: AppRole[]; permissions: Set<string>;
 }> {
-  const [{ data: p }, { data: r }] = await Promise.all([
+  const [{ data: p }, { data: r, error: rErr }] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", u.id).maybeSingle(),
     supabase.from("user_roles").select("role").eq("user_id", u.id),
   ]);
+  if (rErr) throw new Error(`Failed to load roles: ${rErr.message}`);
   const roleList = (r ?? []).map((x: { role: AppRole }) => x.role);
   const isOwner = roleList.includes("system_owner");
-  const isMgr = roleList.includes("export_manager");
   const perms = new Set<string>();
 
-  // System owner: full access even if permissions table load fails
-  if (isOwner || isMgr) {
-    try {
-      const { data: all } = await supabase.from("permissions").select("code");
-      (all ?? []).forEach((x: { code: string }) => perms.add(x.code));
-    } catch { /* keep empty; owner short-circuits via isSystemOwner */ }
+  // ONLY system_owner gets automatic full access (loaded for UI symmetry;
+  // real authorization lives in has_permission / RLS).
+  if (isOwner) {
+    const { data: all } = await supabase.from("permissions").select("code");
+    (all ?? []).forEach((x: { code: string }) => perms.add(x.code));
   } else if (roleList.length > 0) {
     const { data: rp } = await supabase
       .from("role_permissions").select("permission_code").in("role", roleList);
     (rp ?? []).forEach((x: { permission_code: string }) => perms.add(x.permission_code));
   }
-  // Per-user overrides
-  const { data: up } = await supabase
-    .from("user_permissions").select("permission_code, granted").eq("user_id", u.id);
-  (up ?? []).forEach((x: UserPerm) => {
-    if (x.granted) perms.add(x.permission_code);
-    else perms.delete(x.permission_code);
-  });
+  // Per-user overrides (skip for system_owner — they always have full access).
+  if (!isOwner) {
+    const { data: up } = await supabase
+      .from("user_permissions").select("permission_code, granted").eq("user_id", u.id);
+    (up ?? []).forEach((x: UserPerm) => {
+      if (x.granted) perms.add(x.permission_code);
+      else perms.delete(x.permission_code);
+    });
+  }
 
   return { profile: (p as Profile | null) ?? null, roles: roleList, permissions: perms };
 }
+
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -118,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isSystemOwner = roles.includes("system_owner");
   const isExportManager = roles.includes("export_manager");
-  const isAdmin = isSystemOwner || isExportManager;
+  const isAdmin = isSystemOwner; // narrowed: export_manager is NOT admin anymore
 
   const hasPermission = (code: string) => isSystemOwner || permissions.has(code);
   const hasAnyPermission = (codes: string[]) => isSystemOwner || codes.some((c) => permissions.has(c));
