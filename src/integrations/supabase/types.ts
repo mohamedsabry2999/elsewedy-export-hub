@@ -1607,6 +1607,7 @@ export type Database = {
           email: string | null
           id: string
           invoice_footer: string | null
+          logo_path: string | null
           logo_url: string | null
           phone: string | null
           primary_color: string | null
@@ -1625,6 +1626,7 @@ export type Database = {
           email?: string | null
           id?: string
           invoice_footer?: string | null
+          logo_path?: string | null
           logo_url?: string | null
           phone?: string | null
           primary_color?: string | null
@@ -1643,6 +1645,7 @@ export type Database = {
           email?: string | null
           id?: string
           invoice_footer?: string | null
+          logo_path?: string | null
           logo_url?: string | null
           phone?: string | null
           primary_color?: string | null
