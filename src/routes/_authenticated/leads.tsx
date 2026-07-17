@@ -21,6 +21,10 @@ import { useAuth } from "@/lib/hooks/useAuth";
 
 export const Route = createFileRoute("/_authenticated/leads")({
   ssr: false,
+  validateSearch: (s: Record<string, unknown>) => ({
+    temperature: (s.temperature as string) || undefined,
+    status: (s.status as string) || undefined,
+  }),
   component: Leads,
 });
 
@@ -52,9 +56,11 @@ function Leads() {
   const qc = useQueryClient();
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const search = Route.useSearch();
   const [q, setQ] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [tempFilter, setTempFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState(search.status ?? "all");
+  const [tempFilter, setTempFilter] = useState(search.temperature ?? "all");
+  const [sourceFilter, setSourceFilter] = useState("all");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Lead | null>(null);
   const [form, setForm] = useState(empty);
@@ -81,6 +87,7 @@ function Leads() {
       .toLowerCase().includes(q.toLowerCase())) return false;
     if (statusFilter !== "all" && l.status !== statusFilter) return false;
     if (tempFilter !== "all" && l.temperature !== tempFilter) return false;
+    if (sourceFilter !== "all" && l.source !== sourceFilter) return false;
     return true;
   });
 
@@ -171,6 +178,18 @@ function Leads() {
             <SelectItem value="cold">Cold</SelectItem>
           </SelectContent>
         </Select>
+        <Select value={sourceFilter} onValueChange={setSourceFilter}>
+          <SelectTrigger className="w-40"><SelectValue placeholder="المصدر" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">كل المصادر</SelectItem>
+            {SOURCES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        {(statusFilter !== "all" || tempFilter !== "all" || sourceFilter !== "all" || q) && (
+          <Button variant="ghost" size="sm" onClick={() => { setQ(""); setStatusFilter("all"); setTempFilter("all"); setSourceFilter("all"); }}>
+            مسح الفلاتر
+          </Button>
+        )}
       </CardContent></Card>
 
       <Card><CardContent className="pt-4">

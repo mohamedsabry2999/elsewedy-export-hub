@@ -43,6 +43,12 @@ function Samples() {
         { key: "courier", header: "الشحن" },
         { key: "tracking_number", header: "التتبع" },
       ]}
+      filterFields={[
+        { name: "status", label: "الحالة", options: STATUSES },
+      ]}
+      bulkFields={[
+        { name: "status", label: "تحديث الحالة", options: STATUSES },
+      ]}
     />
   );
 }
