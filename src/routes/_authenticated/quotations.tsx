@@ -35,6 +35,7 @@ type Quote = {
   tax: number | null; total: number | null; valid_until: string | null;
   incoterms: string | null; payment_terms: string | null; delivery_terms: string | null;
   notes: string | null; owner_id: string | null;
+  converted_order_id: string | null;
 };
 type Item = {
   id?: string; quotation_id?: string; product_name: string; description: string | null;
