@@ -78,6 +78,8 @@ function Quotations() {
   const [items, setItems] = useState<Item[]>([emptyItem()]);
   const [saving, setSaving] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [companyFilter, setCompanyFilter] = useState("all");
+  const [currencyFilter, setCurrencyFilter] = useState("all");
 
   const { data: quotes, isLoading } = useQuery({
     queryKey: ["quotations"],
@@ -102,8 +104,15 @@ function Quotations() {
     },
   });
 
-  const filtered = (quotes ?? []).filter(q => statusFilter === "all" || q.status === statusFilter);
+  const filtered = (quotes ?? []).filter(q =>
+    (statusFilter === "all" || q.status === statusFilter) &&
+    (companyFilter === "all" || q.company_id === companyFilter) &&
+    (currencyFilter === "all" || q.currency === currencyFilter)
+  );
   const compMap = new Map((companies ?? []).map(c => [c.id, c.name_en]));
+  const currencies = Array.from(new Set((quotes ?? []).map(q => q.currency).filter(Boolean))) as string[];
+  const hasFilters = statusFilter !== "all" || companyFilter !== "all" || currencyFilter !== "all";
+  const clearFilters = () => { setStatusFilter("all"); setCompanyFilter("all"); setCurrencyFilter("all"); };
 
   const subtotal = useMemo(() =>
     items.reduce((a, it) => a + (Number(it.quantity) * Number(it.unit_price) * (1 - Number(it.discount_pct || 0) / 100)), 0),
