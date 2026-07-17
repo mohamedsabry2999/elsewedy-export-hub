@@ -28,10 +28,12 @@ function Dashboard() {
       const startOfMonth = new Date(); startOfMonth.setDate(1); startOfMonth.setHours(0, 0, 0, 0);
       const monthISO = startOfMonth.toISOString();
 
+      const todayISO = new Date().toISOString();
       const [
         companies, contacts, leads, hotLeads, wonLeads,
         orders, activeShipments, monthPayments, pendingPayments,
         byStatus, byCountry, revenueTrend, topCompanies,
+        pendingApprovals, overduePayments,
       ] = await Promise.all([
         supabase.from("companies").select("id", { count: "exact", head: true }),
         supabase.from("contacts").select("id", { count: "exact", head: true }),
@@ -46,6 +48,8 @@ function Dashboard() {
         supabase.from("companies").select("country"),
         supabase.from("orders").select("total, created_at").gte("created_at", new Date(Date.now() - 180 * 86400_000).toISOString()),
         supabase.from("orders").select("total, company_id").order("total", { ascending: false }).limit(200),
+        supabase.from("approvals").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("payments").select("id", { count: "exact", head: true }).lt("due_date", todayISO).neq("status", "paid"),
       ]);
 
       const statusCounts: Record<string, number> = {};
