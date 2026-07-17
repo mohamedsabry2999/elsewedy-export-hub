@@ -42,6 +42,7 @@ const admin = [
   { title: "المستخدمون", url: "/users", icon: Users, perm: "users.view" },
   { title: "الأدوار والصلاحيات", url: "/roles", icon: KeyRound, perm: "users.manage" },
   { title: "سجل التدقيق", url: "/audit-log", icon: ShieldCheck, perm: "audit_log.view" },
+  { title: "العملات وأسعار الصرف", url: "/currencies", icon: Coins, perm: "settings.view" },
   { title: "الإعدادات", url: "/settings", icon: Settings2, perm: "settings.view" },
 ];
 
