@@ -12,10 +12,11 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Edit, CheckSquare, Calendar as CalIcon } from "lucide-react";
+import { Plus, Trash2, Edit, CheckSquare, Calendar as CalIcon, MessageSquare } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { TaskComments } from "@/components/TaskComments";
 
 export const Route = createFileRoute("/_authenticated/tasks")({
   ssr: false,
