@@ -17,7 +17,8 @@ import { Plus, Trash2, Edit, ArrowRight, Factory, FileText } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { generateBrandedPdf } from "@/lib/pdf";
+import { downloadBrandedPdf } from "@/lib/pdf-service";
+import { useBranding } from "@/components/BrandingProvider";
 
 export const Route = createFileRoute("/_authenticated/orders/$id")({
   ssr: false,
@@ -35,6 +36,7 @@ function OrderDetail() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
   const { user } = useAuth();
+  const { brand } = useBranding();
   const [stageOpen, setStageOpen] = useState(false);
   const [editingStage, setEditingStage] = useState<any>(null);
   const [stageForm, setStageForm] = useState<any>({});
@@ -101,16 +103,18 @@ function OrderDetail() {
     const { data: comp } = order.company_id
       ? await supabase.from("companies").select("name_en,name_ar").eq("id", order.company_id).maybeSingle()
       : { data: null };
-    await generateBrandedPdf({
-      title: "Proforma Invoice / فاتورة مبدئية",
+    await downloadBrandedPdf({
+      brand,
+      titleAr: "فاتورة مبدئية",
+      titleEn: "Proforma Invoice",
       docNumber: order.order_number,
       meta: [
-        ["Client", (comp?.name_en || comp?.name_ar) ?? "-"],
-        ["Status", order.status],
-        ["Currency", order.currency ?? "USD"],
-        ["Order Date", order.order_date ?? "-"],
-        ["Delivery", order.expected_delivery ?? "-"],
-        ["Incoterms", order.incoterms ?? "-"],
+        { labelAr: "العميل", labelEn: "Client", value: (comp?.name_ar || comp?.name_en) ?? "-" },
+        { labelAr: "الحالة", labelEn: "Status", value: order.status },
+        { labelAr: "العملة", labelEn: "Currency", value: order.currency ?? "USD" },
+        { labelAr: "تاريخ الطلب", labelEn: "Order Date", value: order.order_date ?? "-" },
+        { labelAr: "التسليم", labelEn: "Delivery", value: order.expected_delivery ?? "-" },
+        { labelAr: "Incoterms", labelEn: "Incoterms", value: order.incoterms ?? "-" },
       ],
       lines: (items ?? []).map((it: any) => ({
         name: it.product_name, qty: Number(it.quantity), unit: it.unit,

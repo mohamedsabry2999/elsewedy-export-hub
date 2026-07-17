@@ -17,7 +17,8 @@ import { Plus, Trash2, Edit, FileText, X, Download, ArrowRightLeft } from "lucid
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { generateBrandedPdf } from "@/lib/pdf";
+import { downloadBrandedPdf } from "@/lib/pdf-service";
+import { useBranding } from "@/components/BrandingProvider";
 import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/quotations")({
@@ -61,6 +62,7 @@ const emptyItem = (): Item => ({
 function Quotations() {
   const qc = useQueryClient();
   const { user, isAdmin } = useAuth();
+  const { brand } = useBranding();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Quote | null>(null);
@@ -185,16 +187,18 @@ function Quotations() {
     const { data: comp } = q.company_id
       ? await supabase.from("companies").select("name_en,name_ar").eq("id", q.company_id).maybeSingle()
       : { data: null };
-    await generateBrandedPdf({
-      title: "Quotation / عرض سعر",
+    await downloadBrandedPdf({
+      brand,
+      titleAr: "عرض سعر",
+      titleEn: "Quotation",
       docNumber: q.quote_number,
       meta: [
-        ["Client", (comp?.name_en || comp?.name_ar) ?? "-"],
-        ["Status", q.status],
-        ["Currency", q.currency ?? "USD"],
-        ["Valid Until", q.valid_until ?? "-"],
-        ["Incoterms", q.incoterms ?? "-"],
-        ["Payment", q.payment_terms ?? "-"],
+        { labelAr: "العميل", labelEn: "Client", value: (comp?.name_ar || comp?.name_en) ?? "-" },
+        { labelAr: "الحالة", labelEn: "Status", value: q.status },
+        { labelAr: "العملة", labelEn: "Currency", value: q.currency ?? "USD" },
+        { labelAr: "ساري حتى", labelEn: "Valid Until", value: q.valid_until ?? "-" },
+        { labelAr: "Incoterms", labelEn: "Incoterms", value: q.incoterms ?? "-" },
+        { labelAr: "شروط الدفع", labelEn: "Payment", value: q.payment_terms ?? "-" },
       ],
       lines: (rows ?? []).map((it: any) => ({
         name: it.product_name, qty: Number(it.quantity), unit: it.unit,
