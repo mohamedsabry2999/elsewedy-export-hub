@@ -159,8 +159,15 @@ function Opportunities() {
       />
 
       {isLoading ? <Skeleton className="h-96 w-full" /> : (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="overflow-x-auto pb-2">
+          <div className="flex gap-3 min-w-max">
           {STAGES.map(s => (
+            <div
+              key={s.v}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={() => { if (dragId) { moveTo(dragId, s.v); setDragId(null); } }}
+              className={`rounded-lg border ${s.color} p-2 min-h-[400px] w-[220px] shrink-0`}
+            >
             <div
               key={s.v}
               onDragOver={(e) => e.preventDefault()}
