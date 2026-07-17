@@ -178,6 +178,18 @@ function Leads() {
             <SelectItem value="cold">Cold</SelectItem>
           </SelectContent>
         </Select>
+        <Select value={sourceFilter} onValueChange={setSourceFilter}>
+          <SelectTrigger className="w-40"><SelectValue placeholder="المصدر" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">كل المصادر</SelectItem>
+            {SOURCES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        {(statusFilter !== "all" || tempFilter !== "all" || sourceFilter !== "all" || q) && (
+          <Button variant="ghost" size="sm" onClick={() => { setQ(""); setStatusFilter("all"); setTempFilter("all"); setSourceFilter("all"); }}>
+            مسح الفلاتر
+          </Button>
+        )}
       </CardContent></Card>
 
       <Card><CardContent className="pt-4">
