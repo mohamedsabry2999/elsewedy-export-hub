@@ -39,6 +39,9 @@ type Item = {
   id?: string; quotation_id?: string; product_name: string; description: string | null;
   quantity: number; unit: string | null; unit_price: number; discount_pct: number | null;
   line_total: number; position: number;
+  material?: string | null; thickness?: string | null; dimensions?: string | null;
+  color?: string | null; finish?: string | null; print_colors?: string | null;
+  packaging?: string | null; lead_time_days?: number | null; specs_notes?: string | null;
 };
 
 const STATUSES = [
@@ -58,7 +61,10 @@ const emptyQuote = {
 const emptyItem = (): Item => ({
   product_name: "", description: "", quantity: 1, unit: "pcs",
   unit_price: 0, discount_pct: 0, line_total: 0, position: 0,
+  material: "", thickness: "", dimensions: "", color: "", finish: "",
+  print_colors: "", packaging: "", lead_time_days: null, specs_notes: "",
 });
+
 
 function Quotations() {
   const qc = useQueryClient();
