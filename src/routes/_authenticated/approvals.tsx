@@ -261,8 +261,18 @@ function Approvals() {
                 <SelectContent>{ENTITY_TYPES.map(e => <SelectItem key={e.v} value={e.v}>{e.l}</SelectItem>)}</SelectContent>
               </Select>
             </F>
-            <F label="معرّف السجل *">
-              <Input value={form.entity_id} onChange={e => setForm({ ...form, entity_id: e.target.value })} placeholder="UUID الخاص بالسجل" dir="ltr" />
+            <F label="السجل *">
+              {form.entity_type === "other" ? (
+                <Input value={form.entity_id} onChange={e => setForm({ ...form, entity_id: e.target.value })} placeholder="UUID الخاص بالسجل" dir="ltr" />
+              ) : (
+                <Select value={form.entity_id} onValueChange={v => setForm({ ...form, entity_id: v })}>
+                  <SelectTrigger><SelectValue placeholder={loadingEntities ? "جاري التحميل..." : "اختر السجل"} /></SelectTrigger>
+                  <SelectContent>
+                    {(entityOptions ?? []).map(o => <SelectItem key={o.id} value={o.id}>{o.label}</SelectItem>)}
+                    {!loadingEntities && !(entityOptions ?? []).length && <div className="p-2 text-xs text-muted-foreground">لا توجد سجلات</div>}
+                  </SelectContent>
+                </Select>
+              )}
             </F>
             <F label="المعتمد (اختياري)">
               <Select value={form.approver_id} onValueChange={v => setForm({ ...form, approver_id: v })}>
