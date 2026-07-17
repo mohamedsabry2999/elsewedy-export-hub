@@ -51,6 +51,7 @@ function Tasks() {
   const [statusFilter, setStatusFilter] = useState("open");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Task | null>(null);
+  const [commentsFor, setCommentsFor] = useState<Task | null>(null);
   const [form, setForm] = useState(empty);
   const [saving, setSaving] = useState(false);
 
