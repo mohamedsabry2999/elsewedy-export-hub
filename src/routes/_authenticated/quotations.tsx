@@ -286,6 +286,7 @@ function Quotations() {
                         <div className="flex gap-1">
                           <Button size="icon" variant="ghost" title="تصدير PDF" onClick={() => exportPdf(q)}><Download className="w-4 h-4" /></Button>
                           <Button size="icon" variant="ghost" title="تحويل إلى طلبية" onClick={() => convertToOrder(q)} disabled={q.status === "rejected"}><ArrowRightLeft className="w-4 h-4" /></Button>
+                          <Button size="icon" variant="ghost" title="طلب موافقة" onClick={() => requestApproval(q)}><ShieldCheck className="w-4 h-4" /></Button>
                           <Button size="icon" variant="ghost" onClick={() => openEdit(q)}><Edit className="w-4 h-4" /></Button>
                           {isAdmin && (
                             <AlertDialog>
