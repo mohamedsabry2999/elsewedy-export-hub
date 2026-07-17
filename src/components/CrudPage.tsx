@@ -181,6 +181,16 @@ export function CrudPage<T extends { id: string }>({
     toast.success(`تم تصدير ${src.length} صف`);
   };
 
+  const exportXLSX = () => {
+    const src = selected.size > 0 ? filtered.filter((r: any) => selected.has(r.id)) : filtered;
+    if (!src.length) { toast.error("لا توجد بيانات للتصدير"); return; }
+    const ws = XLSX.utils.json_to_sheet(src as any);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, table.slice(0, 30));
+    XLSX.writeFile(wb, `${table}-${new Date().toISOString().slice(0,10)}.xlsx`);
+    toast.success(`تم تصدير ${src.length} صف (Excel)`);
+  };
+
   const importCSV = async (file: File) => {
     setImporting(true);
     try {
