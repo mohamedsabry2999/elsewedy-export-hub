@@ -848,41 +848,68 @@ export type Database = {
       }
       order_items: {
         Row: {
+          color: string | null
           created_at: string
           description: string | null
+          dimensions: string | null
+          finish: string | null
           id: string
+          lead_time_days: number | null
           line_total: number
+          material: string | null
           order_id: string
+          packaging: string | null
           position: number | null
+          print_colors: string | null
           product_id: string | null
           product_name: string
           quantity: number
+          specs_notes: string | null
+          thickness: string | null
           unit: string | null
           unit_price: number
         }
         Insert: {
+          color?: string | null
           created_at?: string
           description?: string | null
+          dimensions?: string | null
+          finish?: string | null
           id?: string
+          lead_time_days?: number | null
           line_total?: number
+          material?: string | null
           order_id: string
+          packaging?: string | null
           position?: number | null
+          print_colors?: string | null
           product_id?: string | null
           product_name: string
           quantity?: number
+          specs_notes?: string | null
+          thickness?: string | null
           unit?: string | null
           unit_price?: number
         }
         Update: {
+          color?: string | null
           created_at?: string
           description?: string | null
+          dimensions?: string | null
+          finish?: string | null
           id?: string
+          lead_time_days?: number | null
           line_total?: number
+          material?: string | null
           order_id?: string
+          packaging?: string | null
           position?: number | null
+          print_colors?: string | null
           product_id?: string | null
           product_name?: string
           quantity?: number
+          specs_notes?: string | null
+          thickness?: string | null
           unit?: string | null
           unit_price?: number
         }
@@ -1293,44 +1320,71 @@ export type Database = {
       }
       quotation_items: {
         Row: {
+          color: string | null
           created_at: string
           description: string | null
+          dimensions: string | null
           discount_pct: number | null
+          finish: string | null
           id: string
+          lead_time_days: number | null
           line_total: number
+          material: string | null
+          packaging: string | null
           position: number | null
+          print_colors: string | null
           product_id: string | null
           product_name: string
           quantity: number
           quotation_id: string
+          specs_notes: string | null
+          thickness: string | null
           unit: string | null
           unit_price: number
         }
         Insert: {
+          color?: string | null
           created_at?: string
           description?: string | null
+          dimensions?: string | null
           discount_pct?: number | null
+          finish?: string | null
           id?: string
+          lead_time_days?: number | null
           line_total?: number
+          material?: string | null
+          packaging?: string | null
           position?: number | null
+          print_colors?: string | null
           product_id?: string | null
           product_name: string
           quantity?: number
           quotation_id: string
+          specs_notes?: string | null
+          thickness?: string | null
           unit?: string | null
           unit_price?: number
         }
         Update: {
+          color?: string | null
           created_at?: string
           description?: string | null
+          dimensions?: string | null
           discount_pct?: number | null
+          finish?: string | null
           id?: string
+          lead_time_days?: number | null
           line_total?: number
+          material?: string | null
+          packaging?: string | null
           position?: number | null
+          print_colors?: string | null
           product_id?: string | null
           product_name?: string
           quantity?: number
           quotation_id?: string
+          specs_notes?: string | null
+          thickness?: string | null
           unit?: string | null
           unit_price?: number
         }

@@ -13,7 +13,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Trash2, Edit, FileText, X, Download, ArrowRightLeft } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Plus, Trash2, Edit, FileText, X, Download, ArrowRightLeft, Settings2, ShieldCheck } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -39,6 +40,9 @@ type Item = {
   id?: string; quotation_id?: string; product_name: string; description: string | null;
   quantity: number; unit: string | null; unit_price: number; discount_pct: number | null;
   line_total: number; position: number;
+  material?: string | null; thickness?: string | null; dimensions?: string | null;
+  color?: string | null; finish?: string | null; print_colors?: string | null;
+  packaging?: string | null; lead_time_days?: number | null; specs_notes?: string | null;
 };
 
 const STATUSES = [
@@ -58,7 +62,10 @@ const emptyQuote = {
 const emptyItem = (): Item => ({
   product_name: "", description: "", quantity: 1, unit: "pcs",
   unit_price: 0, discount_pct: 0, line_total: 0, position: 0,
+  material: "", thickness: "", dimensions: "", color: "", finish: "",
+  print_colors: "", packaging: "", lead_time_days: null, specs_notes: "",
 });
+
 
 function Quotations() {
   const qc = useQueryClient();
@@ -171,6 +178,11 @@ function Quotations() {
         quotation_id: quoteId, product_name: it.product_name, description: it.description || null,
         quantity: Number(it.quantity), unit: it.unit || "pcs", unit_price: Number(it.unit_price),
         discount_pct: Number(it.discount_pct || 0), line_total: Number(it.line_total), position: idx,
+        material: it.material || null, thickness: it.thickness || null, dimensions: it.dimensions || null,
+        color: it.color || null, finish: it.finish || null, print_colors: it.print_colors || null,
+        packaging: it.packaging || null,
+        lead_time_days: it.lead_time_days != null && it.lead_time_days !== undefined && String(it.lead_time_days) !== "" ? Number(it.lead_time_days) : null,
+        specs_notes: it.specs_notes || null,
       }));
       if (rows.length) await supabase.from("quotation_items").insert(rows);
     }
@@ -226,6 +238,20 @@ function Quotations() {
     if (data) navigate({ to: "/orders/$id", params: { id: data as string } });
   };
 
+  const requestApproval = async (q: Quote) => {
+    const reason = window.prompt(`طلب موافقة على العرض ${q.quote_number}\nاكتب سبب الطلب:`, "مراجعة عرض السعر");
+    if (reason == null) return;
+    const { error } = await supabase.from("approvals").insert({
+      entity_type: "quotation", entity_id: q.id, status: "pending",
+      reason, requested_by: user?.id!,
+    });
+    if (error) { toast.error(error.message); return; }
+    toast.success("تم إرسال طلب الموافقة");
+    navigate({ to: "/approvals" });
+  };
+
+
+
 
   return (
     <div>
@@ -274,6 +300,7 @@ function Quotations() {
                         <div className="flex gap-1">
                           <Button size="icon" variant="ghost" title="تصدير PDF" onClick={() => exportPdf(q)}><Download className="w-4 h-4" /></Button>
                           <Button size="icon" variant="ghost" title="تحويل إلى طلبية" onClick={() => convertToOrder(q)} disabled={q.status === "rejected"}><ArrowRightLeft className="w-4 h-4" /></Button>
+                          <Button size="icon" variant="ghost" title="طلب موافقة" onClick={() => requestApproval(q)}><ShieldCheck className="w-4 h-4" /></Button>
                           <Button size="icon" variant="ghost" onClick={() => openEdit(q)}><Edit className="w-4 h-4" /></Button>
                           {isAdmin && (
                             <AlertDialog>
@@ -341,10 +368,13 @@ function Quotations() {
                   <TableHead className="w-28">سعر الوحدة</TableHead>
                   <TableHead className="w-20">خصم %</TableHead>
                   <TableHead className="w-28">الإجمالي</TableHead>
+                  <TableHead className="w-10">مواصفات</TableHead>
                   <TableHead className="w-10"></TableHead>
                 </TableRow></TableHeader>
                 <TableBody>
-                  {items.map((it, i) => (
+                  {items.map((it, i) => {
+                    const specCount = [it.material, it.thickness, it.dimensions, it.color, it.finish, it.print_colors, it.packaging, it.lead_time_days, it.specs_notes].filter(v => v !== "" && v != null).length;
+                    return (
                     <TableRow key={i}>
                       <TableCell><Input value={it.product_name} onChange={e => updateItem(i, { product_name: e.target.value })} placeholder="اسم المنتج" /></TableCell>
                       <TableCell><Input type="number" value={it.quantity} onChange={e => updateItem(i, { quantity: Number(e.target.value) })} dir="ltr" /></TableCell>
@@ -352,9 +382,35 @@ function Quotations() {
                       <TableCell><Input type="number" value={it.unit_price} onChange={e => updateItem(i, { unit_price: Number(e.target.value) })} dir="ltr" /></TableCell>
                       <TableCell><Input type="number" value={it.discount_pct ?? 0} onChange={e => updateItem(i, { discount_pct: Number(e.target.value) })} dir="ltr" /></TableCell>
                       <TableCell className="font-mono text-sm">{it.line_total.toFixed(2)}</TableCell>
+                      <TableCell>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button size="icon" variant={specCount > 0 ? "secondary" : "ghost"} title="مواصفات فنية">
+                              <Settings2 className="w-4 h-4" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-96" align="end">
+                            <div className="text-sm font-semibold mb-2">المواصفات الفنية</div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <F label="المادة"><Input value={it.material ?? ""} onChange={e => updateItem(i, { material: e.target.value } as any)} /></F>
+                              <F label="السماكة"><Input value={it.thickness ?? ""} onChange={e => updateItem(i, { thickness: e.target.value } as any)} /></F>
+                              <F label="الأبعاد"><Input value={it.dimensions ?? ""} onChange={e => updateItem(i, { dimensions: e.target.value } as any)} /></F>
+                              <F label="اللون"><Input value={it.color ?? ""} onChange={e => updateItem(i, { color: e.target.value } as any)} /></F>
+                              <F label="اللمسة النهائية"><Input value={it.finish ?? ""} onChange={e => updateItem(i, { finish: e.target.value } as any)} /></F>
+                              <F label="ألوان الطباعة"><Input value={it.print_colors ?? ""} onChange={e => updateItem(i, { print_colors: e.target.value } as any)} /></F>
+                              <F label="التغليف"><Input value={it.packaging ?? ""} onChange={e => updateItem(i, { packaging: e.target.value } as any)} /></F>
+                              <F label="مهلة التسليم (يوم)"><Input type="number" value={it.lead_time_days ?? ""} onChange={e => updateItem(i, { lead_time_days: e.target.value === "" ? null : Number(e.target.value) } as any)} dir="ltr" /></F>
+                            </div>
+                            <div className="mt-2">
+                              <F label="ملاحظات إضافية"><Textarea rows={2} value={it.specs_notes ?? ""} onChange={e => updateItem(i, { specs_notes: e.target.value } as any)} /></F>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </TableCell>
                       <TableCell><Button size="icon" variant="ghost" onClick={() => removeItem(i)}><X className="w-4 h-4" /></Button></TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
