@@ -21,16 +21,16 @@ export function TaskComments({ taskId }: { taskId: string }) {
 
   const load = async () => {
     const { data, error } = await supabase
-      .from("task_comments")
-      .select("id,task_id,author_id,body,created_at, author:profiles!task_comments_author_id_fkey(full_name,email)")
-      .eq("task_id", taskId)
-      .order("created_at", { ascending: true });
-    if (error) {
-      const { data: d2 } = await supabase.from("task_comments").select("*").eq("task_id", taskId).order("created_at");
-      setItems((d2 ?? []) as Comment[]);
-    } else {
-      setItems((data ?? []) as Comment[]);
+      .from("task_comments").select("*").eq("task_id", taskId).order("created_at");
+    if (error) { setItems([]); return; }
+    const rows = (data ?? []) as Omit<Comment, "author">[];
+    const ids = Array.from(new Set(rows.map(r => r.author_id)));
+    let profMap: Record<string, { full_name: string | null; email: string }> = {};
+    if (ids.length) {
+      const { data: profs } = await supabase.from("profiles").select("id,full_name,email").in("id", ids);
+      profMap = Object.fromEntries((profs ?? []).map((p: any) => [p.id, { full_name: p.full_name, email: p.email }]));
     }
+    setItems(rows.map(r => ({ ...r, author: profMap[r.author_id] ?? null })));
   };
 
   useEffect(() => {
