@@ -1,8 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CrudPage } from "@/components/CrudPage";
 import { Badge } from "@/components/ui/badge";
+import { z } from "zod";
 
-export const Route = createFileRoute("/_authenticated/payments")({ ssr: false, component: Payments });
+export const Route = createFileRoute("/_authenticated/payments")({
+  ssr: false,
+  validateSearch: z.object({ status: z.string().optional(), method: z.string().optional() }),
+  component: Payments,
+});
 
 const STATUSES = [
   { v: "pending", l: "معلقة" }, { v: "partial", l: "جزئية" },
@@ -16,6 +21,10 @@ const METHODS = [
 ];
 
 function Payments() {
+  const { status, method } = Route.useSearch();
+  const initial: Record<string, string> = {};
+  if (status) initial.status = status;
+  if (method) initial.method = method;
   return (
     <CrudPage
       title="المدفوعات" addLabel="دفعة جديدة" table="payments"
