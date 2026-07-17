@@ -97,6 +97,16 @@ function Reports() {
   for (const s of data.shipments as any[]) destAgg.set(s.destination_country ?? "—", (destAgg.get(s.destination_country ?? "—") ?? 0) + 1);
   const destData = [...destAgg.entries()].map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 8);
 
+  // Leads by source
+  const srcAgg = new Map<string, number>();
+  for (const l of data.leads as any[]) srcAgg.set(l.source ?? "—", (srcAgg.get(l.source ?? "—") ?? 0) + 1);
+  const leadSourceData = [...srcAgg.entries()].map(([name, value]) => ({ name, value }));
+
+  // Samples by status
+  const sampAgg = new Map<string, number>();
+  for (const s of data.samples as any[]) sampAgg.set(s.status ?? "—", (sampAgg.get(s.status ?? "—") ?? 0) + 1);
+  const sampleData = [...sampAgg.entries()].map(([name, value]) => ({ name, value }));
+
   return (
     <div>
       <PageHeader title="التقارير التنفيذية" subtitle={`ملخص أداء التصدير — القيم بالعملة الأساسية (${base})`} />
