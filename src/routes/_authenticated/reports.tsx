@@ -97,6 +97,16 @@ function Reports() {
   for (const s of data.shipments as any[]) destAgg.set(s.destination_country ?? "—", (destAgg.get(s.destination_country ?? "—") ?? 0) + 1);
   const destData = [...destAgg.entries()].map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 8);
 
+  // Leads by source
+  const srcAgg = new Map<string, number>();
+  for (const l of data.leads as any[]) srcAgg.set(l.source ?? "—", (srcAgg.get(l.source ?? "—") ?? 0) + 1);
+  const leadSourceData = [...srcAgg.entries()].map(([name, value]) => ({ name, value }));
+
+  // Samples by status
+  const sampAgg = new Map<string, number>();
+  for (const s of data.samples as any[]) sampAgg.set(s.status ?? "—", (sampAgg.get(s.status ?? "—") ?? 0) + 1);
+  const sampleData = [...sampAgg.entries()].map(([name, value]) => ({ name, value }));
+
   return (
     <div>
       <PageHeader title="التقارير التنفيذية" subtitle={`ملخص أداء التصدير — القيم بالعملة الأساسية (${base})`} />
@@ -171,6 +181,38 @@ function Reports() {
                   <YAxis style={{ fontSize: 10 }} allowDecimals={false} />
                   <Tooltip />
                   <Bar dataKey="value" fill="#3b82f6" />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card><CardHeader><CardTitle className="text-sm">الليدز حسب المصدر</CardTitle></CardHeader>
+          <CardContent className="h-72">
+            {leadSourceData.length === 0 ? <Empty /> : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={leadSourceData} dataKey="value" nameKey="name" outerRadius={90} label>
+                    {leadSourceData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card><CardHeader><CardTitle className="text-sm">العيّنات حسب الحالة</CardTitle></CardHeader>
+          <CardContent className="h-72">
+            {sampleData.length === 0 ? <Empty /> : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={sampleData}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                  <XAxis dataKey="name" style={{ fontSize: 10 }} />
+                  <YAxis style={{ fontSize: 10 }} allowDecimals={false} />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#22c55e" />
                 </BarChart>
               </ResponsiveContainer>
             )}

@@ -25,6 +25,10 @@ function Shipments() {
         { name: "status", label: "الحالة", options: STATUSES },
         { name: "mode", label: "الوسيلة", options: MODES },
       ]}
+      filterFields={[
+        { name: "status", label: "الحالة", options: STATUSES },
+        { name: "mode", label: "الوسيلة", options: MODES },
+      ]}
       defaults={{
         shipment_number: "", status: "pending", mode: "sea", carrier: "",
         tracking_number: "", origin_port: "", destination_port: "",

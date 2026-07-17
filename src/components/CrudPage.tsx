@@ -11,12 +11,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Trash2, Edit, Search, Download, Upload } from "lucide-react";
+import { Plus, Trash2, Edit, Search, Download, Upload, FileSpreadsheet, Filter, X } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { toCSV, downloadCSV, parseCSV } from "@/lib/csv";
+import * as XLSX from "xlsx";
 
 export type FieldDef = {
   name: string;
@@ -41,6 +42,7 @@ export type ColumnDef<T> = {
 };
 
 export type BulkFieldDef = { name: string; label: string; options: { v: string; l: string }[] };
+export type FilterFieldDef = { name: string; label: string; options: { v: string; l: string }[] };
 
 type Props<T extends { id: string }> = {
   title: string;
@@ -54,12 +56,13 @@ type Props<T extends { id: string }> = {
   numberGenerator?: (form: any) => Record<string, string>;
   ownedFields?: boolean;
   bulkFields?: BulkFieldDef[];
+  filterFields?: FilterFieldDef[];
 };
 
 export function CrudPage<T extends { id: string }>({
   title, addLabel, table, columns, fields, defaults,
   searchable = [], invalidateKeys = [], numberGenerator, ownedFields = true,
-  bulkFields = [],
+  bulkFields = [], filterFields = [],
 }: Props<T>) {
   const qc = useQueryClient();
   const { user, isAdmin, hasPermission } = useAuth();
@@ -75,6 +78,7 @@ export function CrudPage<T extends { id: string }>({
   const [form, setForm] = useState<any>(defaults);
   const [saving, setSaving] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [filters, setFilters] = useState<Record<string, string>>({});
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [importing, setImporting] = useState(false);
 
@@ -88,6 +92,9 @@ export function CrudPage<T extends { id: string }>({
   });
 
   const filtered = (rows ?? []).filter((r: any) => {
+    for (const [k, v] of Object.entries(filters)) {
+      if (v && String(r[k] ?? "") !== v) return false;
+    }
     if (!q) return true;
     return searchable.some(k => String(r[k as string] ?? "").toLowerCase().includes(q.toLowerCase()));
   });
@@ -174,6 +181,16 @@ export function CrudPage<T extends { id: string }>({
     toast.success(`تم تصدير ${src.length} صف`);
   };
 
+  const exportXLSX = () => {
+    const src = selected.size > 0 ? filtered.filter((r: any) => selected.has(r.id)) : filtered;
+    if (!src.length) { toast.error("لا توجد بيانات للتصدير"); return; }
+    const ws = XLSX.utils.json_to_sheet(src as any);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, table.slice(0, 30));
+    XLSX.writeFile(wb, `${table}-${new Date().toISOString().slice(0,10)}.xlsx`);
+    toast.success(`تم تصدير ${src.length} صف (Excel)`);
+  };
+
   const importCSV = async (file: File) => {
     setImporting(true);
     try {
@@ -229,7 +246,12 @@ export function CrudPage<T extends { id: string }>({
             )}
             {canExport && (
               <Button variant="outline" size="sm" onClick={exportCSV}>
-                <Download className="w-4 h-4" /> تصدير CSV
+                <Download className="w-4 h-4" /> CSV
+              </Button>
+            )}
+            {canExport && (
+              <Button variant="outline" size="sm" onClick={exportXLSX}>
+                <FileSpreadsheet className="w-4 h-4" /> Excel
               </Button>
             )}
             {canDelete && selected.size > 0 && (
@@ -255,12 +277,34 @@ export function CrudPage<T extends { id: string }>({
           </div>
         } />
 
-      {searchable.length > 0 && (
-        <Card className="mb-4"><CardContent className="pt-4">
-          <div className="relative max-w-md">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input placeholder="بحث..." value={q} onChange={e => setQ(e.target.value)} className="pr-9" />
-          </div>
+      {(searchable.length > 0 || filterFields.length > 0) && (
+        <Card className="mb-4"><CardContent className="pt-4 space-y-3">
+          {searchable.length > 0 && (
+            <div className="relative max-w-md">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input placeholder="بحث..." value={q} onChange={e => setQ(e.target.value)} className="pr-9" />
+            </div>
+          )}
+          {filterFields.length > 0 && (
+            <div className="flex flex-wrap gap-2 items-center">
+              <Filter className="w-4 h-4 text-muted-foreground" />
+              {filterFields.map(ff => (
+                <Select key={ff.name} value={filters[ff.name] ?? "__all"}
+                  onValueChange={v => setFilters(prev => { const n = { ...prev }; if (v === "__all") delete n[ff.name]; else n[ff.name] = v; return n; })}>
+                  <SelectTrigger className="h-8 w-[160px] text-xs"><SelectValue placeholder={ff.label} /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all">— {ff.label}: الكل —</SelectItem>
+                    {ff.options.map(o => <SelectItem key={o.v} value={o.v}>{o.l}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              ))}
+              {Object.keys(filters).length > 0 && (
+                <Button size="sm" variant="ghost" onClick={() => setFilters({})}>
+                  <X className="w-3 h-3" /> مسح الفلاتر
+                </Button>
+              )}
+            </div>
+          )}
         </CardContent></Card>
       )}
 

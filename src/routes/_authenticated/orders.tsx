@@ -20,6 +20,7 @@ function Orders() {
       title="الطلبيات" addLabel="طلبية جديدة" table="orders"
       searchable={["order_number", "notes"]}
       bulkFields={[{ name: "status", label: "الحالة", options: STATUSES }]}
+      filterFields={[{ name: "status", label: "الحالة", options: STATUSES }]}
       defaults={{
         order_number: "", status: "draft", currency: "USD",
         subtotal: 0, discount: 0, tax: 0, total: 0, paid_amount: 0,
