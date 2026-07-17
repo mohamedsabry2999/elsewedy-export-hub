@@ -87,6 +87,7 @@ function Leads() {
       .toLowerCase().includes(q.toLowerCase())) return false;
     if (statusFilter !== "all" && l.status !== statusFilter) return false;
     if (tempFilter !== "all" && l.temperature !== tempFilter) return false;
+    if (sourceFilter !== "all" && l.source !== sourceFilter) return false;
     return true;
   });
 
