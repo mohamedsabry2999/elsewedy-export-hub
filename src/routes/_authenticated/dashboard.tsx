@@ -88,6 +88,8 @@ function Dashboard() {
         activeShipments: activeShipments.count ?? 0,
         monthRevenue,
         pendingAmount,
+        pendingApprovals: pendingApprovals.count ?? 0,
+        overduePayments: overduePayments.count ?? 0,
         statusData: Object.entries(statusCounts).map(([k, v]) => ({ name: k, value: v })),
         countryData: Object.entries(countryCounts).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, v]) => ({ country: k, count: v })),
         trend,
