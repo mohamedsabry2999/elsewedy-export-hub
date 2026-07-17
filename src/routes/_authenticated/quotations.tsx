@@ -182,33 +182,32 @@ function Quotations() {
 
   const exportPdf = async (q: Quote) => {
     const { data: rows } = await supabase.from("quotation_items").select("*").eq("quotation_id", q.id).order("position");
-    const doc = new jsPDF();
-    doc.setFontSize(18); doc.text("Elsewedy Export Hub - Quotation", 14, 18);
-    doc.setFontSize(10);
-    doc.text(`Quote #: ${q.quote_number}`, 14, 28);
-    doc.text(`Status: ${q.status}`, 14, 34);
-    doc.text(`Currency: ${q.currency ?? "USD"}`, 14, 40);
-    doc.text(`Valid Until: ${q.valid_until ?? "-"}`, 80, 28);
-    doc.text(`Incoterms: ${q.incoterms ?? "-"}`, 80, 34);
-    autoTable(doc, {
-      startY: 48,
-      head: [["#", "Product", "Qty", "Unit", "Unit Price", "Disc%", "Line Total"]],
-      body: (rows ?? []).map((it: any, i: number) => [
-        i + 1, it.product_name, it.quantity, it.unit ?? "pcs",
-        Number(it.unit_price).toFixed(2), Number(it.discount_pct ?? 0).toFixed(1),
-        Number(it.line_total).toFixed(2),
-      ]),
-      styles: { fontSize: 9 },
-      headStyles: { fillColor: [180, 141, 66] },
+    const { data: comp } = q.company_id
+      ? await supabase.from("companies").select("name_en,name_ar").eq("id", q.company_id).maybeSingle()
+      : { data: null };
+    await generateBrandedPdf({
+      title: "Quotation / عرض سعر",
+      docNumber: q.quote_number,
+      meta: [
+        ["Client", (comp?.name_en || comp?.name_ar) ?? "-"],
+        ["Status", q.status],
+        ["Currency", q.currency ?? "USD"],
+        ["Valid Until", q.valid_until ?? "-"],
+        ["Incoterms", q.incoterms ?? "-"],
+        ["Payment", q.payment_terms ?? "-"],
+      ],
+      lines: (rows ?? []).map((it: any) => ({
+        name: it.product_name, qty: Number(it.quantity), unit: it.unit,
+        price: Number(it.unit_price), discount: Number(it.discount_pct ?? 0),
+        total: Number(it.line_total),
+      })),
+      totals: {
+        subtotal: Number(q.subtotal ?? 0), discount: Number(q.discount ?? 0),
+        tax: Number(q.tax ?? 0), total: Number(q.total ?? 0), currency: q.currency ?? "USD",
+      },
+      notes: q.notes,
+      filename: `${q.quote_number}.pdf`,
     });
-    const y = (doc as any).lastAutoTable.finalY + 8;
-    doc.text(`Subtotal: ${Number(q.subtotal ?? 0).toFixed(2)}`, 140, y);
-    doc.text(`Discount: ${Number(q.discount ?? 0).toFixed(2)}`, 140, y + 6);
-    doc.text(`Tax: ${Number(q.tax ?? 0).toFixed(2)}`, 140, y + 12);
-    doc.setFontSize(12);
-    doc.text(`TOTAL: ${Number(q.total ?? 0).toFixed(2)} ${q.currency ?? ""}`, 140, y + 22);
-    if (q.notes) { doc.setFontSize(9); doc.text(`Notes: ${q.notes.slice(0, 200)}`, 14, y + 6); }
-    doc.save(`${q.quote_number}.pdf`);
   };
 
   const convertToOrder = async (q: Quote) => {
