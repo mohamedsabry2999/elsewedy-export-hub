@@ -120,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isSystemOwner = roles.includes("system_owner");
   const isExportManager = roles.includes("export_manager");
-  const isAdmin = isSystemOwner || isExportManager;
+  const isAdmin = isSystemOwner; // narrowed: export_manager is NOT admin anymore
 
   const hasPermission = (code: string) => isSystemOwner || permissions.has(code);
   const hasAnyPermission = (codes: string[]) => isSystemOwner || codes.some((c) => permissions.has(c));
