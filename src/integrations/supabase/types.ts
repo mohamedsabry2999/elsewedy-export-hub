@@ -1849,9 +1849,26 @@ export type Database = {
       lead_temperature: "hot" | "warm" | "cold"
       opportunity_stage:
         | "new"
+        | "contacted"
         | "qualified"
+        | "needs_analysis"
+        | "sample_requested"
+        | "sample_sent"
+        | "sample_approved"
+        | "rfq_received"
         | "proposal"
+        | "proposal_sent"
         | "negotiation"
+        | "contract_review"
+        | "verbal_agreement"
+        | "po_received"
+        | "deposit_pending"
+        | "deposit_received"
+        | "production"
+        | "ready_to_ship"
+        | "shipped"
+        | "delivered"
+        | "on_hold"
         | "won"
         | "lost"
       order_status:
@@ -2058,9 +2075,26 @@ export const Constants = {
       lead_temperature: ["hot", "warm", "cold"],
       opportunity_stage: [
         "new",
+        "contacted",
         "qualified",
+        "needs_analysis",
+        "sample_requested",
+        "sample_sent",
+        "sample_approved",
+        "rfq_received",
         "proposal",
+        "proposal_sent",
         "negotiation",
+        "contract_review",
+        "verbal_agreement",
+        "po_received",
+        "deposit_pending",
+        "deposit_received",
+        "production",
+        "ready_to_ship",
+        "shipped",
+        "delivered",
+        "on_hold",
         "won",
         "lost",
       ],

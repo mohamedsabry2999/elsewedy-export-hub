@@ -31,12 +31,29 @@ type Opp = {
 };
 
 const STAGES = [
-  { v: "new", l: "جديد", color: "bg-blue-500/15 border-blue-500/40" },
-  { v: "qualified", l: "مؤهل", color: "bg-indigo-500/15 border-indigo-500/40" },
-  { v: "proposal", l: "عرض سعر", color: "bg-amber-500/15 border-amber-500/40" },
-  { v: "negotiation", l: "تفاوض", color: "bg-orange-500/15 border-orange-500/40" },
-  { v: "won", l: "مكتسبة", color: "bg-green-500/15 border-green-500/40" },
-  { v: "lost", l: "مفقودة", color: "bg-red-500/15 border-red-500/40" },
+  { v: "new",              l: "جديد",                color: "bg-slate-500/15 border-slate-500/40" },
+  { v: "contacted",        l: "تم التواصل",           color: "bg-slate-500/15 border-slate-500/40" },
+  { v: "qualified",        l: "مؤهل",                color: "bg-blue-500/15 border-blue-500/40" },
+  { v: "needs_analysis",   l: "تحليل الاحتياجات",     color: "bg-blue-500/15 border-blue-500/40" },
+  { v: "sample_requested", l: "طلب عينة",             color: "bg-cyan-500/15 border-cyan-500/40" },
+  { v: "sample_sent",      l: "إرسال العينة",         color: "bg-cyan-500/15 border-cyan-500/40" },
+  { v: "sample_approved",  l: "اعتماد العينة",        color: "bg-teal-500/15 border-teal-500/40" },
+  { v: "rfq_received",     l: "RFQ مستلم",            color: "bg-indigo-500/15 border-indigo-500/40" },
+  { v: "proposal",         l: "إعداد عرض السعر",      color: "bg-amber-500/15 border-amber-500/40" },
+  { v: "proposal_sent",    l: "عرض السعر مُرسل",      color: "bg-amber-500/15 border-amber-500/40" },
+  { v: "negotiation",      l: "تفاوض",                color: "bg-orange-500/15 border-orange-500/40" },
+  { v: "contract_review",  l: "مراجعة العقد",         color: "bg-orange-500/15 border-orange-500/40" },
+  { v: "verbal_agreement", l: "موافقة مبدئية",        color: "bg-lime-500/15 border-lime-500/40" },
+  { v: "po_received",      l: "استلام PO",            color: "bg-lime-500/15 border-lime-500/40" },
+  { v: "deposit_pending",  l: "بانتظار الدفعة المقدمة", color: "bg-yellow-500/15 border-yellow-500/40" },
+  { v: "deposit_received", l: "استلام الدفعة",         color: "bg-yellow-500/15 border-yellow-500/40" },
+  { v: "production",       l: "قيد الإنتاج",           color: "bg-purple-500/15 border-purple-500/40" },
+  { v: "ready_to_ship",    l: "جاهز للشحن",            color: "bg-purple-500/15 border-purple-500/40" },
+  { v: "shipped",          l: "تم الشحن",              color: "bg-fuchsia-500/15 border-fuchsia-500/40" },
+  { v: "delivered",        l: "تم التسليم",            color: "bg-emerald-500/15 border-emerald-500/40" },
+  { v: "won",              l: "مكتسبة",                color: "bg-green-500/15 border-green-500/40" },
+  { v: "lost",             l: "مفقودة",                color: "bg-red-500/15 border-red-500/40" },
+  { v: "on_hold",          l: "معلّقة",                color: "bg-zinc-500/15 border-zinc-500/40" },
 ];
 
 const empty = {
@@ -142,13 +159,14 @@ function Opportunities() {
       />
 
       {isLoading ? <Skeleton className="h-96 w-full" /> : (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="overflow-x-auto pb-2">
+          <div className="flex gap-3 min-w-max">
           {STAGES.map(s => (
             <div
               key={s.v}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => { if (dragId) { moveTo(dragId, s.v); setDragId(null); } }}
-              className={`rounded-lg border ${s.color} p-2 min-h-[400px]`}
+              className={`rounded-lg border ${s.color} p-2 min-h-[400px] w-[220px] shrink-0`}
             >
               <div className="flex items-center justify-between mb-2 px-1">
                 <div>
@@ -202,6 +220,7 @@ function Opportunities() {
               </div>
             </div>
           ))}
+          </div>
         </div>
       )}
 
