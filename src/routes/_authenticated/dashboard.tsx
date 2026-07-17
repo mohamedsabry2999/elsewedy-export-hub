@@ -100,16 +100,16 @@ function Dashboard() {
 
   const fmt = (n: number) => `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 
-  const kpiCards = [
+  const kpiCards: Array<{ label: string; value: any; icon: any; tone: string; to: string; search?: any }> = [
     { label: "الشركات", value: stats?.companies ?? 0, icon: Building2, tone: "text-primary", to: "/companies" },
     { label: "جهات الاتصال", value: stats?.contacts ?? 0, icon: Contact2, tone: "text-chart-5", to: "/contacts" },
     { label: "العملاء المحتملون", value: stats?.leads ?? 0, icon: Sparkles, tone: "text-gold", to: "/leads" },
-    { label: "Hot Leads", value: stats?.hot ?? 0, icon: Flame, tone: "text-destructive", to: "/leads" },
+    { label: "Hot Leads", value: stats?.hot ?? 0, icon: Flame, tone: "text-destructive", to: "/leads", search: { temperature: "hot" } },
     { label: "الطلبيات", value: stats?.ordersCount ?? 0, icon: ShoppingCart, tone: "text-primary", to: "/orders" },
     { label: "شحنات نشطة", value: stats?.activeShipments ?? 0, icon: Ship, tone: "text-chart-3", to: "/shipments" },
     { label: "إيرادات الشهر", value: fmt(stats?.monthRevenue ?? 0), icon: DollarSign, tone: "text-success", to: "/payments" },
     { label: "مستحقات معلّقة", value: fmt(stats?.pendingAmount ?? 0), icon: AlertTriangle, tone: "text-warning", to: "/payments" },
-    { label: "قيمة الصفقات المكتسبة", value: fmt(stats?.wonValue ?? 0), icon: Trophy, tone: "text-success", to: "/leads" },
+    { label: "قيمة الصفقات المكتسبة", value: fmt(stats?.wonValue ?? 0), icon: Trophy, tone: "text-success", to: "/leads", search: { status: "won" } },
     { label: "موافقات معلّقة", value: stats?.pendingApprovals ?? 0, icon: ClipboardCheck, tone: "text-amber-600", to: "/approvals" },
     { label: "دفعات متأخرة", value: stats?.overduePayments ?? 0, icon: Clock, tone: "text-destructive", to: "/payments" },
     { label: "نشاط إجمالي", value: (stats?.companies ?? 0) + (stats?.leads ?? 0), icon: TrendingUp, tone: "text-primary", to: "/reports" },
