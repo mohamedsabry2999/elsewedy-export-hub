@@ -3,6 +3,8 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/AppLayout";
+import { AuthProvider } from "@/lib/hooks/useAuth";
+
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
