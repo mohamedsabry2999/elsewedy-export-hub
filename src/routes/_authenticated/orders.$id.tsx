@@ -13,10 +13,11 @@ import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Edit, ArrowRight, Factory } from "lucide-react";
+import { Plus, Trash2, Edit, ArrowRight, Factory, FileText } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { generateBrandedPdf } from "@/lib/pdf";
 
 export const Route = createFileRoute("/_authenticated/orders/$id")({
   ssr: false,
@@ -96,13 +97,47 @@ function OrderDetail() {
   if (isLoading) return <Skeleton className="h-96 w-full" />;
   if (!order) return <div className="p-8 text-center text-muted-foreground">الطلبية غير موجودة</div>;
 
+  const exportInvoice = async () => {
+    const { data: comp } = order.company_id
+      ? await supabase.from("companies").select("name_en,name_ar").eq("id", order.company_id).maybeSingle()
+      : { data: null };
+    await generateBrandedPdf({
+      title: "Proforma Invoice / فاتورة مبدئية",
+      docNumber: order.order_number,
+      meta: [
+        ["Client", (comp?.name_en || comp?.name_ar) ?? "-"],
+        ["Status", order.status],
+        ["Currency", order.currency ?? "USD"],
+        ["Order Date", order.order_date ?? "-"],
+        ["Delivery", order.expected_delivery ?? "-"],
+        ["Incoterms", order.incoterms ?? "-"],
+      ],
+      lines: (items ?? []).map((it: any) => ({
+        name: it.product_name, qty: Number(it.quantity), unit: it.unit,
+        price: Number(it.unit_price), discount: 0, total: Number(it.line_total),
+      })),
+      totals: {
+        subtotal: Number(order.subtotal ?? 0), discount: Number(order.discount ?? 0),
+        tax: Number(order.tax ?? 0), total: Number(order.total ?? 0), currency: order.currency ?? "USD",
+      },
+      notes: order.notes,
+      filename: `${order.order_number}.pdf`,
+    });
+  };
+
   return (
     <div>
       <PageHeader
         title={`طلبية ${order.order_number}`}
         subtitle={`الحالة: ${order.status} · الإجمالي: ${Number(order.total ?? 0).toLocaleString()} ${order.currency}`}
-        actions={<Button asChild variant="outline"><Link to="/orders"><ArrowRight className="w-4 h-4" /> رجوع</Link></Button>}
+        actions={
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={exportInvoice}><FileText className="w-4 h-4" /> فاتورة PDF</Button>
+            <Button asChild variant="outline"><Link to="/orders"><ArrowRight className="w-4 h-4" /> رجوع</Link></Button>
+          </div>
+        }
       />
+
 
       <div className="grid md:grid-cols-3 gap-4 mb-4">
         <Card><CardHeader><CardTitle className="text-sm">تقدم الإنتاج</CardTitle></CardHeader>
