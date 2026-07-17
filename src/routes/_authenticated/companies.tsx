@@ -141,8 +141,14 @@ function Companies() {
               <SelectItem value="archived">مؤرشف</SelectItem>
             </SelectContent>
           </Select>
+          {(q || countryFilter !== "all" || statusFilter !== "all") && (
+            <Button variant="ghost" size="sm" onClick={() => { setQ(""); setCountryFilter("all"); setStatusFilter("all"); }}>
+              مسح الفلاتر
+            </Button>
+          )}
         </CardContent>
       </Card>
+
 
       <Card>
         <CardContent className="pt-4">

@@ -4,7 +4,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/shipments")({ ssr: false, component: Shipments });
+type Search = { status?: string; mode?: string };
+
+export const Route = createFileRoute("/_authenticated/shipments")({
+  ssr: false,
+  component: Shipments,
+  validateSearch: (s: Record<string, unknown>): Search => ({
+    status: typeof s.status === "string" ? s.status : undefined,
+    mode: typeof s.mode === "string" ? s.mode : undefined,
+  }),
+});
 
 const STATUSES = [
   { v: "pending", l: "قيد الإعداد" }, { v: "booked", l: "محجوز" },
@@ -17,10 +26,16 @@ const MODES = [
 ];
 
 function Shipments() {
+  const search = Route.useSearch();
+  const initialFilters: Record<string, string> = {};
+  if (search.status) initialFilters.status = search.status;
+  if (search.mode) initialFilters.mode = search.mode;
+
   return (
     <CrudPage
       title="الشحنات" addLabel="شحنة جديدة" table="shipments"
       searchable={["shipment_number", "tracking_number", "destination_country"]}
+      initialFilters={initialFilters}
       bulkFields={[
         { name: "status", label: "الحالة", options: STATUSES },
         { name: "mode", label: "الوسيلة", options: MODES },
