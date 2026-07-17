@@ -94,12 +94,28 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        {renderGroup("المبيعات", salesNav)}
-        {renderGroup("العمليات", opsNav)}
-        {renderGroup("الإنتاجية", productivityNav)}
-        {renderGroup("حسابي", personalNav)}
-        {renderGroup("الإدارة", admin)}
+        {loading ? (
+          <div className="px-3 py-4 space-y-2">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="h-8 rounded-md bg-sidebar-accent/20 animate-pulse" />
+            ))}
+          </div>
+        ) : error ? (
+          <div className="px-3 py-4 text-xs text-destructive-foreground/90">
+            تعذّر تحميل الصلاحيات.
+            <button onClick={() => refreshPermissions()} className="underline mr-1">إعادة المحاولة</button>
+          </div>
+        ) : (
+          <>
+            {renderGroup("المبيعات", salesNav)}
+            {renderGroup("العمليات", opsNav)}
+            {renderGroup("الإنتاجية", productivityNav)}
+            {renderGroup("حسابي", personalNav)}
+            {renderGroup("الإدارة", admin)}
+          </>
+        )}
       </SidebarContent>
+
       <SidebarFooter className="border-t border-sidebar-border">
         {!collapsed && profile && (
           <div className="px-2 py-2 text-xs text-sidebar-foreground/80 truncate">
