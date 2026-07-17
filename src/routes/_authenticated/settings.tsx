@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useBranding } from "@/components/BrandingProvider";
 import { SystemDiagnostics } from "@/components/SystemDiagnostics";
+import { DemoDataCenter } from "@/components/DemoDataCenter";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   ssr: false,
