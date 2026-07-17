@@ -72,16 +72,16 @@ function Reports() {
     const d = new Date(o.order_date);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     const m = monthly.get(key);
-    if (m) { m.revenue += Number(o.total || 0); m.paid += Number(o.paid_amount || 0); }
+    if (m) { m.revenue += Number(o.base_total ?? o.total ?? 0); m.paid += Number(o.paid_amount ?? 0); }
   }
   const trendData = [...monthly.values()];
 
-  // Top companies by revenue
+  // Top companies by revenue (in base currency)
   const compMap = new Map((data.companies as any[]).map(c => [c.id, c]));
   const byCompany = new Map<string, number>();
   for (const o of data.orders as any[]) {
     if (!o.company_id) continue;
-    byCompany.set(o.company_id, (byCompany.get(o.company_id) ?? 0) + Number(o.total || 0));
+    byCompany.set(o.company_id, (byCompany.get(o.company_id) ?? 0) + Number(o.base_total ?? o.total ?? 0));
   }
   const topCompanies = [...byCompany.entries()]
     .map(([id, v]) => ({ name: (compMap.get(id) as any)?.name_en ?? "—", value: v }))
