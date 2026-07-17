@@ -245,6 +245,12 @@ export function CrudPage<T extends { id: string }>({
                 </AlertDialogContent>
               </AlertDialog>
             )}
+            {canEdit && selected.size > 0 && bulkFields.map((bf) => (
+              <Select key={bf.name} onValueChange={(v) => bulkUpdate(bf.name, v)}>
+                <SelectTrigger className="h-9 w-[180px]"><SelectValue placeholder={`تحديث ${bf.label} (${selected.size})`} /></SelectTrigger>
+                <SelectContent>{bf.options.map(o => <SelectItem key={o.v} value={o.v}>{o.l}</SelectItem>)}</SelectContent>
+              </Select>
+            ))}
             {canCreate && <Button onClick={openNew}><Plus className="w-4 h-4" /> {addLabel}</Button>}
           </div>
         } />
