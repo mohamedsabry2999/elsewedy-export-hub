@@ -226,6 +226,13 @@ function Tasks() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!commentsFor} onOpenChange={(o) => !o && setCommentsFor(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle className="truncate">{commentsFor?.title}</DialogTitle></DialogHeader>
+          {commentsFor && <TaskComments taskId={commentsFor.id} />}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
