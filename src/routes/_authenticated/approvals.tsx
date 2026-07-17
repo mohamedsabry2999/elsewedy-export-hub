@@ -43,7 +43,16 @@ const ENTITY_TYPES = [
   { v: "shipment", l: "شحنة" },
   { v: "sample", l: "عينة" },
   { v: "other", l: "أخرى" },
-];
+] as const;
+
+// entity_type -> route path builder
+const ENTITY_LINK: Record<string, (id: string) => string> = {
+  quotation: () => `/quotations`,
+  order: (id) => `/orders/${id}`,
+  payment: () => `/payments`,
+  shipment: (id) => `/shipments/${id}`,
+  sample: () => `/samples`,
+};
 
 const STATUS_META: Record<string, { l: string; c: string }> = {
   pending: { l: "قيد الانتظار", c: "bg-amber-500/15 text-amber-600 border-amber-500/40" },
