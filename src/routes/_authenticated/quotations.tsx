@@ -272,14 +272,15 @@ function Quotations() {
       <PageHeader title="عروض الأسعار" subtitle={`${filtered.length} عرض`}
         actions={<Button onClick={openNew}><Plus className="w-4 h-4" /> عرض جديد</Button>} />
 
-      <Card className="mb-4"><CardContent className="pt-4">
+      <Card className="mb-4"><CardContent className="pt-4 flex flex-wrap gap-2 items-center">
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-48"><SelectValue placeholder="الحالة" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">كل الحالات</SelectItem>
             {STATUSES.map(s => <SelectItem key={s.v} value={s.v}>{s.l}</SelectItem>)}
           </SelectContent>
         </Select>
+        {statusFilter !== "all" && <Button variant="outline" size="sm" onClick={() => setStatusFilter("all")}>مسح الفلاتر</Button>}
       </CardContent></Card>
 
       <Card><CardContent className="pt-4">
