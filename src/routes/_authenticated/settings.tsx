@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useBranding } from "@/components/BrandingProvider";
+import { SystemDiagnostics } from "@/components/SystemDiagnostics";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   ssr: false,
@@ -182,6 +183,9 @@ function SettingsPage() {
           </Button>
         </div>
       )}
+      <div className="mt-6">
+        <SystemDiagnostics />
+      </div>
     </div>
   );
 }
