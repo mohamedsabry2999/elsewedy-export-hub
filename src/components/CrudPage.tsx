@@ -39,6 +39,8 @@ export type ColumnDef<T> = {
   className?: string;
 };
 
+export type BulkFieldDef = { name: string; label: string; options: { v: string; l: string }[] };
+
 type Props<T extends { id: string }> = {
   title: string;
   addLabel: string;
@@ -50,11 +52,13 @@ type Props<T extends { id: string }> = {
   invalidateKeys?: string[];
   numberGenerator?: (form: any) => Record<string, string>;
   ownedFields?: boolean;
+  bulkFields?: BulkFieldDef[];
 };
 
 export function CrudPage<T extends { id: string }>({
   title, addLabel, table, columns, fields, defaults,
   searchable = [], invalidateKeys = [], numberGenerator, ownedFields = true,
+  bulkFields = [],
 }: Props<T>) {
   const qc = useQueryClient();
   const { user, isAdmin, hasPermission } = useAuth();
