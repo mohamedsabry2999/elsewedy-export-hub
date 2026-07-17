@@ -36,6 +36,7 @@ function OrderDetail() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { brand } = useBranding();
   const [stageOpen, setStageOpen] = useState(false);
   const [editingStage, setEditingStage] = useState<any>(null);
