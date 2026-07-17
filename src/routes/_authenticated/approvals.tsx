@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, Check, X, Ban, ClipboardCheck } from "lucide-react";
+import { Plus, Check, X, Ban, ClipboardCheck, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/hooks/useAuth";
 
@@ -43,7 +43,16 @@ const ENTITY_TYPES = [
   { v: "shipment", l: "شحنة" },
   { v: "sample", l: "عينة" },
   { v: "other", l: "أخرى" },
-];
+] as const;
+
+// entity_type -> route path builder
+const ENTITY_LINK: Record<string, (id: string) => string> = {
+  quotation: () => `/quotations`,
+  order: (id) => `/orders/${id}`,
+  payment: () => `/payments`,
+  shipment: (id) => `/shipments/${id}`,
+  sample: () => `/samples`,
+};
 
 const STATUS_META: Record<string, { l: string; c: string }> = {
   pending: { l: "قيد الانتظار", c: "bg-amber-500/15 text-amber-600 border-amber-500/40" },
@@ -85,6 +94,36 @@ function Approvals() {
     const u = users?.find(x => x.id === id);
     return u ? (u.full_name || u.email) : id.slice(0, 8);
   };
+
+  // Load entities matching the selected entity type for the create dialog
+  const { data: entityOptions, isFetching: loadingEntities } = useQuery({
+    queryKey: ["approval-entity-options", form.entity_type],
+    enabled: open && form.entity_type !== "other",
+    queryFn: async () => {
+      const t = form.entity_type;
+      if (t === "quotation") {
+        const { data } = await supabase.from("quotations").select("id, quotation_number, total, currency").order("created_at", { ascending: false }).limit(100);
+        return (data ?? []).map((r: any) => ({ id: r.id, label: `${r.quotation_number} — ${r.total} ${r.currency}` }));
+      }
+      if (t === "order") {
+        const { data } = await supabase.from("orders").select("id, order_number, total, currency").order("created_at", { ascending: false }).limit(100);
+        return (data ?? []).map((r: any) => ({ id: r.id, label: `${r.order_number} — ${r.total} ${r.currency}` }));
+      }
+      if (t === "payment") {
+        const { data } = await supabase.from("payments").select("id, amount, currency, status").order("created_at", { ascending: false }).limit(100);
+        return (data ?? []).map((r: any) => ({ id: r.id, label: `${r.amount} ${r.currency} — ${r.status}` }));
+      }
+      if (t === "shipment") {
+        const { data } = await supabase.from("shipments").select("id, tracking_number, status").order("created_at", { ascending: false }).limit(100);
+        return (data ?? []).map((r: any) => ({ id: r.id, label: `${r.tracking_number ?? r.id.slice(0,8)} — ${r.status}` }));
+      }
+      if (t === "sample") {
+        const { data } = await supabase.from("samples").select("id, sample_number, status").order("created_at", { ascending: false }).limit(100);
+        return (data ?? []).map((r: any) => ({ id: r.id, label: `${r.sample_number ?? r.id.slice(0,8)} — ${r.status}` }));
+      }
+      return [];
+    },
+  });
 
   const filtered = (rows ?? []).filter(r => {
     if (tab === "pending") return r.status === "pending";
@@ -170,6 +209,12 @@ function Approvals() {
                               <Badge variant="outline" className={st.c}>{st.l}</Badge>
                               <Badge variant="outline">{entityLabel}</Badge>
                               <span className="text-xs text-muted-foreground font-mono">{r.entity_id.slice(0, 8)}</span>
+                              {ENTITY_LINK[r.entity_type] && (
+                                <Link to={ENTITY_LINK[r.entity_type]!(r.entity_id)}
+                                  className="text-xs text-primary hover:underline inline-flex items-center gap-1">
+                                  <ExternalLink className="w-3 h-3" /> فتح السجل
+                                </Link>
+                              )}
                             </div>
                             {r.reason && <div className="text-sm mt-2">{r.reason}</div>}
                             <div className="text-xs text-muted-foreground mt-2 flex flex-wrap gap-x-4 gap-y-1">
@@ -216,8 +261,18 @@ function Approvals() {
                 <SelectContent>{ENTITY_TYPES.map(e => <SelectItem key={e.v} value={e.v}>{e.l}</SelectItem>)}</SelectContent>
               </Select>
             </F>
-            <F label="معرّف السجل *">
-              <Input value={form.entity_id} onChange={e => setForm({ ...form, entity_id: e.target.value })} placeholder="UUID الخاص بالسجل" dir="ltr" />
+            <F label="السجل *">
+              {form.entity_type === "other" ? (
+                <Input value={form.entity_id} onChange={e => setForm({ ...form, entity_id: e.target.value })} placeholder="UUID الخاص بالسجل" dir="ltr" />
+              ) : (
+                <Select value={form.entity_id} onValueChange={v => setForm({ ...form, entity_id: v })}>
+                  <SelectTrigger><SelectValue placeholder={loadingEntities ? "جاري التحميل..." : "اختر السجل"} /></SelectTrigger>
+                  <SelectContent>
+                    {(entityOptions ?? []).map(o => <SelectItem key={o.id} value={o.id}>{o.label}</SelectItem>)}
+                    {!loadingEntities && !(entityOptions ?? []).length && <div className="p-2 text-xs text-muted-foreground">لا توجد سجلات</div>}
+                  </SelectContent>
+                </Select>
+              )}
             </F>
             <F label="المعتمد (اختياري)">
               <Select value={form.approver_id} onValueChange={v => setForm({ ...form, approver_id: v })}>

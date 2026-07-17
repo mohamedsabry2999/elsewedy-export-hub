@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/EmptyState";
 import {
   Building2, Sparkles, Contact2, TrendingUp, Flame, Trophy,
   ShoppingCart, Ship, Wallet, DollarSign, AlertTriangle, PieChart as PieIcon,
+  ClipboardCheck, Clock,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -27,10 +28,12 @@ function Dashboard() {
       const startOfMonth = new Date(); startOfMonth.setDate(1); startOfMonth.setHours(0, 0, 0, 0);
       const monthISO = startOfMonth.toISOString();
 
+      const todayISO = new Date().toISOString();
       const [
         companies, contacts, leads, hotLeads, wonLeads,
         orders, activeShipments, monthPayments, pendingPayments,
         byStatus, byCountry, revenueTrend, topCompanies,
+        pendingApprovals, overduePayments,
       ] = await Promise.all([
         supabase.from("companies").select("id", { count: "exact", head: true }),
         supabase.from("contacts").select("id", { count: "exact", head: true }),
@@ -45,6 +48,8 @@ function Dashboard() {
         supabase.from("companies").select("country"),
         supabase.from("orders").select("total, created_at").gte("created_at", new Date(Date.now() - 180 * 86400_000).toISOString()),
         supabase.from("orders").select("total, company_id").order("total", { ascending: false }).limit(200),
+        supabase.from("approvals").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("payments").select("id", { count: "exact", head: true }).lt("due_date", todayISO).neq("status", "paid"),
       ]);
 
       const statusCounts: Record<string, number> = {};
@@ -83,6 +88,8 @@ function Dashboard() {
         activeShipments: activeShipments.count ?? 0,
         monthRevenue,
         pendingAmount,
+        pendingApprovals: pendingApprovals.count ?? 0,
+        overduePayments: overduePayments.count ?? 0,
         statusData: Object.entries(statusCounts).map(([k, v]) => ({ name: k, value: v })),
         countryData: Object.entries(countryCounts).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, v]) => ({ country: k, count: v })),
         trend,
@@ -103,6 +110,8 @@ function Dashboard() {
     { label: "إيرادات الشهر", value: fmt(stats?.monthRevenue ?? 0), icon: DollarSign, tone: "text-success", to: "/payments" },
     { label: "مستحقات معلّقة", value: fmt(stats?.pendingAmount ?? 0), icon: AlertTriangle, tone: "text-warning", to: "/payments" },
     { label: "قيمة الصفقات المكتسبة", value: fmt(stats?.wonValue ?? 0), icon: Trophy, tone: "text-success", to: "/leads" },
+    { label: "موافقات معلّقة", value: stats?.pendingApprovals ?? 0, icon: ClipboardCheck, tone: "text-amber-600", to: "/approvals" },
+    { label: "دفعات متأخرة", value: stats?.overduePayments ?? 0, icon: Clock, tone: "text-destructive", to: "/payments" },
     { label: "نشاط إجمالي", value: (stats?.companies ?? 0) + (stats?.leads ?? 0), icon: TrendingUp, tone: "text-primary", to: "/reports" },
   ];
 

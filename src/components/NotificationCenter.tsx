@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/lib/hooks/useAuth";
 
 interface Notification {
@@ -20,6 +21,7 @@ export function NotificationCenter() {
   const [items, setItems] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [filter, setFilter] = useState<"all" | "unread">("all");
 
   const load = async () => {
     if (!user) return;
@@ -80,44 +82,52 @@ export function NotificationCenter() {
             </Button>
           )}
         </div>
+        <Tabs value={filter} onValueChange={(v) => setFilter(v as any)} className="px-3 pt-2">
+          <TabsList className="w-full h-8">
+            <TabsTrigger value="all" className="flex-1 text-xs h-7">الكل ({items.length})</TabsTrigger>
+            <TabsTrigger value="unread" className="flex-1 text-xs h-7">غير مقروءة ({unread})</TabsTrigger>
+          </TabsList>
+        </Tabs>
         <ScrollArea className="h-96">
           {loading ? (
             <div className="p-8 flex justify-center"><Loader2 className="animate-spin w-5 h-5" /></div>
-          ) : items.length === 0 ? (
-            <div className="p-8 text-center text-sm text-muted-foreground">لا توجد إشعارات</div>
-          ) : (
-            <div className="divide-y">
-              {items.map((n) => (
-                <div key={n.id} className={`p-3 hover:bg-muted/50 ${!n.is_read ? "bg-primary/5" : ""}`}>
-                  <div className="flex items-start gap-2">
-                    <div className="flex-1 min-w-0">
-                      {n.link ? (
-                        <Link to={n.link} onClick={() => { markRead(n.id); setOpen(false); }} className="text-sm font-medium hover:underline block truncate">
-                          {n.title}
-                        </Link>
-                      ) : (
-                        <div className="text-sm font-medium truncate">{n.title}</div>
-                      )}
-                      {n.body && <div className="text-xs text-muted-foreground truncate">{n.body}</div>}
-                      <div className="text-[10px] text-muted-foreground mt-1">
-                        {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: ar })}
+          ) : (() => {
+            const list = filter === "unread" ? items.filter(n => !n.is_read) : items;
+            if (list.length === 0) return <div className="p-8 text-center text-sm text-muted-foreground">لا توجد إشعارات</div>;
+            return (
+              <div className="divide-y">
+                {list.map((n) => (
+                  <div key={n.id} className={`p-3 hover:bg-muted/50 ${!n.is_read ? "bg-primary/5" : ""}`}>
+                    <div className="flex items-start gap-2">
+                      <div className="flex-1 min-w-0">
+                        {n.link ? (
+                          <Link to={n.link} onClick={() => { markRead(n.id); setOpen(false); }} className="text-sm font-medium hover:underline block truncate">
+                            {n.title}
+                          </Link>
+                        ) : (
+                          <div className="text-sm font-medium truncate">{n.title}</div>
+                        )}
+                        {n.body && <div className="text-xs text-muted-foreground truncate">{n.body}</div>}
+                        <div className="text-[10px] text-muted-foreground mt-1">
+                          {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: ar })}
+                        </div>
+                      </div>
+                      <div className="flex gap-1">
+                        {!n.is_read && (
+                          <Button size="icon" variant="ghost" className="w-6 h-6" onClick={() => markRead(n.id)}>
+                            <Check className="w-3 h-3" />
+                          </Button>
+                        )}
+                        <Button size="icon" variant="ghost" className="w-6 h-6 text-destructive" onClick={() => del(n.id)}>
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex gap-1">
-                      {!n.is_read && (
-                        <Button size="icon" variant="ghost" className="w-6 h-6" onClick={() => markRead(n.id)}>
-                          <Check className="w-3 h-3" />
-                        </Button>
-                      )}
-                      <Button size="icon" variant="ghost" className="w-6 h-6 text-destructive" onClick={() => del(n.id)}>
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            );
+          })()}
         </ScrollArea>
       </PopoverContent>
     </Popover>
