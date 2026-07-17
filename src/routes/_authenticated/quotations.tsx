@@ -283,13 +283,27 @@ function Quotations() {
 
       <Card className="mb-4"><CardContent className="pt-4 flex flex-wrap gap-2 items-center">
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-48"><SelectValue placeholder="الحالة" /></SelectTrigger>
+          <SelectTrigger className="w-44"><SelectValue placeholder="الحالة" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">كل الحالات</SelectItem>
             {STATUSES.map(s => <SelectItem key={s.v} value={s.v}>{s.l}</SelectItem>)}
           </SelectContent>
         </Select>
-        {statusFilter !== "all" && <Button variant="outline" size="sm" onClick={() => setStatusFilter("all")}>مسح الفلاتر</Button>}
+        <Select value={companyFilter} onValueChange={setCompanyFilter}>
+          <SelectTrigger className="w-56"><SelectValue placeholder="الشركة" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">كل الشركات</SelectItem>
+            {companies?.map(c => <SelectItem key={c.id} value={c.id}>{c.name_en}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={currencyFilter} onValueChange={setCurrencyFilter}>
+          <SelectTrigger className="w-36"><SelectValue placeholder="العملة" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">كل العملات</SelectItem>
+            {currencies.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        {hasFilters && <Button variant="outline" size="sm" onClick={clearFilters}>مسح الفلاتر</Button>}
       </CardContent></Card>
 
       <Card><CardContent className="pt-4">
