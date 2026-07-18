@@ -517,12 +517,11 @@ function TermRow({ s, label, value }: any) {
 export async function generateQuotationPdfBlob(
   data: QuotationDocData, brand: BrandInfo, lang: "ar" | "en",
 ): Promise<Blob> {
-  let family = "Helvetica";
-  if (lang === "ar") {
-    const ok = await ensureArabicFont();
-    family = ok ? "NotoArabic" : "Helvetica";
-    if (!ok) console.warn("[quotation-pdf] Arabic font unavailable; falling back to Helvetica");
-  }
+  // Always try to load Arabic-capable font so English PDFs can still render
+  // any Arabic company/customer names without missing-glyph boxes.
+  const ok = await ensureArabicFont();
+  const family = ok ? "NotoArabic" : "Helvetica";
+  if (!ok && lang === "ar") console.warn("[quotation-pdf] Arabic font unavailable; falling back to Helvetica");
   const logoDataUrl = await resolveLogo(brand.logo_url);
   const blob = await pdf(
     <QuotationPdfDoc data={data} brand={brand} logoDataUrl={logoDataUrl} lang={lang} fontFamily={family} />
