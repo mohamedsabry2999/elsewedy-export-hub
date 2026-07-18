@@ -261,9 +261,15 @@ function BrandedDoc({
 }
 
 export async function generatePdfBlob(opts: PdfDocOptions): Promise<Blob> {
-  ensureFont();
-  const { filename: _f, ...docProps } = opts;
-  return await pdf(<BrandedDoc {...docProps} />).toBlob();
+  await ensureFont();
+  // Pre-resolve logo to data URL so react-pdf doesn't fail on network/CORS.
+  const logoDataUrl = await resolvePdfLogo(opts.brand.logo_url);
+  const brand: BrandInfo = { ...opts.brand, logo_url: logoDataUrl };
+  const { filename: _f, ...rest } = opts;
+  const docProps = { ...rest, brand };
+  const blob = await pdf(<BrandedDoc {...docProps} />).toBlob();
+  if (!blob || blob.size === 0) throw new Error("Generated PDF is empty");
+  return blob;
 }
 
 export async function downloadBrandedPdf(opts: PdfDocOptions) {
@@ -277,3 +283,4 @@ export async function downloadBrandedPdf(opts: PdfDocOptions) {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
