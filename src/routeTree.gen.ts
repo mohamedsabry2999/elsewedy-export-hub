@@ -37,7 +37,9 @@ import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAuditLogRouteImport } from './routes/_authenticated/audit-log'
 import { Route as AuthenticatedApprovalsRouteImport } from './routes/_authenticated/approvals'
 import { Route as AuthenticatedActivitiesRouteImport } from './routes/_authenticated/activities'
+import { Route as AuthenticatedQuotationsIndexRouteImport } from './routes/_authenticated/quotations.index'
 import { Route as AuthenticatedShipmentsIdRouteImport } from './routes/_authenticated/shipments.$id'
+import { Route as AuthenticatedQuotationsIdRouteImport } from './routes/_authenticated/quotations.$id'
 import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticated/orders.$id'
 import { Route as AuthenticatedContactsIdRouteImport } from './routes/_authenticated/contacts.$id'
 import { Route as AuthenticatedCompaniesIdRouteImport } from './routes/_authenticated/companies.$id'
@@ -185,11 +187,23 @@ const AuthenticatedActivitiesRoute = AuthenticatedActivitiesRouteImport.update({
   path: '/activities',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedQuotationsIndexRoute =
+  AuthenticatedQuotationsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedQuotationsRoute,
+  } as any)
 const AuthenticatedShipmentsIdRoute =
   AuthenticatedShipmentsIdRouteImport.update({
     id: '/$id',
     path: '/$id',
     getParentRoute: () => AuthenticatedShipmentsRoute,
+  } as any)
+const AuthenticatedQuotationsIdRoute =
+  AuthenticatedQuotationsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedQuotationsRoute,
   } as any)
 const AuthenticatedOrdersIdRoute = AuthenticatedOrdersIdRouteImport.update({
   id: '/$id',
@@ -234,7 +248,7 @@ export interface FileRoutesByFullPath {
   '/payments': typeof AuthenticatedPaymentsRoute
   '/products': typeof AuthenticatedProductsRoute
   '/profile': typeof AuthenticatedProfileRoute
-  '/quotations': typeof AuthenticatedQuotationsRoute
+  '/quotations': typeof AuthenticatedQuotationsRouteWithChildren
   '/reports': typeof AuthenticatedReportsRoute
   '/roles': typeof AuthenticatedRolesRoute
   '/samples': typeof AuthenticatedSamplesRoute
@@ -245,7 +259,9 @@ export interface FileRoutesByFullPath {
   '/companies/$id': typeof AuthenticatedCompaniesIdRoute
   '/contacts/$id': typeof AuthenticatedContactsIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
+  '/quotations/$id': typeof AuthenticatedQuotationsIdRoute
   '/shipments/$id': typeof AuthenticatedShipmentsIdRoute
+  '/quotations/': typeof AuthenticatedQuotationsIndexRoute
   '/api/public/hooks/automations-daily': typeof ApiPublicHooksAutomationsDailyRoute
 }
 export interface FileRoutesByTo {
@@ -268,7 +284,6 @@ export interface FileRoutesByTo {
   '/payments': typeof AuthenticatedPaymentsRoute
   '/products': typeof AuthenticatedProductsRoute
   '/profile': typeof AuthenticatedProfileRoute
-  '/quotations': typeof AuthenticatedQuotationsRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/roles': typeof AuthenticatedRolesRoute
   '/samples': typeof AuthenticatedSamplesRoute
@@ -279,7 +294,9 @@ export interface FileRoutesByTo {
   '/companies/$id': typeof AuthenticatedCompaniesIdRoute
   '/contacts/$id': typeof AuthenticatedContactsIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
+  '/quotations/$id': typeof AuthenticatedQuotationsIdRoute
   '/shipments/$id': typeof AuthenticatedShipmentsIdRoute
+  '/quotations': typeof AuthenticatedQuotationsIndexRoute
   '/api/public/hooks/automations-daily': typeof ApiPublicHooksAutomationsDailyRoute
 }
 export interface FileRoutesById {
@@ -304,7 +321,7 @@ export interface FileRoutesById {
   '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
-  '/_authenticated/quotations': typeof AuthenticatedQuotationsRoute
+  '/_authenticated/quotations': typeof AuthenticatedQuotationsRouteWithChildren
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/roles': typeof AuthenticatedRolesRoute
   '/_authenticated/samples': typeof AuthenticatedSamplesRoute
@@ -315,7 +332,9 @@ export interface FileRoutesById {
   '/_authenticated/companies/$id': typeof AuthenticatedCompaniesIdRoute
   '/_authenticated/contacts/$id': typeof AuthenticatedContactsIdRoute
   '/_authenticated/orders/$id': typeof AuthenticatedOrdersIdRoute
+  '/_authenticated/quotations/$id': typeof AuthenticatedQuotationsIdRoute
   '/_authenticated/shipments/$id': typeof AuthenticatedShipmentsIdRoute
+  '/_authenticated/quotations/': typeof AuthenticatedQuotationsIndexRoute
   '/api/public/hooks/automations-daily': typeof ApiPublicHooksAutomationsDailyRoute
 }
 export interface FileRouteTypes {
@@ -351,7 +370,9 @@ export interface FileRouteTypes {
     | '/companies/$id'
     | '/contacts/$id'
     | '/orders/$id'
+    | '/quotations/$id'
     | '/shipments/$id'
+    | '/quotations/'
     | '/api/public/hooks/automations-daily'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -374,7 +395,6 @@ export interface FileRouteTypes {
     | '/payments'
     | '/products'
     | '/profile'
-    | '/quotations'
     | '/reports'
     | '/roles'
     | '/samples'
@@ -385,7 +405,9 @@ export interface FileRouteTypes {
     | '/companies/$id'
     | '/contacts/$id'
     | '/orders/$id'
+    | '/quotations/$id'
     | '/shipments/$id'
+    | '/quotations'
     | '/api/public/hooks/automations-daily'
   id:
     | '__root__'
@@ -420,7 +442,9 @@ export interface FileRouteTypes {
     | '/_authenticated/companies/$id'
     | '/_authenticated/contacts/$id'
     | '/_authenticated/orders/$id'
+    | '/_authenticated/quotations/$id'
     | '/_authenticated/shipments/$id'
+    | '/_authenticated/quotations/'
     | '/api/public/hooks/automations-daily'
   fileRoutesById: FileRoutesById
 }
@@ -630,12 +654,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedActivitiesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/quotations/': {
+      id: '/_authenticated/quotations/'
+      path: '/'
+      fullPath: '/quotations/'
+      preLoaderRoute: typeof AuthenticatedQuotationsIndexRouteImport
+      parentRoute: typeof AuthenticatedQuotationsRoute
+    }
     '/_authenticated/shipments/$id': {
       id: '/_authenticated/shipments/$id'
       path: '/$id'
       fullPath: '/shipments/$id'
       preLoaderRoute: typeof AuthenticatedShipmentsIdRouteImport
       parentRoute: typeof AuthenticatedShipmentsRoute
+    }
+    '/_authenticated/quotations/$id': {
+      id: '/_authenticated/quotations/$id'
+      path: '/$id'
+      fullPath: '/quotations/$id'
+      preLoaderRoute: typeof AuthenticatedQuotationsIdRouteImport
+      parentRoute: typeof AuthenticatedQuotationsRoute
     }
     '/_authenticated/orders/$id': {
       id: '/_authenticated/orders/$id'
@@ -706,6 +744,22 @@ const AuthenticatedOrdersRouteChildren: AuthenticatedOrdersRouteChildren = {
 const AuthenticatedOrdersRouteWithChildren =
   AuthenticatedOrdersRoute._addFileChildren(AuthenticatedOrdersRouteChildren)
 
+interface AuthenticatedQuotationsRouteChildren {
+  AuthenticatedQuotationsIdRoute: typeof AuthenticatedQuotationsIdRoute
+  AuthenticatedQuotationsIndexRoute: typeof AuthenticatedQuotationsIndexRoute
+}
+
+const AuthenticatedQuotationsRouteChildren: AuthenticatedQuotationsRouteChildren =
+  {
+    AuthenticatedQuotationsIdRoute: AuthenticatedQuotationsIdRoute,
+    AuthenticatedQuotationsIndexRoute: AuthenticatedQuotationsIndexRoute,
+  }
+
+const AuthenticatedQuotationsRouteWithChildren =
+  AuthenticatedQuotationsRoute._addFileChildren(
+    AuthenticatedQuotationsRouteChildren,
+  )
+
 interface AuthenticatedShipmentsRouteChildren {
   AuthenticatedShipmentsIdRoute: typeof AuthenticatedShipmentsIdRoute
 }
@@ -737,7 +791,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
-  AuthenticatedQuotationsRoute: typeof AuthenticatedQuotationsRoute
+  AuthenticatedQuotationsRoute: typeof AuthenticatedQuotationsRouteWithChildren
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedRolesRoute: typeof AuthenticatedRolesRoute
   AuthenticatedSamplesRoute: typeof AuthenticatedSamplesRoute
@@ -764,7 +818,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
-  AuthenticatedQuotationsRoute: AuthenticatedQuotationsRoute,
+  AuthenticatedQuotationsRoute: AuthenticatedQuotationsRouteWithChildren,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedRolesRoute: AuthenticatedRolesRoute,
   AuthenticatedSamplesRoute: AuthenticatedSamplesRoute,
