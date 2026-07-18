@@ -5,13 +5,15 @@ if (typeof globalThis !== "undefined" && !(globalThis as any).Buffer) {
 }
 
 import { Document, Page, Text, View, StyleSheet, Font, Image, pdf } from "@react-pdf/renderer";
-import notoArabic from "@/assets/noto-arabic-regular.ttf.asset.json";
+import cairoRegular from "@/assets/cairo-regular.ttf.asset.json";
+import cairoBold from "@/assets/cairo-bold.ttf.asset.json";
 import logoFullFallback from "@/assets/elsewedy-logo.png.asset.json";
 import type { BrandInfo } from "@/components/BrandingProvider";
 
-// Register Arabic-capable font once (idempotent) and fully preload it before
-// the first render — react-pdf's bidi reorder crashes on undefined font.id
-// when a glyph run is laid out before its font has finished loading.
+// Register Arabic-capable font once (idempotent) and fully preload the TTF
+// bytes before the first render so react-pdf's layout has font metrics ready.
+// Cairo covers Arabic + Latin + numerals and works cleanly with fontkit's
+// OpenType layout (unlike Noto Naskh Arabic, which crashes in bidi reorder).
 let fontPromise: Promise<void> | null = null;
 async function ensureFont() {
   if (fontPromise) return fontPromise;
