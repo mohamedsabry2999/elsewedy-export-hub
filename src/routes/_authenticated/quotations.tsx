@@ -210,49 +210,69 @@ function Quotations() {
   };
 
   const exportPdf = async (q: Quote) => {
-    const { data: rows } = await supabase.from("quotation_items").select("*").eq("quotation_id", q.id).order("position");
-    const { data: comp } = q.company_id
-      ? await supabase.from("companies").select("name_en,name_ar").eq("id", q.company_id).maybeSingle()
-      : { data: null };
-    await downloadBrandedPdf({
-      brand,
-      titleAr: "عرض سعر",
-      titleEn: "Quotation",
-      docNumber: q.quote_number,
-      meta: [
-        { labelAr: "العميل", labelEn: "Client", value: (comp?.name_ar || comp?.name_en) ?? "-" },
-        { labelAr: "الحالة", labelEn: "Status", value: q.status },
-        { labelAr: "العملة", labelEn: "Currency", value: q.currency ?? "USD" },
-        { labelAr: "ساري حتى", labelEn: "Valid Until", value: q.valid_until ?? "-" },
-        { labelAr: "Incoterms", labelEn: "Incoterms", value: q.incoterms ?? "-" },
-        { labelAr: "شروط الدفع", labelEn: "Payment", value: q.payment_terms ?? "-" },
-      ],
-      lines: (rows ?? []).map((it: any) => {
-        const specs = [
-          it.material && `المادة: ${it.material}`,
-          it.thickness && `السماكة: ${it.thickness}`,
-          it.dimensions && `الأبعاد: ${it.dimensions}`,
-          it.color && `اللون: ${it.color}`,
-          it.finish && `اللمسة: ${it.finish}`,
-          it.print_colors && `ألوان الطباعة: ${it.print_colors}`,
-          it.packaging && `التغليف: ${it.packaging}`,
-          it.lead_time_days != null && `مهلة: ${it.lead_time_days} يوم`,
-          it.specs_notes,
-        ].filter(Boolean).join(" · ");
-        return {
-          name: it.product_name, qty: Number(it.quantity), unit: it.unit,
-          price: Number(it.unit_price), discount: Number(it.discount_pct ?? 0),
-          total: Number(it.line_total),
-          specs: specs || null,
-        };
-      }),
-      totals: {
-        subtotal: Number(q.subtotal ?? 0), discount: Number(q.discount ?? 0),
-        tax: Number(q.tax ?? 0), total: Number(q.total ?? 0), currency: q.currency ?? "USD",
-      },
-      notes: q.notes,
-      filename: `${q.quote_number}.pdf`,
-    });
+    if (pdfBusyId) return;
+    setPdfBusyId(q.id);
+    const loadingToast = toast.loading(`جاري تجهيز عرض السعر ${q.quote_number}...`);
+    try {
+      const { data: rows, error: itemsErr } = await supabase
+        .from("quotation_items").select("*").eq("quotation_id", q.id).order("position");
+      if (itemsErr) throw itemsErr;
+      if (!rows || rows.length === 0) throw new Error("لا توجد بنود لهذا العرض");
+
+      const totalNum = Number(q.total ?? 0);
+      if (!Number.isFinite(totalNum)) throw new Error("قيمة الإجمالي غير صالحة");
+
+      const { data: comp } = q.company_id
+        ? await supabase.from("companies").select("name_en,name_ar").eq("id", q.company_id).maybeSingle()
+        : { data: null };
+
+      await downloadBrandedPdf({
+        brand,
+        titleAr: "عرض سعر",
+        titleEn: "Quotation",
+        docNumber: q.quote_number,
+        meta: [
+          { labelAr: "العميل", labelEn: "Client", value: (comp?.name_ar || comp?.name_en) ?? "-" },
+          { labelAr: "الحالة", labelEn: "Status", value: q.status },
+          { labelAr: "العملة", labelEn: "Currency", value: q.currency ?? "USD" },
+          { labelAr: "ساري حتى", labelEn: "Valid Until", value: q.valid_until ?? "-" },
+          { labelAr: "Incoterms", labelEn: "Incoterms", value: q.incoterms ?? "-" },
+          { labelAr: "شروط الدفع", labelEn: "Payment", value: q.payment_terms ?? "-" },
+        ],
+        lines: rows.map((it: any) => {
+          const specs = [
+            it.material && `المادة: ${it.material}`,
+            it.thickness && `السماكة: ${it.thickness}`,
+            it.dimensions && `الأبعاد: ${it.dimensions}`,
+            it.color && `اللون: ${it.color}`,
+            it.finish && `اللمسة: ${it.finish}`,
+            it.print_colors && `ألوان الطباعة: ${it.print_colors}`,
+            it.packaging && `التغليف: ${it.packaging}`,
+            it.lead_time_days != null && `مهلة: ${it.lead_time_days} يوم`,
+            it.specs_notes,
+          ].filter(Boolean).join(" · ");
+          return {
+            name: it.product_name, qty: Number(it.quantity), unit: it.unit,
+            price: Number(it.unit_price), discount: Number(it.discount_pct ?? 0),
+            total: Number(it.line_total),
+            specs: specs || null,
+          };
+        }),
+        totals: {
+          subtotal: Number(q.subtotal ?? 0), discount: Number(q.discount ?? 0),
+          tax: Number(q.tax ?? 0), total: totalNum, currency: q.currency ?? "USD",
+        },
+        notes: q.notes,
+        filename: `${q.quote_number || "quotation"}.pdf`,
+      });
+      toast.success("تم تحميل عرض السعر بنجاح", { id: loadingToast });
+    } catch (e: any) {
+      // eslint-disable-next-line no-console
+      console.error("[quotations] exportPdf failed", e);
+      toast.error(`تعذر إنشاء ملف عرض السعر: ${e?.message ?? "خطأ غير معروف"}`, { id: loadingToast });
+    } finally {
+      setPdfBusyId(null);
+    }
   };
 
   const convertToOrder = async (q: Quote) => {
