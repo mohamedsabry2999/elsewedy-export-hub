@@ -18,25 +18,25 @@ let fontPromise: Promise<void> | null = null;
 async function ensureFont() {
   if (fontPromise) return fontPromise;
   fontPromise = (async () => {
-    let src: string = notoArabic.url;
-    try {
-      const res = await fetch(notoArabic.url);
-      if (res.ok) {
-        const blob = await res.blob();
-        src = URL.createObjectURL(blob);
-      }
-    } catch {
-      // fall back to URL
-    }
-    Font.register({ family: "NotoArabic", fonts: [{ src, fontWeight: 400 }] });
+    const loadOne = async (url: string): Promise<string> => {
+      try {
+        const res = await fetch(url);
+        if (res.ok) return URL.createObjectURL(await res.blob());
+      } catch { /* noop */ }
+      return url;
+    };
+    const [regSrc, boldSrc] = await Promise.all([
+      loadOne(cairoRegular.url),
+      loadOne(cairoBold.url),
+    ]);
+    Font.register({
+      family: "AppArabic",
+      fonts: [
+        { src: regSrc, fontWeight: 400 },
+        { src: boldSrc, fontWeight: 700 },
+      ],
+    });
     Font.registerHyphenationCallback((word) => [word]);
-    try {
-      // Force load so glyph metrics are ready before we render.
-      await (Font as any).load({ fontFamily: "NotoArabic" });
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn("[pdf] Font.load NotoArabic failed:", e);
-    }
   })();
   return fontPromise;
 }
