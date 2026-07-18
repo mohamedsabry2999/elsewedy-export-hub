@@ -358,7 +358,9 @@ function Quotations() {
                       <TableCell>{q.valid_until ? new Date(q.valid_until).toLocaleDateString("ar-EG") : "—"}</TableCell>
                       <TableCell className="text-left">
                         <div className="flex gap-1">
-                          <Button size="icon" variant="ghost" title="تصدير PDF" onClick={() => exportPdf(q)}><Download className="w-4 h-4" /></Button>
+                          <Button size="icon" variant="ghost" title="تصدير PDF" onClick={() => exportPdf(q)} disabled={pdfBusyId === q.id}>
+                            {pdfBusyId === q.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                          </Button>
                           {q.converted_order_id ? (
                             <Button size="icon" variant="ghost" title="عرض الطلب المرتبط" onClick={() => navigate({ to: "/orders/$id", params: { id: q.converted_order_id! } })}>
                               <ExternalLink className="w-4 h-4 text-brand-red" />
