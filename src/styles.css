@@ -154,3 +154,17 @@
 @utility shadow-brand {
   box-shadow: var(--shadow-brand);
 }
+
+/* Hide Lovable badge */
+#lovable-badge,
+[id="lovable-badge"],
+a[href*="lovable.dev"]:has(svg),
+div[class*="lovable"][class*="badge"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
