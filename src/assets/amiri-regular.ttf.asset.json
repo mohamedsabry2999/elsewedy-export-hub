@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "asset_id": "57d709ad-0415-4a83-9842-a022a39e82d5",
+  "asset_id": "cc889131-2e36-43c9-bd00-8e08ec80953d",
   "project_id": "cd5c691b-a678-4623-8810-c1fe3cd1b4c7",
-  "url": "/__l5e/assets-v1/57d709ad-0415-4a83-9842-a022a39e82d5/Amiri-Regular.ttf",
-  "r2_key": "a/v1/cd5c691b-a678-4623-8810-c1fe3cd1b4c7/57d709ad-0415-4a83-9842-a022a39e82d5/Amiri-Regular.ttf",
+  "url": "/__l5e/assets-v1/cc889131-2e36-43c9-bd00-8e08ec80953d/Amiri-Regular.ttf",
+  "r2_key": "a/v1/cd5c691b-a678-4623-8810-c1fe3cd1b4c7/cc889131-2e36-43c9-bd00-8e08ec80953d/Amiri-Regular.ttf",
   "original_filename": "Amiri-Regular.ttf",
   "size": 311552,
-  "content_type": "text/html",
-  "created_at": "2026-07-18T05:43:02Z"
+  "content_type": "font/ttf",
+  "created_at": "2026-07-18T05:43:11Z"
 }
