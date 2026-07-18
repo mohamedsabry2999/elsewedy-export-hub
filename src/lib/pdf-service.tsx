@@ -99,7 +99,7 @@ function hexToRgb(hex?: string | null): string {
 
 const styles = StyleSheet.create({
   page: {
-    fontFamily: "NotoArabic",
+    fontFamily: "AppArabic",
     fontSize: 9,
     paddingTop: 100,
     paddingBottom: 60,
