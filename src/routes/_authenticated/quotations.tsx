@@ -78,6 +78,7 @@ function Quotations() {
   const [form, setForm] = useState(emptyQuote);
   const [items, setItems] = useState<Item[]>([emptyItem()]);
   const [saving, setSaving] = useState(false);
+  const [pdfBusyId, setPdfBusyId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [companyFilter, setCompanyFilter] = useState("all");
   const [currencyFilter, setCurrencyFilter] = useState("all");
