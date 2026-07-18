@@ -173,10 +173,12 @@ function BrandedDoc({
   brand, titleAr, titleEn, docNumber, meta, lines, totals, notes,
 }: Omit<PdfDocOptions, "filename">) {
   const primary = hexToRgb(brand.primary_color);
-  const nameAr = brand.company_name_ar || brand.company_name;
-  const nameEn = brand.company_name;
-  const contact = [brand.address, brand.phone, brand.email, brand.website, brand.tax_id ? `الرقم الضريبي: ${brand.tax_id}` : null]
-    .filter(Boolean).join("  •  ");
+  const nameAr = safeText(brand.company_name_ar || brand.company_name);
+  const nameEn = safeText(brand.company_name);
+  const contact = safeText(
+    [brand.address, brand.phone, brand.email, brand.website, brand.tax_id ? `الرقم الضريبي: ${brand.tax_id}` : null]
+      .filter(Boolean).join("   -   ")
+  );
 
   return (
     <Document>
@@ -185,7 +187,7 @@ function BrandedDoc({
           <View style={styles.brandBlock}>
             <Text style={styles.brandName}>{nameAr}</Text>
             <Text style={styles.brandTitle}>{nameEn}</Text>
-            <Text style={{ fontSize: 9, marginTop: 4 }}>{titleAr}  /  {titleEn}</Text>
+            <Text style={{ fontSize: 9, marginTop: 4 }}>{safeText(titleAr)}  /  {safeText(titleEn)}</Text>
           </View>
           {brand.logo_url && (
             // eslint-disable-next-line jsx-a11y/alt-text
@@ -196,7 +198,7 @@ function BrandedDoc({
         {contact ? <Text style={styles.contactStrip}>{contact}</Text> : null}
 
         <View style={styles.docInfo}>
-          <Text style={styles.docNumber}>#{docNumber}</Text>
+          <Text style={styles.docNumber}>#{safeText(docNumber)}</Text>
           <Text style={{ fontSize: 9, color: "#555" }}>
             {new Date().toLocaleDateString("ar-EG")}
           </Text>
@@ -205,8 +207,8 @@ function BrandedDoc({
         <View style={styles.metaBox}>
           {meta.map((m, i) => (
             <View key={i} style={styles.metaRow}>
-              <Text style={styles.metaLabel}>{m.labelAr} / {m.labelEn}</Text>
-              <Text style={styles.metaVal}>{m.value || "—"}</Text>
+              <Text style={styles.metaLabel}>{safeText(m.labelAr)} / {safeText(m.labelEn)}</Text>
+              <Text style={styles.metaVal}>{safeText(m.value) || "-"}</Text>
             </View>
           ))}
         </View>
@@ -225,14 +227,14 @@ function BrandedDoc({
             <View key={i} style={[styles.tRow, i % 2 ? styles.tRowAlt : {}]} wrap={false}>
               <Text style={styles.cIdx}>{i + 1}</Text>
               <View style={styles.cName}>
-                <Text>{it.name}</Text>
-                {it.specs ? <Text style={{ fontSize: 7, color: "#666", marginTop: 2 }}>{it.specs}</Text> : null}
+                <Text>{safeText(it.name)}</Text>
+                {it.specs ? <Text style={{ fontSize: 7, color: "#666", marginTop: 2 }}>{safeText(it.specs)}</Text> : null}
               </View>
               <Text style={styles.cQty}>{it.qty}</Text>
-              <Text style={styles.cUnit}>{it.unit ?? "-"}</Text>
-              <Text style={styles.cPrice}>{it.price.toFixed(2)}</Text>
-              <Text style={styles.cDisc}>{(it.discount ?? 0).toFixed(1)}</Text>
-              <Text style={styles.cTotal}>{it.total.toFixed(2)}</Text>
+              <Text style={styles.cUnit}>{safeText(it.unit) || "-"}</Text>
+              <Text style={styles.cPrice}>{Number(it.price || 0).toFixed(2)}</Text>
+              <Text style={styles.cDisc}>{Number(it.discount ?? 0).toFixed(1)}</Text>
+              <Text style={styles.cTotal}>{Number(it.total || 0).toFixed(2)}</Text>
             </View>
           ))}
         </View>
