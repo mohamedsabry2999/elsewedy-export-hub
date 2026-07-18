@@ -40,9 +40,12 @@ async function ensureArabicFont(): Promise<boolean> {
     };
     const [reg, bold] = await Promise.all([loadOne(notoRegular.url), loadOne(notoBold.url)]);
     if (!reg) return false;
-    const fonts: any[] = [{ src: reg, fontWeight: 400 }];
-    // Fallback: if bold failed, alias 700 to regular so styles don't crash.
-    fonts.push({ src: bold ?? reg, fontWeight: 700 });
+    const fonts: any[] = [
+      { src: reg, fontWeight: 400, fontStyle: "normal" },
+      { src: reg, fontWeight: 400, fontStyle: "italic" },
+      { src: bold ?? reg, fontWeight: 700, fontStyle: "normal" },
+      { src: bold ?? reg, fontWeight: 700, fontStyle: "italic" },
+    ];
     try {
       Font.register({ family: "NotoArabic", fonts });
       Font.registerHyphenationCallback((w) => [w]);
