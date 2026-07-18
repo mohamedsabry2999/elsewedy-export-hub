@@ -1,18 +1,60 @@
+// Polyfill Buffer for @react-pdf/renderer (fontkit uses Buffer internally).
+import { Buffer as BufferPolyfill } from "buffer";
+if (typeof globalThis !== "undefined" && !(globalThis as any).Buffer) {
+  (globalThis as any).Buffer = BufferPolyfill;
+}
+
 import { Document, Page, Text, View, StyleSheet, Font, Image, pdf } from "@react-pdf/renderer";
 import notoArabic from "@/assets/noto-arabic-regular.ttf.asset.json";
+import logoFullFallback from "@/assets/elsewedy-logo.png.asset.json";
 import type { BrandInfo } from "@/components/BrandingProvider";
 
-// Register Arabic-capable font once (idempotent).
-let registered = false;
-function ensureFont() {
-  if (registered) return;
-  Font.register({
-    family: "NotoArabic",
-    fonts: [{ src: notoArabic.url }],
-  });
-  // Disable auto-hyphenation that mangles Arabic
-  Font.registerHyphenationCallback((word) => [word]);
-  registered = true;
+// Register Arabic-capable font once (idempotent). We fetch the TTF as a
+// Uint8Array first so a network failure surfaces cleanly instead of exploding
+// deep inside fontkit.
+let fontPromise: Promise<void> | null = null;
+async function ensureFont() {
+  if (fontPromise) return fontPromise;
+  fontPromise = (async () => {
+    try {
+      const res = await fetch(notoArabic.url);
+      if (!res.ok) throw new Error(`Font fetch ${res.status}`);
+      const buf = await res.arrayBuffer();
+      Font.register({
+        family: "NotoArabic",
+        fonts: [{ src: buf as any, fontWeight: 400 }],
+      });
+      Font.registerHyphenationCallback((word) => [word]);
+    } catch (e) {
+      // Fallback: try URL-based registration so pdf can at least attempt render
+      Font.register({ family: "NotoArabic", fonts: [{ src: notoArabic.url }] });
+      Font.registerHyphenationCallback((word) => [word]);
+      // eslint-disable-next-line no-console
+      console.warn("[pdf] Arabic font array-buffer load failed, using URL fallback:", e);
+    }
+  })();
+  return fontPromise;
+}
+
+/** Try to load logo as data URL; fall back to bundled logo; null if all fail. */
+async function resolvePdfLogo(url: string | null | undefined): Promise<string | null> {
+  const candidates = [url, logoFullFallback.url].filter(Boolean) as string[];
+  for (const c of candidates) {
+    try {
+      const res = await fetch(c);
+      if (!res.ok) continue;
+      const blob = await res.blob();
+      return await new Promise<string>((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.onerror = reject;
+        r.readAsDataURL(blob);
+      });
+    } catch {
+      // try next
+    }
+  }
+  return null;
 }
 
 export interface PdfLine {
