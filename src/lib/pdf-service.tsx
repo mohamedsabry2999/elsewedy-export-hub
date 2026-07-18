@@ -9,31 +9,43 @@ import notoArabic from "@/assets/noto-arabic-regular.ttf.asset.json";
 import logoFullFallback from "@/assets/elsewedy-logo.png.asset.json";
 import type { BrandInfo } from "@/components/BrandingProvider";
 
-// Register Arabic-capable font once (idempotent). Fetch the TTF ourselves so
-// a network failure surfaces cleanly, then hand react-pdf a Blob URL — a
-// string src that fontkit's isDataUrl/indexOf checks accept.
+// Register Arabic-capable font once (idempotent) and fully preload it before
+// the first render — react-pdf's bidi reorder crashes on undefined font.id
+// when a glyph run is laid out before its font has finished loading.
 let fontPromise: Promise<void> | null = null;
 async function ensureFont() {
   if (fontPromise) return fontPromise;
   fontPromise = (async () => {
+    let src: string = notoArabic.url;
     try {
       const res = await fetch(notoArabic.url);
-      if (!res.ok) throw new Error(`Font fetch ${res.status}`);
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      Font.register({
-        family: "NotoArabic",
-        fonts: [{ src: blobUrl, fontWeight: 400 }],
-      });
-      Font.registerHyphenationCallback((word) => [word]);
+      if (res.ok) {
+        const blob = await res.blob();
+        src = URL.createObjectURL(blob);
+      }
+    } catch {
+      // fall back to URL
+    }
+    Font.register({ family: "NotoArabic", fonts: [{ src, fontWeight: 400 }] });
+    Font.registerHyphenationCallback((word) => [word]);
+    try {
+      // Force load so glyph metrics are ready before we render.
+      await (Font as any).load({ fontFamily: "NotoArabic" });
     } catch (e) {
-      Font.register({ family: "NotoArabic", fonts: [{ src: notoArabic.url }] });
-      Font.registerHyphenationCallback((word) => [word]);
       // eslint-disable-next-line no-console
-      console.warn("[pdf] Arabic font blob load failed, using URL fallback:", e);
+      console.warn("[pdf] Font.load NotoArabic failed:", e);
     }
   })();
   return fontPromise;
+}
+
+/** Strip characters unlikely to be in NotoNaskhArabic-Regular to keep the
+ *  bidi engine from failing on missing glyphs. */
+function safeText(s: string | null | undefined): string {
+  if (s == null) return "";
+  return String(s)
+    .replace(/[•·]/g, "-")
+    .replace(/[—–]/g, "-");
 }
 
 /** Try to load logo as data URL; fall back to bundled logo; null if all fail. */
