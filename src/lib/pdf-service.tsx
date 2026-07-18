@@ -9,9 +9,9 @@ import notoArabic from "@/assets/noto-arabic-regular.ttf.asset.json";
 import logoFullFallback from "@/assets/elsewedy-logo.png.asset.json";
 import type { BrandInfo } from "@/components/BrandingProvider";
 
-// Register Arabic-capable font once (idempotent). We fetch the TTF as a
-// Uint8Array first so a network failure surfaces cleanly instead of exploding
-// deep inside fontkit.
+// Register Arabic-capable font once (idempotent). Fetch the TTF ourselves so
+// a network failure surfaces cleanly, then hand react-pdf a Blob URL — a
+// string src that fontkit's isDataUrl/indexOf checks accept.
 let fontPromise: Promise<void> | null = null;
 async function ensureFont() {
   if (fontPromise) return fontPromise;
@@ -19,18 +19,18 @@ async function ensureFont() {
     try {
       const res = await fetch(notoArabic.url);
       if (!res.ok) throw new Error(`Font fetch ${res.status}`);
-      const buf = await res.arrayBuffer();
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
       Font.register({
         family: "NotoArabic",
-        fonts: [{ src: buf as any, fontWeight: 400 }],
+        fonts: [{ src: blobUrl, fontWeight: 400 }],
       });
       Font.registerHyphenationCallback((word) => [word]);
     } catch (e) {
-      // Fallback: try URL-based registration so pdf can at least attempt render
       Font.register({ family: "NotoArabic", fonts: [{ src: notoArabic.url }] });
       Font.registerHyphenationCallback((word) => [word]);
       // eslint-disable-next-line no-console
-      console.warn("[pdf] Arabic font array-buffer load failed, using URL fallback:", e);
+      console.warn("[pdf] Arabic font blob load failed, using URL fallback:", e);
     }
   })();
   return fontPromise;
